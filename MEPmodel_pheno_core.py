@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stats import gamma as gamma_dist
 from scipy.interpolate import interp1d
+from scipy.signal import butter, filtfilt
 
 
 def MEPmodel_pheno_core(ref, p):
@@ -50,6 +51,17 @@ def MEPmodel_pheno_core(ref, p):
 
     for i in range(nIntensities):
         spike_times[i] = spike_times[i] + axonalDelay
+
+    # ── Low-pass filter to smooth simMEP ─────────────────────────────────────
+    # t0 is sampled at dt=0.1 ms → fs=10 kHz.  A 4th-order zero-phase
+    # Butterworth filter at 500 Hz removes high-frequency summation artefacts
+    # while preserving the full physiological MEP bandwidth (10–500 Hz).
+    dt = float(t0[1] - t0[0])          # ms
+    fs = 1000.0 / dt                    # Hz  (1 ms = 1000/dt Hz)
+    cutoff_hz = 500.0                   # Hz — upper edge of MEP bandwidth
+    b, a   = butter(4, cutoff_hz / (fs / 2.0), btype='low')
+    simMEP = filtfilt(b, a, simMEP, axis=1)   # zero-phase, applied along time axis
+    # ─────────────────────────────────────────────────────────────────────────
 
     # ----------------------
     sim = {
