@@ -32,7 +32,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     ref["intensities"] = intensities
     ref["t0"] = t0
     ref["y0"] = y0.T
-    model["muaps"], model["tmuap"] = load_muap()
+    model["muaps"], model["tmuap"] = load_muap(noise_std=30)
 
     # -----subject RMT ---------
     # (by eyeballing the IO curve)

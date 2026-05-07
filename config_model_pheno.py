@@ -24,7 +24,7 @@ def config_model_pheno(subj):
     ref['y0']          = y0.T          # [t x N]
     ref['t0']          = t0
     ref['intensities'] = intensities
-    ref['muaps'], ref['tmuap'] = load_muap()
+    ref['muaps'], ref['tmuap'] = load_muap(noise_std=30)
     ref['subj']          = subj
     ref['intensity_idx'] = intensity_idx
 
