@@ -61,8 +61,8 @@ def load_muap(plotOn=0, noise_std=0, noise_seed=None):
             labels = [str(val) for val in range(start_col + 1, end_col + 1)]
             ax.legend(labels, loc="upper right")
 
-        plt.xlabel("ms")
-        plt.ylabel("μV")
+        fig.supxlabel('ms')
+        fig.supylabel('μV')
         plt.show()
 
     return muaps, t
