@@ -200,6 +200,8 @@
 # config_model_pheno(1)
 
 
-from ga_MEPmodel_pheno import ga_MEPmodel_pheno
-for i in range(1,11):
-    ga_MEPmodel_pheno(i,0)
+# from ga_MEPmodel_pheno import ga_MEPmodel_pheno
+# ga_MEPmodel_pheno(2,0)
+
+from ga_MEPmodel_bio import ga_MEPmodel_bio
+ga_MEPmodel_bio(6,1,[],0, noise_std=10, noise_seed=421)
