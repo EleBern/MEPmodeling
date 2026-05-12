@@ -7,7 +7,7 @@ from plot_DIwave import plot_DIwave
 from gen_kernels import gen_kernels
 from deconv_DIwave import deconv_DIwave
 
-def config_model_bio(subj, withRC, AMPAweight=[]):
+def config_model_bio(subj, withRC, AMPAweight=[], noise_std=0, noise_seed=None):
 
     model = {}
     model["AMPAweight"] = AMPAweight
@@ -32,7 +32,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     ref["intensities"] = intensities
     ref["t0"] = t0
     ref["y0"] = y0.T
-    model["muaps"], model["tmuap"] = load_muap(noise_std=30)
+    model["muaps"], model["tmuap"] = load_muap()
 
     # -----subject RMT ---------
     # (by eyeballing the IO curve)
@@ -57,6 +57,18 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     for i in range(len(ref["intensities"])):
         model["DIwave0"][i,:] = gen_DIwave(t, ref["intensities"][i] / ref["RMT"])
     model["DIwave"] = deconv_DIwave(t, model["DIwave0"], ref)
+
+    # ----- Additive white Gaussian noise on the DI wave -----
+    # noise_std is a percentage of the peak amplitude of DIwave.
+    # Peak-based scaling is used because DIwave is sparse (mostly zero),
+    # so RMS-based scaling would severely underestimate the signal level.
+    if noise_std > 0:
+        rng      = np.random.default_rng(noise_seed)
+        finite_vals = model["DIwave"][np.isfinite(model["DIwave"])]
+        peak_amp = float(np.abs(finite_vals).max())
+        std_abs  = (noise_std / 100.0) * peak_amp
+        noise = rng.normal(loc=0.0, scale=std_abs, size=model["DIwave"].shape)
+        model["DIwave"] = model["DIwave"] + noise
 
     # ----- AMPA, NMDA kernels -----
     model["AMPA"], model["NMDA"] = gen_kernels(dt, tlength)

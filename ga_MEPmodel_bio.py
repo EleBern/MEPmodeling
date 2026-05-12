@@ -114,14 +114,14 @@ def _save_dict_to_h5(h5file, data):
 
 
 # ==========================================================================
-def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0):
+def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0, noise_std=0, noise_seed=None):
     """
     Main entry point for biological MEP model fitting using a Genetic Algorithm.
     """
     root = os.getcwd()
 
     # ----- model setting -----
-    ref = config_model_bio(subj, withRC, AMPAweight)
+    ref = config_model_bio(subj, withRC, AMPAweight, noise_std, noise_seed)
 
     # ----- derive h5 result path (replace any existing extension) -----
     resultname_h5 = os.path.splitext(ref['resultname'])[0] + '.h5'
