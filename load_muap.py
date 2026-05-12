@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from load_h5 import load_h5_to_dict
 
 
-def load_muap(plotOn=0, noise_std=0, noise_seed=None):
+def load_muap(plotOn=0):
     """
     Load motor unit action potentials (MUAPs) and optionally add white
     Gaussian noise.
@@ -36,17 +36,6 @@ def load_muap(plotOn=0, noise_std=0, noise_seed=None):
 
         muaps = tmp["muaps"]   # [n_samples x n_muaps]
         t     = tmp["t"].T     # [n_samples x 1]
-
-    # ── Add white Gaussian noise ──────────────────────────────────────────────
-    rng = np.random.default_rng(noise_seed)
-
-    if noise_std > 0:
-        # noise_std is a percentage of the RMS amplitude
-        rms       = float(np.sqrt(np.mean(muaps ** 2)))
-        std_abs   = (noise_std / 100.0) * rms
-        noise     = rng.normal(loc=0.0, scale=std_abs, size=muaps.shape)
-        muaps     = muaps + noise
-    # ─────────────────────────────────────────────────────────────────────────
 
     if plotOn:
         fig = plt.figure()
