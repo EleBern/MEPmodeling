@@ -34,7 +34,7 @@ To **evaluate model performance**, we compared **three different models** in ter
 📂 MEPmodeling
 ├── README.md             # This file
 ├── GA/                   # Genetic algorithm toolbox
-├── data_Oxford_MEP/      # Data (MEP dataset)
+├── data_diLazzaro/      # Data (MEP and DI-wave dataset) - not included
 ├── data_MUAP/            # Data (Motor unit action potentials)
 ├── MyelinatedAxonModel/  # Data (Extracellular potential)
 ├── fitted_results/      
@@ -49,7 +49,7 @@ To **evaluate model performance**, we compared **three different models** in ter
 ## Matlab Demo Script
 ### 1️⃣ Biological model
 ```matlab
-subj       = 1;  % subject 1–10
+subj       = 1PA;  % subject 1–5, PA or LM
 withRC     = 1;  % 0: biological model without RC 
                  % 1: biological model with RC
 AMPAweight = []; % []:free parameter range [0,1]
@@ -66,7 +66,7 @@ ga_MEPmodel_bio(subj,withRC,AMPAweight,reRun);
 
 ### 2️⃣ Biological model (no Renshaw cells)
 ```matlab
-subj       = 1;  % subject 1–10
+subj       = 1PA;  % subject 1–5, PA or LM
 withRC     = 0;  % 0: biological model without RC 
                  % 1: biological model with RC
 AMPAweight = []; % []:free parameter range [0,1]
@@ -84,7 +84,7 @@ ga_MEPmodel_bio(subj,withRC,AMPAweight,reRun);
 
 ### 3️⃣ Phenomenological model
 ```matlab
-subj       = 1; % subject 1–10
+subj       = 1PA; % subject 1–5, PA or LM
 reRun      = 0; % 0: Load fitted result and plot simulated MEP.  
                 % 1: Rerun model fitting. Back up previous fitted result
 ga_MEPmodel_pheno(subj,reRun);
