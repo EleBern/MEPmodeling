@@ -5,26 +5,18 @@ import matplotlib.pyplot as plt
 from load_h5 import load_h5_to_dict
 
 
-def load_muap(plotOn=0, noise_std=0, noise_seed=None):
+def load_muap(plotOn=0):
     """
-    Load motor unit action potentials (MUAPs) and optionally add white
-    Gaussian noise.
+    Load motor unit action potentials (MUAPs) 
 
     Parameters
     ----------
     plotOn     : int or bool
                  If truthy, plot all MUAPs (default 0).
-    noise_std  : float
-                 Noise level as a percentage of the RMS amplitude of the
-                 loaded MUAPs.  For example, noise_std=5 adds noise with
-                 std = 5 % × RMS(muaps).  Default is 0 (no noise).
-    noise_seed : int or None
-                 Random seed for reproducibility.  If None (default) the
-                 noise is different on every call.
 
     Returns
     -------
-    muaps : np.ndarray  [n_samples x n_muaps]  MUAPs with noise added
+    muaps : np.ndarray  [n_samples x n_muaps]   MUAPs 
     t     : np.ndarray  [n_samples x 1]         time vector (ms)
     """
     root    = os.getcwd()
@@ -36,17 +28,6 @@ def load_muap(plotOn=0, noise_std=0, noise_seed=None):
 
         muaps = tmp["muaps"]   # [n_samples x n_muaps]
         t     = tmp["t"].T     # [n_samples x 1]
-
-    # ── Add white Gaussian noise ──────────────────────────────────────────────
-    rng = np.random.default_rng(noise_seed)
-
-    if noise_std > 0:
-        # noise_std is a percentage of the RMS amplitude
-        rms       = float(np.sqrt(np.mean(muaps ** 2)))
-        std_abs   = (noise_std / 100.0) * rms
-        noise     = rng.normal(loc=0.0, scale=std_abs, size=muaps.shape)
-        muaps     = muaps + noise
-    # ─────────────────────────────────────────────────────────────────────────
 
     if plotOn:
         fig = plt.figure()
