@@ -15,21 +15,13 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     model["maxES"] = 5  # take first 5 spikes
 
     # -----subject MEP (target) -----
-    if subj == 1 or subj == 8:
-        intensity_idx = np.arange(0, 10)
-    elif subj == 5 or subj == 7:
-        intensity_idx = np.arange(0, 8)
-    elif subj == 6 or subj == 10:
-        intensity_idx = np.arange(0, 6)
-    else:
-        intensity_idx = np.arange(0, 7)
-
     ref = {}
     ref["subj"] = subj
-    ref["intensity_idx"] = intensity_idx
     ref["tcrop"] = [20, 50]
-    y0, t0, _, intensities, _, _ = load_MEP(subj, intensity_idx, ref["tcrop"], 0)
+    y0, t0, _, intensities, _, _ = load_MEP(subj, None, ref["tcrop"], 0)
     ref["intensities"] = intensities
+    intensity_idx = np.arange(len(intensities))
+    ref["intensity_idx"] = intensity_idx
     ref["t0"] = t0
     ref["y0"] = y0.T
     model["muaps"], model["tmuap"] = load_muap()
