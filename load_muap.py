@@ -7,24 +7,15 @@ from load_h5 import load_h5_to_dict
 
 def load_muap(plotOn=0):
     """
-    Load motor unit action potentials (MUAPs) and optionally add white
-    Gaussian noise.
-
+    Load motor unit action potentials (MUAPs).
     Parameters
     ----------
     plotOn     : int or bool
                  If truthy, plot all MUAPs (default 0).
-    noise_std  : float
-                 Noise level as a percentage of the RMS amplitude of the
-                 loaded MUAPs.  For example, noise_std=5 adds noise with
-                 std = 5 % × RMS(muaps).  Default is 0 (no noise).
-    noise_seed : int or None
-                 Random seed for reproducibility.  If None (default) the
-                 noise is different on every call.
 
     Returns
     -------
-    muaps : np.ndarray  [n_samples x n_muaps]  MUAPs with noise added
+    muaps : np.ndarray  [n_samples x n_muaps]   MUAPs
     t     : np.ndarray  [n_samples x 1]         time vector (ms)
     """
     root    = os.getcwd()
