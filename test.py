@@ -124,13 +124,11 @@
 # from load_muap import load_muap
 # load_muap(1)
 #############################################################
-# from load_MEP import load_MEP
-# subj=1
-# intensity_idx = np.arange(0, 10)
-# load_MEP(subj, intensity_idx, [20, 50], 1)
+from load_MEP import load_MEP
+load_MEP("5PA")
 #############################################################
 # from ga_MEPmodel_bio import ga_MEPmodel_bio
-# ga_MEPmodel_bio(6,1,[0.5],0)
+# ga_MEPmodel_bio(6,1,[],0)
 # from gen_DIwave import gen_DIwave
 # from deconv_DIwave4 import deconv_DIwave
 # import numpy as np
@@ -200,6 +198,5 @@
 # config_model_pheno(1)
 
 
-from ga_MEPmodel_pheno import ga_MEPmodel_pheno
-for i in range(1,11):
-    ga_MEPmodel_pheno(i,0)
+# from ga_MEPmodel_pheno import ga_MEPmodel_pheno
+# ga_MEPmodel_pheno(1,0)
