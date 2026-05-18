@@ -131,8 +131,11 @@ def ga_MEPmodel_pheno(subj, reRun=0):
         with h5py.File(result_path, 'r') as f:
             tmp = load_h5_to_dict(f)
         p_post = tmp['p_post'].flatten()
+    elif not os.path.isfile(result_path):
+        print(f'Fitted result \n{resultname_h5} does not exist. Start running optimization')
+        p_post = _run_and_save(ref, result_path)
     else:
-        p_post = _run_and_save(ref, root, result_path)
+        p_post = _run_and_save(ref, result_path)
 
     # ----- show result -----
     plotOn = 1
@@ -140,7 +143,7 @@ def ga_MEPmodel_pheno(subj, reRun=0):
 
 
 # ==========================================================================
-def _run_and_save(ref, root, result_path):
+def _run_and_save(ref, result_path):
     """
     Run the GA, save the result as an HDF5 file, and return the best
     parameter set.

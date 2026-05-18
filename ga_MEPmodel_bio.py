@@ -133,6 +133,9 @@ def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0):
         with h5py.File(result_path, 'r') as f:
             tmp = load_h5_to_dict(f)
         p_post = tmp['p_post'].flatten()
+    elif not os.path.isfile(result_path):
+        print(f'Fitted result \n{resultname_h5} does not exist. Start running optimization')
+        p_post = _run_and_save(ref, root, result_path)
     else:
         p_post = _run_and_save(ref, root, result_path)
 
