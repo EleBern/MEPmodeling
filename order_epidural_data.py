@@ -14,12 +14,13 @@ For every (year, orientation, threshold_type) combination (year 2004 skipped):
       any other shape   ->  np.stack along a new axis 0
 
 Output structure (mirrors source, threshold_value folders removed):
-    /{year}/{orientation}/{threshold_type}/{subject}/{channel}/
-        <every dataset>           shape: stacked as above
-        threshold_values          (n_thr,)
-    /{year}/{orientation}/{threshold_type}/{subject}/EMG/
-        <every dataset>           shape: stacked as above
-        threshold_values          (n_thr,)
+    /{year}/{orientation}/{threshold_type}/{subject}/
+        intensities               (n_thr,)  -- shared across all channels
+        {channel}/
+            <every dataset>       shape: stacked as above
+        EMG/
+            mep                   (n_thr, ...)  -- renamed from signal_full
+            <other datasets>      shape: stacked as above
 
 Usage:
     python merge_thresholds.py
@@ -214,6 +215,11 @@ def merge_thresholds(src_path, dst_path):
                     # ----------------------------------------------------------
                     # Pass 2 — stack and write
                     # ----------------------------------------------------------
+                    # Track which subject groups have already received
+                    # their 'intensities' dataset (written once per subject,
+                    # not once per channel/EMG leaf).
+                    written_intensities = set()
+
                     for key, ds_dict in sorted(data_store.items()):
                         out_path   = key_to_path[key]
                         dst_group  = dst_thr_type.require_group(out_path)
@@ -224,19 +230,32 @@ def merge_thresholds(src_path, dst_path):
                         thr_vals    = np.array([e[0] for e in
                                                 sorted(any_entries, key=lambda x: x[0])])
 
-                        # Write threshold_values once per leaf group
-                        if 'threshold_values' not in dst_group:
-                            dst_group.create_dataset('threshold_values', data=thr_vals)
+                        # 'intensities' lives one level up (subject folder),
+                        # shared across all channel/EMG leaves of that subject.
+                        subject_path = out_path.split('/')[0]
+                        if subject_path not in written_intensities:
+                            dst_subject = dst_thr_type.require_group(subject_path)
+                            dst_subject.create_dataset('intensities', data=thr_vals)
+                            written_intensities.add(subject_path)
+                            print(f"  {year}/{orientation}/{thr_type}/{subject_path}"
+                                  f"/intensities  ->  {thr_vals}")
+
+                        # Determine whether this leaf is inside an EMG folder
+                        path_parts = out_path.split('/')
+                        in_emg = 'EMG' in path_parts
 
                         for ds_name, entries in ds_dict.items():
                             entries.sort(key=lambda x: x[0])   # ascending threshold
                             arrays  = [e[1] for e in entries]
                             stacked = stack_arrays(arrays)
 
-                            dst_group.create_dataset(ds_name, data=stacked)
+                            # Rename signal_full -> mep inside EMG groups
+                            out_name = 'mep' if (in_emg and ds_name == 'signal_full') else ds_name
+
+                            dst_group.create_dataset(out_name, data=stacked)
 
                             print(f"  {year}/{orientation}/{thr_type}/{out_path}"
-                                  f"/{ds_name}  ->  {stacked.shape}  "
+                                  f"/{out_name}  ->  {stacked.shape}  "
                                   f"thr={thr_vals}")
 
 
