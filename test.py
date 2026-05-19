@@ -124,11 +124,11 @@
 # from load_muap import load_muap
 # load_muap(1)
 #############################################################
-from load_MEP import load_MEP
-load_MEP("5PA")
+# from load_MEP import load_MEP
+# load_MEP("5PA", [1])
 #############################################################
-# from ga_MEPmodel_bio import ga_MEPmodel_bio
-# ga_MEPmodel_bio(6,1,[],0)
+from ga_MEPmodel_bio import ga_MEPmodel_bio
+ga_MEPmodel_bio("5PA", 1, [] , 1)
 # from gen_DIwave import gen_DIwave
 # from deconv_DIwave4 import deconv_DIwave
 # import numpy as np

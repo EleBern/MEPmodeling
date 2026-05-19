@@ -100,30 +100,28 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     if time_raw.ndim == 1:
         time_raw = time_raw[np.newaxis, :]   # treat as (1, n_time)
 
-    # TSTIM per row is the negative of the first element
-    tstim_per_row = -time_raw[:, 0]          # (n_thr,)
-    times_shifted = time_raw + tstim_per_row[:, np.newaxis]   # (n_thr, n_time)
-
+    times_shifted = time_raw 
+    print("shape time_raw ", np.shape(time_raw))
     # Crop each shifted row to [20, 50] ms
     first_row_crop_idx = np.where(
         (times_shifted[0] >= tcrop[0]) & (times_shifted[0] < tcrop[1])
     )[0]
     times_cropped = times_shifted[:, first_row_crop_idx]   # (n_thr, n_crop)
 
-    # Check all rows are equal after shifting and cropping
-    if not np.all(np.isclose(times_cropped, times_cropped[0, :], atol=1e-9)):
-        diffs = [
-            f"  row {i}: first={times_cropped[i, 0]:.4f} last={times_cropped[i, -1]:.4f}"
-            for i in range(times_cropped.shape[0])
-        ]
-        msg = (
-            f"Time arrays differ across threshold values after TSTIM correction "
-            f"and cropping to [{tcrop[0]}, {tcrop[1]}) ms:\n"
-            + "\n".join(diffs)
-        )
-        raise ValueError(msg)
+    # # Check all rows are equal after shifting and cropping
+    # if not np.all(np.isclose(times_cropped, times_cropped[0, :], atol=1e-9)):
+    #     diffs = [
+    #         f"  row {i}: first={times_cropped[i, 0]:.4f} last={times_cropped[i, -1]:.4f}"
+    #         for i in range(times_cropped.shape[0])
+    #     ]
+    #     msg = (
+    #         f"Time arrays differ across threshold values after TSTIM correction "
+    #         f"and cropping to [{tcrop[0]}, {tcrop[1]}) ms:\n"
+    #         + "\n".join(diffs)
+    #     )
+    #     raise ValueError(msg)
 
-    times = times_shifted[0, :]    # full shifted time vector (1-D)
+    # times = times_shifted[0, :]    # full shifted time vector (1-D)
 
     # ------------------------------------------------------------------
     # Select intensities
@@ -133,12 +131,15 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
 
     mep         = mep[iidx, :, :]
     intensities = intensities[iidx]
+    t = times_cropped[iidx, :]
 
     # ------------------------------------------------------------------
     # Crop time window
     # ------------------------------------------------------------------
     tidx = first_row_crop_idx
-    t    = times[tidx]
+    # t    = times[tidx]
+    times = time_raw[iidx, :]
+    print("Shape times ", np.shape(times))
 
     yall = mep[:, tidx, :]
     y    = np.mean(yall, axis=2)
@@ -154,7 +155,10 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
 
     y   = y   - baseline[:, np.newaxis]
     mep = mep - baseline[:, np.newaxis, np.newaxis]
-
+    print("Shape mep ", np.shape(mep))
+    print("Shape yall ", np.shape(yall))
+    times = times.T
+    t = t.T
     # ------------------------------------------------------------------
     # Plotting
     # ------------------------------------------------------------------
