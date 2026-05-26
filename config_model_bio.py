@@ -18,7 +18,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     ref = {}
     ref["subj"] = subj
     ref["tcrop"] = [20, 50]
-    y0, t0, _, intensities, _, _ = load_MEP(subj, None, ref["tcrop"], 1)
+    y0, t0, _, intensities, _, _ = load_MEP(subj, None, ref["tcrop"], 0)
     ref["intensities"] = intensities
     intensity_idx = np.arange(len(intensities))
     ref["intensity_idx"] = intensity_idx
@@ -79,7 +79,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     model["t"] = t
     model["dt"] = dt
 
-    #plot_DIwave(model, ref)
+    plot_DIwave(model, ref)
 
     # ----- search boundary-----
     if withRC == 0:
