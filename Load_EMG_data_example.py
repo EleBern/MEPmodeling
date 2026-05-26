@@ -1,8 +1,7 @@
 """
 Example file to load EMG data from the existing data set 'DiLazarro_di_wave_data.hdf5'
-a measurement dictionary for the data set 2020-RMT 140%-PA orientation is loaded
-the correct path to the hdf5 file needs to be supplied in hdf5_path
-plotting is done via matplotlib, additional smoothing can be done via scipy.ndimage.gaussian_filter1d
+the correct path to the hdf5 file and data to be plotted needs to be supplied
+plotting is done via matplotlib
 """
 import numpy as np
 import h5py
