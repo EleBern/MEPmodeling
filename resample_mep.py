@@ -23,9 +23,9 @@ import h5py
 import numpy as np
 import os
 
-SRC_PATH  = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazarro_di_wave_data_by_year_merged.hdf5"
-UP_PATH   = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazzaro_di_wave_data_up.hdf5"
-DOWN_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazzaro_di_wave_data_down.hdf5"
+SRC_PATH  = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazarro_di_wave_data_by_year_merged.hdf5"
+UP_PATH   = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazzaro_di_wave_data_up.hdf5"
+DOWN_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazzaro_di_wave_data_down.hdf5"
 
 
 # ---------------------------------------------------------------------------

@@ -32,8 +32,8 @@ import numpy as np
 import os
 from collections import defaultdict
 
-SRC_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazarro_di_wave_data_by_year.hdf5"
-DST_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazarro_di_wave_data_by_year_merged.hdf5"
+SRC_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazarro_di_wave_data_by_year.hdf5"
+DST_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazarro_di_wave_data_by_year_merged.hdf5"
 
 SKIP_YEARS = {}
 

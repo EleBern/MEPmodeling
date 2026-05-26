@@ -34,7 +34,7 @@ To **evaluate model performance**, we compared **three different models** in ter
 📂 MEPmodeling
 ├── README.md             # This file
 ├── GA/                   # Genetic algorithm toolbox
-├── data_diLazzaro/      # Data (MEP and DI-wave dataset) - not included
+├── data_diLazarro/      # Data (MEP and DI-wave dataset) - not included
 ├── data_MUAP/            # Data (Motor unit action potentials)
 ├── MyelinatedAxonModel/  # Data (Extracellular potential)
 ├── fitted_results/      

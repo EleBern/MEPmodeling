@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from load_h5 import load_h5_to_dict
 
-HDF5_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazarro_di_wave_data_by_year_merged.hdf5"
+HDF5_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazarro_di_wave_data_by_year_merged.hdf5"
 
 # Mapping from subject number to year (and subject index within that year)
 SUBJ_TO_YEAR = {

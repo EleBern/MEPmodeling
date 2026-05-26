@@ -1,5 +1,5 @@
 __pycache__/
-/data_diLazzaro
+/data_diLazarro
 *.mat
 *.txt
 /fitted_results/bio/*backup*

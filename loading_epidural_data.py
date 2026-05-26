@@ -2,7 +2,7 @@ from preprocess_di_wave import preprocess_di_wave
 
 save_figs = False
 
-hdf5_path = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazzaro/DiLazarro_di_wave_data.hdf5"
+hdf5_path = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazarro_di_wave_data.hdf5"
 
 # PA data
 measurement_dict_2020_140_PA_ch3 = dict(orientation='PA', threshold=140, year=2020, sigma=1.0)
