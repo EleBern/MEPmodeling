@@ -2,3 +2,7 @@ __pycache__/
 /data_diLazzaro
 *.mat
 *.txt
+/fitted_results/bio/*backup*
+/fitted_results/bioNoRC/*backup*
+/fitted_results/pheno/*backup*
+
