@@ -158,7 +158,7 @@ def process_subject(src_subj_grp, dst_subj_grp):
     for k, v in emg_grp.attrs.items():
         dst_emg_grp.attrs[k] = v
     for name in emg_grp.keys():
-        if name not in {'mep'}:
+        if name not in {'mep', 'signal_mean'}:
             copy_item(emg_grp[name], dst_emg_grp, name)
 
     for k, v in src_subj_grp.attrs.items():
