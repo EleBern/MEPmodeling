@@ -22,7 +22,7 @@ def plot_emg(hdf5_path, orientation, threshold, year):
             threshold = np.array(list(h5file[str(year)]["PA"]["RMT"][name_keys[0]]["intensities"]))
             th_idx = np.arange(len(threshold))
         else:
-            th_idx = np.argwhere(np.array(list(h5file[str(year)]["PA"]["RMT"][name_keys[0]]["intensities"])) == 140)[0]
+            th_idx = np.argwhere(np.array(list(h5file[str(year)]["PA"]["RMT"][name_keys[0]]["intensities"])) == threshold)[0]
         emg_data_full = np.array(name_h5group[name_keys[0]]['EMG']['mep'])
         emg_data_mean = np.mean(emg_data_full, axis=2)   
         time = np.array(name_h5group[name_keys[0]]['time'])
