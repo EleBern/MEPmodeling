@@ -117,14 +117,8 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
                 )
                 raise ValueError(msg)
 
-            times = time_raw[0, :]    # full shifted time vector (1-D)
+            times = time_raw[0, :]    
             t = times_cropped[0, :]
-
-    print("shape times ", np.shape(times))
-    # Crop each shifted row to [20, 50] ms
-    
-
-    
 
     # ------------------------------------------------------------------
     # Select intensities
@@ -132,12 +126,8 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     if iidx is None:
         iidx = np.arange(len(intensities))
 
-    print(iidx)
-    print(intensities)
-
     mep         = mep[iidx, :, :]
     intensities = intensities[iidx]
-    print("Shape times ", np.shape(times))
 
     yall = mep[:, tidx, :]
     y    = np.mean(yall, axis=2)
@@ -149,12 +139,10 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     baseline = np.mean(
         np.mean(mep[:, baseline_idx, :], axis=2),
         axis=1
-    )  # shape: (n_intensities,)
+    )  
 
     y   = y   - baseline[:, np.newaxis]
     mep = mep - baseline[:, np.newaxis, np.newaxis]
-    print("Shape mep ", np.shape(mep))
-    print("Shape yall ", np.shape(yall))
 
     # ------------------------------------------------------------------
     # Plotting
