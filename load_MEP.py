@@ -13,6 +13,7 @@ SUBJ_TO_YEAR = {
     3: ('2007', None),
     4: ('2013', None),
     5: ('2020', None),
+    6: ('2050', None),
 }
 
 
@@ -48,7 +49,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     Parameters
     ----------
     subj : str
-        Subject identifier in the format '#PA' or '#LM', where # is 1–5.
+        Subject identifier in the format '#PA' or '#LM', where # is 1–6.
         Examples: '1PA', '3LM', '5PA'
     iidx : array-like or None
         Indices of intensity levels to keep. None = all.
@@ -78,7 +79,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     orientation   = m.group(2).upper()
 
     if subj_num not in SUBJ_TO_YEAR:
-        raise ValueError(f"subj number must be 1–5. Got: {subj_num}")
+        raise ValueError(f"subj number must be 1–6. Got: {subj_num}")
 
     year, subj_num_in_year = SUBJ_TO_YEAR[subj_num]
 
@@ -89,39 +90,41 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
         thr_type_group = f[year][orientation]['RMT']
         subj_group     = _find_subject_group(thr_type_group, year, subj_num_in_year)
 
-        intensities = np.array(subj_group['intensities']).flatten()
-        time_raw    = np.array(subj_group['time'])          # (n_thr, n_time)
-        mep         = np.array(subj_group['EMG']['mep'])   # (n_intensities, n_time, n_trials)
+        if subj_num == 6:
+            intensities = np.array([140])
+            mep = np.array(subj_group['EMG']['signal_full'])   # (n_intensities, n_time, n_trials)
+            times    = np.array(subj_group['time']).flatten()          # (n_thr, n_time)
+            tidx = np.where((times >= tcrop[0]) & (times < tcrop[1]))[0]
+            t = times[tidx]   # (n_thr, n_crop)
+        else:
+            intensities = np.array(subj_group['intensities']).flatten()
+            mep         = np.array(subj_group['EMG']['mep'])   # (n_intensities, n_time, n_trials)
+            time_raw    = np.array(subj_group['time'])          # (n_thr, n_time)
+            tidx = np.where((time_raw[0] >= tcrop[0]) & (time_raw[0] < tcrop[1]))[0]
+            times_cropped = time_raw[:, tidx]   # (n_thr, n_crop)
+            t = times_cropped[iidx, :]
+            times = time_raw[iidx, :]
+            # Check all rows are equal after shifting and cropping
+            if not np.all(np.isclose(times_cropped, times_cropped[0, :], atol=1e-9)):
+                diffs = [
+                    f"  row {i}: first={times_cropped[i, 0]:.4f} last={times_cropped[i, -1]:.4f}"
+                    for i in range(times_cropped.shape[0])
+                ]
+                msg = (
+                    f"Time arrays differ across threshold values after TSTIM correction "
+                    f"and cropping to [{tcrop[0]}, {tcrop[1]}) ms:\n"
+                    + "\n".join(diffs)
+                )
+                raise ValueError(msg)
 
-    # ------------------------------------------------------------------
-    # Shift each time row by its own TSTIM (= -first_element) then verify
-    # all rows are identical after shifting.
-    # ------------------------------------------------------------------
-    if time_raw.ndim == 1:
-        time_raw = time_raw[np.newaxis, :]   # treat as (1, n_time)
+            times = time_raw[0, :]    # full shifted time vector (1-D)
+            t = times_cropped[0, :]
 
-    times_shifted = time_raw 
-    print("shape time_raw ", np.shape(time_raw))
+    print("shape times ", np.shape(times))
     # Crop each shifted row to [20, 50] ms
-    first_row_crop_idx = np.where(
-        (times_shifted[0] >= tcrop[0]) & (times_shifted[0] < tcrop[1])
-    )[0]
-    times_cropped = times_shifted[:, first_row_crop_idx]   # (n_thr, n_crop)
+    
 
-    # # Check all rows are equal after shifting and cropping
-    # if not np.all(np.isclose(times_cropped, times_cropped[0, :], atol=1e-9)):
-    #     diffs = [
-    #         f"  row {i}: first={times_cropped[i, 0]:.4f} last={times_cropped[i, -1]:.4f}"
-    #         for i in range(times_cropped.shape[0])
-    #     ]
-    #     msg = (
-    #         f"Time arrays differ across threshold values after TSTIM correction "
-    #         f"and cropping to [{tcrop[0]}, {tcrop[1]}) ms:\n"
-    #         + "\n".join(diffs)
-    #     )
-    #     raise ValueError(msg)
-
-    # times = times_shifted[0, :]    # full shifted time vector (1-D)
+    
 
     # ------------------------------------------------------------------
     # Select intensities
@@ -129,16 +132,11 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     if iidx is None:
         iidx = np.arange(len(intensities))
 
+    print(iidx)
+    print(intensities)
+
     mep         = mep[iidx, :, :]
     intensities = intensities[iidx]
-    t = times_cropped[iidx, :]
-
-    # ------------------------------------------------------------------
-    # Crop time window
-    # ------------------------------------------------------------------
-    tidx = first_row_crop_idx
-    # t    = times[tidx]
-    times = time_raw[iidx, :]
     print("Shape times ", np.shape(times))
 
     yall = mep[:, tidx, :]
@@ -157,8 +155,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     mep = mep - baseline[:, np.newaxis, np.newaxis]
     print("Shape mep ", np.shape(mep))
     print("Shape yall ", np.shape(yall))
-    times = times.T
-    t = t.T
+
     # ------------------------------------------------------------------
     # Plotting
     # ------------------------------------------------------------------
