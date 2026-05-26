@@ -17,8 +17,10 @@ def gen_DIwave(t, intensity):
     r =  [18.50774852, 9.26210842, 5.91559859, 17.7805388, 425.51252596]
     a =  [0.34532065, 1.0, 0.80577286, 0.46054753, 0.27828232]
 
+    mso = 50 / 100 * intensity # assume the MSO is 50% for each subject RMT
+
     for i in range(5):
-        DIwave = DIwave + np.exp(-(t-t0 -i * T)**2 /2 /width**2) * sigmoid(intensity, x0[i], r[i], a[i])
+        DIwave = DIwave + np.exp(-(t-t0 -i * T)**2 /2 /width**2) * sigmoid(mso, x0[i], r[i], a[i])
     
 
     # ----- plotting -----
