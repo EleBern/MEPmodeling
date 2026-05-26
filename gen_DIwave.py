@@ -5,7 +5,7 @@ def sigmoid(x, x0, r, a):
     y = a / (1+ np.exp(r * (x0 - x)))
     return y
 
-def gen_DIwave(t, intensity):
+def gen_DIwave(t, intensity, PlotOn):
     t0 = 5
     T = 1.5
     width = 0.25
@@ -24,7 +24,7 @@ def gen_DIwave(t, intensity):
     
 
     # ----- plotting -----
-    if False:
+    if PlotOn:
         plt.figure()
         plt.plot(t, DIwave)
         plt.grid(True)
