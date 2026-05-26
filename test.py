@@ -5,9 +5,16 @@
 # from load_MEP import load_MEP
 # load_MEP("5LM")
 #############################################################
-from ga_MEPmodel_bio import ga_MEPmodel_bio
-#for i in range(10):
-ga_MEPmodel_bio("5PA", 1, [] , 0)
+from Load_EMG_data_example import plot_emg
+plot_emg("data_diLazzaro/DiLazarro_di_wave_data_by_year_merged.hdf5", "PA", 140, 2020)
+plot_emg("data_diLazzaro/DiLazzaro_di_wave_data_down.hdf5", "PA", 140, 2020)
+#############################################################
+
+# from ga_MEPmodel_bio import ga_MEPmodel_bio
+# #for i in range(10):
+# ga_MEPmodel_bio("5PA", 1, [] , 0)
+
+#############################################################
 # from gen_DIwave import gen_DIwave
 
 ##########################################################################
