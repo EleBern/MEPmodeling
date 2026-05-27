@@ -24,4 +24,4 @@ ga_MEPmodel_bio("5PA", 1, [] , 1)
 
 
 # from ga_MEPmodel_pheno import ga_MEPmodel_pheno
-# ga_MEPmodel_pheno(1,0)
+# ga_MEPmodel_pheno("5PA", 1)
