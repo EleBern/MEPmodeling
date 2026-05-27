@@ -10,9 +10,9 @@
 # plot_emg("data_diLazarro/DiLazzaro_di_wave_data_down.hdf5", "PA", None, 2013)
 #############################################################
 
-from ga_MEPmodel_bio import ga_MEPmodel_bio
-#for i in range(10):
-ga_MEPmodel_bio("5PA", 1, [] , 1)
+# from ga_MEPmodel_bio import ga_MEPmodel_bio
+# #for i in range(10):
+# ga_MEPmodel_bio("5PA", 1, [] , 1)
 
 #############################################################
 # from gen_DIwave import gen_DIwave
@@ -23,5 +23,5 @@ ga_MEPmodel_bio("5PA", 1, [] , 1)
 # config_model_pheno(1)
 
 
-# from ga_MEPmodel_pheno import ga_MEPmodel_pheno
-# ga_MEPmodel_pheno("5PA", 1)
+from ga_MEPmodel_pheno import ga_MEPmodel_pheno
+ga_MEPmodel_pheno("5PA", 1)

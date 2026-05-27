@@ -29,6 +29,10 @@ from ga_helpers import (
     ga_gradient_search   as gradient_search,
     ga_fitness_function  as fitness_function,
     ga_evaluation        as evaluation,
+    ga_gauss_newton_slow,
+    ga_gradient_repair,
+    ga_multi_lavenberg_regularization,
+    ga_NMM_diff_A_lfm,
 )
 
 
@@ -326,6 +330,11 @@ def ga_run(ref, objective_function,
         print(f'  GENERATION {j} / {tg}')
         print(f'  Current best fit = {E[0]:.6g}  |  mean fit = {E.mean():.6g}')
         print('=' * 60)
+
+        # Re-align R with the current (trimmed) population.
+        # R grows via hstack during the generation but P/E are trimmed back to N1
+        # by selection_uniq at the end of Step 3, so R must be reset each iteration.
+        _, R, _ = evaluation(P, objective_function, ref)
 
         # ── Step 1: gradient search on best solution ──────────────────────────
         print(f'\n[Step 1/3]  Gradient search on best solution')

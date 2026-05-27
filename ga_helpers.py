@@ -181,17 +181,21 @@ def ga_selection_best(P, E, R, n_out, op=-1):
     P_sorted = P[index]
     E_sorted = op * E_signed[index]         # restore original sign
 
-    # Normalise R to [nData x n_pop] regardless of how it was passed in
+    # Normalise R to [nData x n_pop] regardless of how it was passed in.
+    # Convention: R is always [nData x n_pop] (columns = solutions).
+    # Edge cases handled explicitly to avoid ambiguity when nData == n_pop or nData == 1.
+    n_pop = len(E)
     R = np.atleast_2d(R)
-    if R.shape[1] == len(E):
-        # already [nData x n_pop]
+    nrows, ncols = R.shape
+    if ncols == n_pop:
+        # already [nData x n_pop] — index columns
         R_sorted = R[:, index]
-    elif R.shape[0] == len(E):
-        # [n_pop x nData] — transpose first
+    elif nrows == n_pop and ncols != n_pop:
+        # [n_pop x nData] — transpose first, then index columns
         R_sorted = R[index].T
     else:
-        # 1-D or ambiguous — keep as-is indexed by row
-        R_sorted = R[index]
+        # Fallback: reshape to [nData x n_pop] and index columns
+        R_sorted = R.reshape(-1, n_pop)[:, index]
 
     P_out = P_sorted[:n_out]
     E_out = E_sorted[:n_out]
@@ -296,7 +300,7 @@ def ga_gradient_repair(Para_E, LR, UR):
     return Para_E
 
 
-def ga_multi_lavenberg_regularization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
+def ga_multi_lavenberg_regularization(n, reg0, reg1, Para_E, J, r, LR, UR):
     """
     Generate n candidate parameter updates via Levenberg-Marquardt regularisation.
 
@@ -307,7 +311,7 @@ def ga_multi_lavenberg_regularization(n, reg0, reg1, Para_E, J, h_output, LR, UR
     reg1     : float  log10 of maximum regularisation
     Para_E   : np.ndarray  [nParams,]  current parameters
     J        : np.ndarray  [nData x nParams]  Jacobian
-    h_output : np.ndarray or scalar  current residual
+    r        : np.ndarray or scalar  current residual
     LR, UR   : array-like  lower / upper boundaries
 
     Returns
@@ -317,18 +321,18 @@ def ga_multi_lavenberg_regularization(n, reg0, reg1, Para_E, J, h_output, LR, UR
     Y   = np.zeros((n, Para_E.shape[0]))
     reg = 10 ** np.linspace(reg0, reg1, n)
 
-    if isinstance(h_output, (int, float)):
-        h_output = np.array([h_output])
+    if isinstance(r, (int, float)):
+        r = np.array([r])
 
     for i in range(reg.shape[0]):
         try:
             D = np.linalg.pinv(J.T @ J + reg[i] * np.eye(Para_E.shape[0]))
         except Exception:
             return Y
-        if isinstance(h_output, (int, float)):
-            d = -D @ J.T * h_output
+        if isinstance(r, (int, float)):
+            d = -D @ J.T * r
         else:
-            d = -D @ J.T @ h_output
+            d = -D @ J.T @ r
         if np.isnan(d).any():
             continue
 
