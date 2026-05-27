@@ -29,10 +29,6 @@ from ga_helpers import (
     ga_gradient_search   as gradient_search,
     ga_fitness_function  as fitness_function,
     ga_evaluation        as evaluation,
-    ga_gauss_newton_slow,
-    ga_gradient_repair,
-    ga_multi_lavenberg_regularization,
-    ga_NMM_diff_A_lfm,
 )
 
 
