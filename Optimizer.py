@@ -15,6 +15,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
+from tqdm import tqdm
 from tqdm.contrib import itertools
 
 from ga_helpers import (
@@ -42,10 +43,12 @@ from ga_helpers import (
 def make_optimizer_state():
     """Return the base state dict shared by all optimizers."""
     return {
-        'opt_parameters': np.zeros(2),
-        'optimum':        None,
-        'results_folder': 'optimization_temp',
-        'save_results':   False,
+        'opt_parameters':     np.zeros(2),
+        'optimum':            None,
+        'results_folder':     'optimization_temp',
+        'save_results':       False,
+        'serial_computation': True,
+        'n_cpus':             4,
     }
 
 
@@ -227,6 +230,7 @@ def hierarchical_random_run(state):
 def ga_run(ref, objective_function,
            N1=60, N2=100, N3=100, tg=50,
            op=-1, verbose=0,
+           single_run_tol=1e-5,
            solution_ini=None, plot_callback=None):
     """
     Run the genetic algorithm optimiser for the MEP model.
@@ -243,6 +247,7 @@ def ga_run(ref, objective_function,
     tg                 : int   maximum generations (default 50)
     op                 : int   -1 minimise, +1 maximise (default -1)
     verbose            : int   0 = silent per-candidate printout (default 0)
+    single_run_tol     : float early-stop threshold on best cost (default 1e-5)
     solution_ini       : np.ndarray or None
                          [M x nParams] previously fitted solutions to seed the
                          initial population before evaluation and selection
@@ -318,7 +323,7 @@ def ga_run(ref, objective_function,
     import time as _time
     t_run_start = _time.time()
     j = 1
-    while True:
+    for _ in tqdm(range(tg), desc='main iteration'):
         t_gen_start = _time.time()
         print()
         print('=' * 60)
@@ -439,11 +444,8 @@ def ga_run(ref, objective_function,
         w += 1
         j += 1
 
-        if j > tg:
-            print(f'\n  Reached max generations ({tg}).', flush=True)
-            break
-        if KS[-1] < 0.01:
-            print(f'\n  Early stop: fit {KS[-1]:.6g} < 0.01.', flush=True)
+        if KS[-1] < single_run_tol:
+            print(f'\n  Early stop: fit {KS[-1]:.6g} < {single_run_tol}.', flush=True)
             break
 
     # ----- select best result -----
