@@ -5,4 +5,4 @@ __pycache__/
 /fitted_results/bio/*backup*
 /fitted_results/bioNoRC/*backup*
 /fitted_results/pheno/*backup*
-
+test*.png
