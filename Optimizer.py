@@ -265,8 +265,8 @@ def ga_run(ref, objective_function,
 
     def _function_call(parameters):
         """Return the raw error vector for a single parameter set."""
-        error, _ = objective_function(parameters, ref)
-        return np.atleast_1d(error).ravel()
+        _, ref_updated = objective_function(parameters, ref)
+        return ref_updated["sim"]["simMEP2"]
 
     def _evaluation_fn(X, reference):
         """Wrap ga_evaluation so conf['evaluation_fn'] has the right signature."""
