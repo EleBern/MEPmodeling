@@ -263,10 +263,14 @@ def ga_run(ref, objective_function,
     UR      = ref['boundary'][:, 1]
     nParams = len(LR)
 
+    # def _function_call(parameters):
+    #     """Return the raw error vector for a single parameter set."""
+    #     _, ref_updated = objective_function(parameters, ref)
+    #     return ref_updated["sim"]["simMEP2"]
     def _function_call(parameters):
         """Return the raw error vector for a single parameter set."""
-        _, ref_updated = objective_function(parameters, ref)
-        return ref_updated["sim"]["simMEP2"]
+        _, simfunction = objective_function(parameters, ref)
+        return simfunction
 
     def _evaluation_fn(X, reference):
         """Wrap ga_evaluation so conf['evaluation_fn'] has the right signature."""
