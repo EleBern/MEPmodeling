@@ -15,6 +15,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as tck
+from tqdm import tqdm
 from tqdm.contrib import itertools
 
 from ga_helpers import (
@@ -28,10 +29,6 @@ from ga_helpers import (
     ga_gradient_search   as gradient_search,
     ga_fitness_function  as fitness_function,
     ga_evaluation        as evaluation,
-    ga_gauss_newton_slow,
-    ga_gradient_repair,
-    ga_multi_lavenberg_regularization,
-    ga_NMM_diff_A_lfm,
 )
 
 
@@ -42,10 +39,12 @@ from ga_helpers import (
 def make_optimizer_state():
     """Return the base state dict shared by all optimizers."""
     return {
-        'opt_parameters': np.zeros(2),
-        'optimum':        None,
-        'results_folder': 'optimization_temp',
-        'save_results':   False,
+        'opt_parameters':     np.zeros(2),
+        'optimum':            None,
+        'results_folder':     'optimization_temp',
+        'save_results':       False,
+        'serial_computation': True,
+        'n_cpus':             4,
     }
 
 
@@ -227,6 +226,7 @@ def hierarchical_random_run(state):
 def ga_run(ref, objective_function,
            N1=60, N2=100, N3=100, tg=50,
            op=-1, verbose=0,
+           single_run_tol=1e-5,
            solution_ini=None, plot_callback=None):
     """
     Run the genetic algorithm optimiser for the MEP model.
@@ -243,6 +243,7 @@ def ga_run(ref, objective_function,
     tg                 : int   maximum generations (default 50)
     op                 : int   -1 minimise, +1 maximise (default -1)
     verbose            : int   0 = silent per-candidate printout (default 0)
+    single_run_tol     : float early-stop threshold on best cost (default 1e-5)
     solution_ini       : np.ndarray or None
                          [M x nParams] previously fitted solutions to seed the
                          initial population before evaluation and selection
@@ -264,8 +265,8 @@ def ga_run(ref, objective_function,
 
     def _function_call(parameters):
         """Return the raw error vector for a single parameter set."""
-        error, _ = objective_function(parameters, ref)
-        return np.atleast_1d(error).ravel()
+        _, ref_updated = objective_function(parameters, ref)
+        return ref_updated["sim"]["simMEP2"]
 
     def _evaluation_fn(X, reference):
         """Wrap ga_evaluation so conf['evaluation_fn'] has the right signature."""
@@ -318,13 +319,18 @@ def ga_run(ref, objective_function,
     import time as _time
     t_run_start = _time.time()
     j = 1
-    while True:
+    for _ in tqdm(range(tg), desc='main iteration'):
         t_gen_start = _time.time()
         print()
         print('=' * 60)
         print(f'  GENERATION {j} / {tg}')
         print(f'  Current best fit = {E[0]:.6g}  |  mean fit = {E.mean():.6g}')
         print('=' * 60)
+
+        # Re-align R with the current (trimmed) population.
+        # R grows via hstack during the generation but P/E are trimmed back to N1
+        # by selection_uniq at the end of Step 3, so R must be reset each iteration.
+        _, R, _ = evaluation(P, objective_function, ref)
 
         # ── Step 1: gradient search on best solution ──────────────────────────
         print(f'\n[Step 1/3]  Gradient search on best solution')
@@ -439,11 +445,8 @@ def ga_run(ref, objective_function,
         w += 1
         j += 1
 
-        if j > tg:
-            print(f'\n  Reached max generations ({tg}).', flush=True)
-            break
-        if KS[-1] < 0.01:
-            print(f'\n  Early stop: fit {KS[-1]:.6g} < 0.01.', flush=True)
+        if KS[-1] < single_run_tol:
+            print(f'\n  Early stop: fit {KS[-1]:.6g} < {single_run_tol}.', flush=True)
             break
 
     # ----- select best result -----
