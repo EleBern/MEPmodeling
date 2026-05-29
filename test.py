@@ -9,10 +9,15 @@
 # plot_emg("data_diLazarro/DiLazarro_di_wave_data_by_year_merged.hdf5", "PA", None, 2013)
 # plot_emg("data_diLazarro/DiLazzaro_di_wave_data_down.hdf5", "PA", None, 2013)
 #############################################################
-
+import matplotlib.pyplot as plt
 from ga_MEPmodel_bio import ga_MEPmodel_bio
-#for i in range(10):
-ga_MEPmodel_bio(1, 1, [] , 0)
+# ga_MEPmodel_bio(1, 1, [] , 0)
+
+for i in range(20):
+    print("########################################xxxx")
+    print("This is the ", i, " eth iteration")
+    ga_MEPmodel_bio(1, 1, [] , 1)
+    plt.close("all")
 
 #############################################################
 # from gen_DIwave import gen_DIwave

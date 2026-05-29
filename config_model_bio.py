@@ -24,6 +24,8 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     else:
         intensity_idx = np.arange(0, 7)
 
+    intensity_idx = intensity_idx[[0, 2, -1]]
+
     ref = {}
     ref["subj"] = subj
     ref["intensity_idx"] = intensity_idx
@@ -33,6 +35,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     ref["t0"] = t0
     ref["y0"] = y0.T
     model["muaps"], model["tmuap"] = load_muap()
+    print(intensities)
 
     # -----subject RMT ---------
     # (by eyeballing the IO curve)
@@ -87,7 +90,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     model["t"] = t
     model["dt"] = dt
 
-    plot_DIwave(model, ref)
+    #plot_DIwave(model, ref)
 
     # ----- search boundary-----
     if withRC == 0:
