@@ -140,7 +140,7 @@ def ga_MEPmodel_pheno(subj, reRun=0):
     # ----- show result -----
     plotOn = 0
     MEPmodel_pheno(p_post, ref, plotOn)
-
+    print("R2 ", ref["R2"])
 
 # ==========================================================================
 def _run_and_save(ref, result_path):
