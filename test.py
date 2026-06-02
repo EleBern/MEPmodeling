@@ -11,8 +11,8 @@
 #############################################################
 
 from ga_MEPmodel_bio import ga_MEPmodel_bio
-#for i in range(10):
-ga_MEPmodel_bio("5PA", 1, [] , 0)
+for i in range(500):
+    ga_MEPmodel_bio("5LM", 1, [] , 1)
 
 #############################################################
 # from gen_DIwave import gen_DIwave
