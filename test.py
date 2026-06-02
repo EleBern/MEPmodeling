@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from ga_MEPmodel_bio import ga_MEPmodel_bio
 # ga_MEPmodel_bio(1, 1, [] , 0)
 
-for i in range(20):
+for i in range(300):
     print("########################################xxxx")
     print("This is the ", i, " iteration")
     ga_MEPmodel_bio(1, 1, [] , 1)
