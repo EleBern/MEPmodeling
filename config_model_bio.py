@@ -79,7 +79,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     model["t"] = t
     model["dt"] = dt
 
-    plot_DIwave(model, ref)
+    #plot_DIwave(model, ref)
 
     # ----- search boundary-----
     if withRC == 0:
