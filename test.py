@@ -15,7 +15,7 @@ from ga_MEPmodel_bio import ga_MEPmodel_bio
 for i in range(500):
     print("############################################")
     print("This is the ", i, " iteration")
-    ga_MEPmodel_bio("5LM", 1, [] , 1)
+    ga_MEPmodel_bio("5PA", 1, [] , 1)
     plt.close("all")
     
 #############################################################
