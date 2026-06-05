@@ -22,13 +22,13 @@ import numpy as np
 
 # ── paths ────────────────────────────────────────────────────────────────────
 DEFAULT_HDF5 = "data_diLazarro/DiLazarro_di_wave_data.hdf5"
-DEFAULT_MAT  = "S17.mat"
+DEFAULT_MAT  = "S18.mat"
 
 HDF5_DATASETS = {
     # HDF5 dataset path                              : variable name in .mat
-    "2004/LM/RMT/Di Lazarro 2004 PA & LM # 1/EMG/mep": "mep",
-    "2004/LM/RMT/Di Lazarro 2004 PA & LM # 1/time":    "t",
-    "2004/LM/RMT/Di Lazarro 2004 PA & LM # 1/intensities":    "intensities",
+    "2004/PA/RMT/Di Lazarro 2004 PA & LM # 2/EMG/mep": "mep",
+    "2004/PA/RMT/Di Lazarro 2004 PA & LM # 2/time":    "t",
+    "2004/PA/RMT/Di Lazarro 2004 PA & LM # 2/intensities":    "intensities",
 }
 
 # ── main ─────────────────────────────────────────────────────────────────────
