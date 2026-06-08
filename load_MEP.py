@@ -42,6 +42,40 @@ def _find_subject_group(thr_type_group, year, subj_num_in_year):
         return thr_type_group[keys[0]]
 
 
+def _discard_nan_trials(mep, subj):
+    """
+    Remove trials that contain any NaN value across all intensity levels.
+
+    A trial index is discarded if it contains NaN in *any* intensity level,
+    so the resulting array stays rectangular.
+
+    Parameters
+    ----------
+    mep  : (n_intensities, n_time, n_trials)
+    subj : str   – used only for the warning message
+
+    Returns
+    -------
+    mep_clean : (n_intensities, n_time, n_valid_trials)
+    """
+    # NaN anywhere along the time axis -> flag that (intensity, trial) pair
+    nan_per_intensity_trial = np.any(np.isnan(mep), axis=1)  # (n_intensities, n_trials)
+
+    # A trial is bad if it is NaN in at least one intensity level
+    bad_trials = np.any(nan_per_intensity_trial, axis=0)      # (n_trials,)
+    n_bad = int(np.sum(bad_trials))
+
+    if n_bad > 0:
+        n_total = mep.shape[2]
+        print(
+            f"[load_MEP] WARNING – Subject {subj!r}: discarding {n_bad}/{n_total} "
+            f"trial(s) containing NaN values."
+        )
+        mep = mep[:, :, ~bad_trials]
+    
+    return mep
+
+
 def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     """
     Load MEP data from DiLazzaro_di_wave_data_by_year_merged.hdf5.
@@ -128,6 +162,11 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
 
     mep         = mep[iidx, :, :]
     intensities = intensities[iidx]
+
+    # ------------------------------------------------------------------
+    # Discard NaN trials
+    # ------------------------------------------------------------------
+    mep = _discard_nan_trials(mep, subj)
 
     yall = mep[:, tidx, :]
     y    = np.mean(yall, axis=2)
