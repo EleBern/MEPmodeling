@@ -79,6 +79,8 @@ def _is_trailing_nan(mep, trial_idx):
     trial   = mep[:, :, trial_idx]             # (n_intensities, n_time)
     any_nan = np.any(np.isnan(trial), axis=0)  # (n_time,)
     first   = int(np.argmax(any_nan))
+    if first == 0:
+        return False # Discard trial rather than cropping entire signal if the whole trial is NaNs
     # Trailing: everything from `first` onward is NaN, nothing before it is
     return bool(np.all(any_nan[first:]) and not np.any(any_nan[:first]))
 
@@ -144,7 +146,7 @@ def _clean_nan_trials(mep, times, subj):
             f"[load_MEP] WARNING – Subject {subj!r}: {len(trailing_trials)} trial(s) "
             f"have trailing NaNs; cropping time axis to {crop_end} samples "
             f"(was {mep.shape[1]}). "
-            f"Time vector now ends at {np.round(times[crop_end], 2)} ms."
+            f"Time vector (before cropping) now ends at {np.round(times[crop_end], 2)} ms."
         )
         mep   = mep[:, :crop_end, :]
         times = times[:crop_end]
@@ -242,10 +244,10 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     # ------------------------------------------------------------------
     # Clean NaN trials (crop trailing NaNs; discard scattered-NaN trials)
     # ------------------------------------------------------------------
-    mep, t = _clean_nan_trials(mep, times, subj)
+    mep, times = _clean_nan_trials(mep, times, subj)
  
-    tidx = np.where((t >= tcrop[0]) & (t < tcrop[1]))[0] # Recompute in case mep and times were cropped due to trailing NaNs
-    t = t[tidx]
+    tidx = np.where((times >= tcrop[0]) & (times < tcrop[1]))[0] # Recompute in case mep and times were cropped due to trailing NaNs
+    t = times[tidx]
 
     yall = mep[:, tidx, :]
     y    = np.mean(yall, axis=2)
@@ -261,7 +263,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
 
     y   = y   - baseline[:, np.newaxis]
     mep = mep - baseline[:, np.newaxis, np.newaxis]
-    print(np.shape(y))
+
     # ------------------------------------------------------------------
     # Plotting
     # ------------------------------------------------------------------
