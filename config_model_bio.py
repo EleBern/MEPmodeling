@@ -36,7 +36,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
         ref["RMT"] = 38
     elif ref["subj"] == 4:
         ref["RMT"] = 41
-    elif ref["subj"] == 5 or ref["subj"] == 6:
+    elif ref["subj"] == 5:
         ref["RMT"] = 47
     else:
         ref["RMT"] = 50

@@ -13,7 +13,6 @@ SUBJ_TO_YEAR = {
     3: ('2007', None),
     4: ('2013', None),
     5: ('2020', None),
-    6: ('2050', None),
 }
 
 
@@ -161,7 +160,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     Parameters
     ----------
     subj : str
-        Subject identifier in the format '#PA' or '#LM', where # is 1–6.
+        Subject identifier in the format '#PA' or '#LM', where # is 1–5.
         Examples: '1PA', '3LM', '5PA'
     iidx : array-like or None
         Indices of intensity levels to keep. None = all.
@@ -191,7 +190,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     orientation   = m.group(2).upper()
 
     if subj_num not in SUBJ_TO_YEAR:
-        raise ValueError(f"subj number must be 1–6. Got: {subj_num}")
+        raise ValueError(f"subj number must be 1–5. Got: {subj_num}")
 
     year, subj_num_in_year = SUBJ_TO_YEAR[subj_num]
 
@@ -202,35 +201,29 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
         thr_type_group = f[year][orientation]['RMT']
         subj_group     = _find_subject_group(thr_type_group, year, subj_num_in_year)
 
-        if subj_num == 6:
-            intensities = np.array([140])
-            mep = np.array(subj_group['EMG']['signal_full'])   # (n_intensities, n_time, n_trials)
-            times    = np.array(subj_group['time']).flatten()          # (n_thr, n_time)
-            tidx = np.where((times >= tcrop[0]) & (times < tcrop[1]))[0]
-            t = times[tidx]   # (n_thr, n_crop)
-        else:
-            intensities = np.array(subj_group['intensities']).flatten()
-            mep         = np.array(subj_group['EMG']['mep'])   # (n_intensities, n_time, n_trials)
-            time_raw    = np.array(subj_group['time'])          # (n_thr, n_time)
-            tidx = np.where((time_raw[0] >= tcrop[0]) & (time_raw[0] < tcrop[1]))[0]
-            times_cropped = time_raw[:, tidx]   # (n_thr, n_crop)
-            t = times_cropped[iidx, :]
-            times = time_raw[iidx, :]
-            # Check all rows are equal after shifting and cropping
-            if not np.all(np.isclose(times_cropped, times_cropped[0, :], atol=1e-9)):
-                diffs = [
-                    f"  row {i}: first={times_cropped[i, 0]:.4f} last={times_cropped[i, -1]:.4f}"
-                    for i in range(times_cropped.shape[0])
-                ]
-                msg = (
-                    f"Time arrays differ across threshold values after TSTIM correction "
-                    f"and cropping to [{tcrop[0]}, {tcrop[1]}) ms:\n"
-                    + "\n".join(diffs)
-                )
-                raise ValueError(msg)
+    
+        intensities = np.array(subj_group['intensities']).flatten()
+        mep         = np.array(subj_group['EMG']['mep'])   # (n_intensities, n_time, n_trials)
+        time_raw    = np.array(subj_group['time'])          # (n_thr, n_time)
+        tidx = np.where((time_raw[0] >= tcrop[0]) & (time_raw[0] < tcrop[1]))[0]
+        times_cropped = time_raw[:, tidx]   # (n_thr, n_crop)
+        t = times_cropped[iidx, :]
+        times = time_raw[iidx, :]
+        # Check all rows are equal after shifting and cropping
+        if not np.all(np.isclose(times_cropped, times_cropped[0, :], atol=1e-9)):
+            diffs = [
+                f"  row {i}: first={times_cropped[i, 0]:.4f} last={times_cropped[i, -1]:.4f}"
+                for i in range(times_cropped.shape[0])
+            ]
+            msg = (
+                f"Time arrays differ across threshold values after TSTIM correction "
+                f"and cropping to [{tcrop[0]}, {tcrop[1]}) ms:\n"
+                + "\n".join(diffs)
+            )
+            raise ValueError(msg)
 
-            times = time_raw[0, :]    
-            t = times_cropped[0, :]
+        times = time_raw[0, :]    
+        t = times_cropped[0, :]
 
     # ------------------------------------------------------------------
     # Select intensities
