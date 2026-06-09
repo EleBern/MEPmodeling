@@ -42,7 +42,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
         ref["RMT"] = 50
 
     # ----- simulated DI wave -----
-    tlength = 50 # ms
+    tlength = t0[-1] # ms
     dt = 0.1 # ms
     t = np.arange(0, tlength, dt)
     model["DIwave0"] = np.zeros((len(ref["intensities"]), len(t)))
