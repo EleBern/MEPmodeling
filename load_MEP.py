@@ -42,38 +42,114 @@ def _find_subject_group(thr_type_group, year, subj_num_in_year):
         return thr_type_group[keys[0]]
 
 
-def _discard_nan_trials(mep, subj):
+def _first_nan_sample(mep):
     """
-    Remove trials that contain any NaN value across all intensity levels.
-
-    A trial index is discarded if it contains NaN in *any* intensity level,
-    so the resulting array stays rectangular.
+    For each trial, return the index of the first NaN sample across all
+    intensity levels, or n_time if the trial is clean.
 
     Parameters
     ----------
-    mep  : (n_intensities, n_time, n_trials)
-    subj : str   – used only for the warning message
+    mep : (n_intensities, n_time, n_trials)
 
     Returns
     -------
-    mep_clean : (n_intensities, n_time, n_valid_trials)
+    first_nan : (n_trials,)  int array; value is n_time when no NaN exists
     """
-    # NaN anywhere along the time axis -> flag that (intensity, trial) pair
-    nan_per_intensity_trial = np.any(np.isnan(mep), axis=1)  # (n_intensities, n_trials)
+    n_time, n_trials = mep.shape[1], mep.shape[2]
+    # True where any intensity has a NaN: (n_time, n_trials)
+    any_nan = np.any(np.isnan(mep), axis=0)
+    # For each trial, argmax on the time axis finds the first True;
+    # when there is no NaN, argmax returns 0 – fix with np.where.
+    has_nan   = np.any(any_nan, axis=0)               # (n_trials,)
+    first_nan = np.argmax(any_nan, axis=0)            # (n_trials,)
+    first_nan = np.where(has_nan, first_nan, n_time)  # n_time means "clean"
+    return first_nan
 
-    # A trial is bad if it is NaN in at least one intensity level
-    bad_trials = np.any(nan_per_intensity_trial, axis=0)      # (n_trials,)
-    n_bad = int(np.sum(bad_trials))
 
-    if n_bad > 0:
-        n_total = mep.shape[2]
+def _is_trailing_nan(mep, trial_idx):
+    """
+    Return True if all NaN values in a trial are contiguous and end-aligned
+    (i.e. no NaN appears before the first NaN sample).
+
+    Parameters
+    ----------
+    mep        : (n_intensities, n_time, n_trials)
+    trial_idx  : int
+    """
+    trial   = mep[:, :, trial_idx]             # (n_intensities, n_time)
+    any_nan = np.any(np.isnan(trial), axis=0)  # (n_time,)
+    first   = int(np.argmax(any_nan))
+    # Trailing: everything from `first` onward is NaN, nothing before it is
+    return bool(np.all(any_nan[first:]) and not np.any(any_nan[:first]))
+
+
+def _clean_nan_trials(mep, times, subj):
+    """
+    Handle NaN-contaminated trials in mep.
+
+    Strategy
+    --------
+    * Trials whose NaNs are strictly trailing (all NaNs form a contiguous
+      block at the end of the time axis) are kept; mep and times are
+      cropped to the shortest valid length across all such trials.
+    * Trials with scattered NaNs are discarded entirely.
+
+    A trial is evaluated across *all* intensity levels jointly so that the
+    array stays rectangular.
+
+    Parameters
+    ----------
+    mep   : (n_intensities, n_time, n_trials)
+    times : (n_time,)
+    subj  : str  – used only for warning messages
+
+    Returns
+    -------
+    mep_clean   : (n_intensities, n_time_out, n_trials_out)
+    times_clean : (n_time_out,)
+    """
+    n_trials  = mep.shape[2]
+    first_nan = _first_nan_sample(mep)        # (n_trials,) index or n_time
+
+    nan_trials = np.where(first_nan < mep.shape[1])[0]  # trials with any NaN
+
+    if len(nan_trials) == 0:
+        return mep, times                     # nothing to do
+
+    trailing_mask = np.array(
+        [_is_trailing_nan(mep, k) for k in nan_trials]
+    )
+    trailing_trials  = nan_trials[ trailing_mask]
+    scattered_trials = nan_trials[~trailing_mask]
+
+    # -- 1. discard scattered-NaN trials ------------------------------------
+    keep = np.ones(n_trials, dtype=bool)
+    if len(scattered_trials) > 0:
+        keep[scattered_trials] = False
         print(
-            f"[load_MEP] WARNING – Subject {subj!r}: discarding {n_bad}/{n_total} "
-            f"trial(s) containing NaN values."
+            f"[load_MEP] WARNING – Subject {subj!r}: discarding "
+            f"{len(scattered_trials)}/{n_trials} trial(s) with scattered NaN values."
         )
-        mep = mep[:, :, ~bad_trials]
-    
-    return mep
+
+    mep       = mep[:, :, keep]
+    first_nan = first_nan[keep]
+
+    # -- 2. crop trailing-NaN trials ----------------------------------------
+    # Crop to the shortest valid length among trials that had trailing NaNs
+    # (clean trials have first_nan == n_time, so they never drive the crop)
+    trailing_first_nan = first_nan[first_nan < mep.shape[1]]
+    if len(trailing_first_nan) > 0:
+        crop_end = int(np.min(trailing_first_nan))
+        print(
+            f"[load_MEP] WARNING – Subject {subj!r}: {len(trailing_trials)} trial(s) "
+            f"have trailing NaNs; cropping time axis to {crop_end} samples "
+            f"(was {mep.shape[1]}). "
+            f"Time vector now ends at {np.round(times[crop_end], 2)} ms."
+        )
+        mep   = mep[:, :crop_end, :]
+        times = times[:crop_end]
+
+    return mep, times
 
 
 def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
@@ -164,9 +240,9 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     intensities = intensities[iidx]
 
     # ------------------------------------------------------------------
-    # Discard NaN trials
+    # Clean NaN trials (crop trailing NaNs; discard scattered-NaN trials)
     # ------------------------------------------------------------------
-    mep = _discard_nan_trials(mep, subj)
+    mep, times = _clean_nan_trials(mep, times, subj)
 
     yall = mep[:, tidx, :]
     y    = np.mean(yall, axis=2)
