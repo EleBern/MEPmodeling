@@ -11,6 +11,7 @@
 #############################################################
 import matplotlib.pyplot as plt
 from ga_MEPmodel_bio import ga_MEPmodel_bio
+#ga_MEPmodel_bio("5LM", 1, [] , 0)
 
 for i in range(500):
     print("############################################")
