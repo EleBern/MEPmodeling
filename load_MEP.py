@@ -242,7 +242,10 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     # ------------------------------------------------------------------
     # Clean NaN trials (crop trailing NaNs; discard scattered-NaN trials)
     # ------------------------------------------------------------------
-    mep, times = _clean_nan_trials(mep, times, subj)
+    mep, t = _clean_nan_trials(mep, times, subj)
+ 
+    tidx = np.where((t >= tcrop[0]) & (t < tcrop[1]))[0] # Recompute in case mep and times were cropped due to trailing NaNs
+    t = t[tidx]
 
     yall = mep[:, tidx, :]
     y    = np.mean(yall, axis=2)
@@ -258,7 +261,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
 
     y   = y   - baseline[:, np.newaxis]
     mep = mep - baseline[:, np.newaxis, np.newaxis]
-
+    print(np.shape(y))
     # ------------------------------------------------------------------
     # Plotting
     # ------------------------------------------------------------------
