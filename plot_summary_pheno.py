@@ -73,7 +73,7 @@ def plot_summary_pheno(p, ref):
     ax2.set_xlim([27, 58])
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
-    ax2.set_xlabel('TMS intensity (%MSO)', fontsize=10)
+    ax2.set_xlabel('TMS intensity (%RMT)', fontsize=10)
     ax2.set_ylabel('Amplitude (mV)', fontsize=8)
     ax2.set_title('IO curve')
 

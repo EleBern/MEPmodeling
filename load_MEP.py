@@ -274,7 +274,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
             plt.plot(times, np.mean(mep[i, :, :], axis=1), 'k', linewidth=1.5)
             plt.xlim([20, 50])
             plt.ylim([-2, 5])
-            plt.title(f"{intensities[i]}% MSO")
+            plt.title(f"{intensities[i]}% RMT")
             plt.xlabel("msec")
 
         # Figure 2: averaged signals
@@ -286,7 +286,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
         plt.xlabel("Time (msec)")
         plt.ylabel("Amplitude (mV)")
         plt.xlim([20, 50])
-        plt.legend([f"{v}% MSO" for v in intensities])
+        plt.legend([f"{v}% RMT" for v in intensities])
         plt.show()
 
     return y, t, mep, intensities, times, yall

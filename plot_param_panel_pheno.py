@@ -73,7 +73,7 @@ def plot_param_panel_pheno(p, ref):
     for i, intens in enumerate(ref['intensities']):
         ax_mep.text(
             nT * (i + 0.5), ylimit[1] * 0.7,
-            f'{intens:.4g}%\nMSO',
+            f'{intens:.4g}%\nRMT',
             ha='center', fontsize=8
         )
     lgd = ax_mep.legend(loc='lower left')

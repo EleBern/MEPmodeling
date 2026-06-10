@@ -35,7 +35,7 @@ def plot_TMScondition(ref, idx):
     ax.plot(t, DIwave[idx, :], 'k', linewidth=1)
     ax.set_ylim([-0.1, 1.1])
     ylimit = ax.get_ylim()
-    ax.text(10, ylimit[1] * 0.7, f"{ref['intensities'][idx]}% MSO", 
+    ax.text(10, ylimit[1] * 0.7, f"{ref['intensities'][idx]}% RMT", 
             fontsize=8)
     ax.set_title(f"DI-waves (subject {ref['subj']})", fontsize=11)
     ax.spines['top'].set_visible(False)
@@ -117,7 +117,7 @@ def plot_TMScondition(ref, idx):
 
     # Nexttile 6: MEP Comparison
     ax = axes[5]
-    ax.plot(ref['t0'], ref['y0'][:, idx], 'k', linewidth=2, label=f"{ref['intensities'][idx]}%MSO")
+    ax.plot(ref['t0'], ref['y0'][:, idx], 'k', linewidth=2, label=f"{ref['intensities'][idx]}%RMT")
     ax.plot(ref['t0'], simMEP[:, idx], 'r', linewidth=1.5, label='simMEP')
     ax.legend(loc='upper left', fontsize=8)
     

@@ -77,7 +77,7 @@ def plot_param_panel(p, ref):
     ylimit = plt.gca().get_ylim()
     for i in range(len(intensities)):
         plt.text(pts_per_intensity * (i + 0.5), ylimit[1] * 0.5, 
-                 f"{int(intensities[i])}%\nMSO", ha='center', fontsize=8)
+                 f"{int(intensities[i])}%\nRMT", ha='center', fontsize=8)
     
     plt.legend(loc='center left', prop={'size': 8}) # 'west' equivalent
     plt.ylabel('Amplitude (mV)')
