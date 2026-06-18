@@ -406,7 +406,8 @@ def ga_run(ref, objective_function,
         P = np.vstack([P, P_mut])
 
         print(f'  Evaluating {n_offspring} offspring...', flush=True)
-        E_new, _, _ = evaluation(P, objective_function, ref)
+        prova = P[N1+nParams:, :]
+        E_new, _, _ = evaluation(P[N1+nParams:, :], objective_function, ref)
         E = np.concatenate([E, E_new])
 
         P, E = selection_uniq(P, E, N1, N1, op, LR, UR)
