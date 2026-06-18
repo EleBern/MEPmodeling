@@ -402,12 +402,11 @@ def ga_evaluation(X, objective_function, reference):
         t0 = _time.time()
         error, houtput = objective_function(X[j], reference)
         elapsed = _time.time() - t0
-        error_flat = np.atleast_1d(error).ravel()
-        fit = np.sum(error_flat ** 2)
+        fit = np.sum(error ** 2)
 
         if errors is None:
-            errors = np.zeros((len(error_flat), n_pop))
-        errors[:, j] = error_flat
+            errors = np.zeros((len(error), n_pop))
+        errors[:, j] = error
         fits[j]      = fit
         Houtput[j]   = houtput
         # print(f'    eval [{j+1:3d}/{n_pop}]  fit = {fit:.6g}  ({elapsed:.2f}s)',
