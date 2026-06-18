@@ -399,9 +399,11 @@ def ga_run(ref, objective_function,
         print(f'  {N1} mutV  +  {2*N2} crossover  +  {2*N3} mutation  =  {n_offspring} offspring')
         t3 = _time.time()
         P_mutV  = mutationV(P[:N1, :], 0.1, 0.9, LR, UR)
+        P = np.vstack([P, P_mutV])
         P_cross = crossover(P, N2)
+        P = np.vstack([P, P_cross])
         P_mut   = mutation(P, N3)
-        P_new   = np.vstack([P_mutV, P_cross, P_mut])
+        P_new   = np.vstack([P, P_mut])
 
         print(f'  Evaluating {n_offspring} offspring...', flush=True)
         E_new, _, _ = evaluation(P_new, objective_function, ref)
