@@ -172,7 +172,7 @@ def ga_selection_best(P, E, R, n_out, op=-1):
     E_out : np.ndarray  [n_out,]               (squeezed to scalar float when n_out==1)
     R_out : np.ndarray  [nData x n_out]        (squeezed to [nData,] when n_out==1)
     """
-    E = np.atleast_1d(E).ravel()
+    E = np.atleast_1d(E).ravel(order="F")
     P = np.atleast_2d(P)
 
     E_signed = op * E
@@ -289,8 +289,8 @@ def ga_gradient_repair(Para_E, LR, UR):
     if len(UR) == 1:
         upper_cut = Para_E > UR[0]
         under_cut = Para_E < LR[0]
-        Para_E[upper_cut] = ga_population(1, int(np.sum(upper_cut)), LR, UR).ravel()
-        Para_E[under_cut] = ga_population(1, int(np.sum(under_cut)), LR, UR).ravel()
+        Para_E[upper_cut] = ga_population(1, int(np.sum(upper_cut)), LR, UR).ravel(order="F")
+        Para_E[under_cut] = ga_population(1, int(np.sum(under_cut)), LR, UR).ravel(order="F")
     else:
         for i in range(Para_E.shape[0]):
             if Para_E[i] > UR[i]:
@@ -360,7 +360,7 @@ def ga_NMM_diff_A_lfm(parameter, h_output, function_call):
     parameter_pert = parameter + h
     p_shape = parameter.shape[0]
 
-    h_output = np.atleast_1d(h_output).ravel()
+    h_output = np.atleast_1d(h_output).ravel(order="F")
     h_shape  = len(h_output)          # always derived from the reference output
 
     j = np.zeros((h_shape, p_shape))
@@ -368,7 +368,7 @@ def ga_NMM_diff_A_lfm(parameter, h_output, function_call):
     for i in range(p_shape):
         parameter_update = parameter.copy()
         parameter_update[i] = parameter_pert[i]
-        h_output_new = np.atleast_1d(function_call(parameter_update)).ravel()
+        h_output_new = np.atleast_1d(function_call(parameter_update)).ravel(order="F")
         j[:, i] = (h_output_new - h_output) / h
 
     j[np.isnan(j)] = 0
@@ -445,8 +445,8 @@ def ga_gauss_newton_slow(op, Para_E_test, r_test, reg0, reg1, steps, loop, tol,
     Para_E_ = []
     error_  = []
 
-    Para_E_test = np.atleast_1d(Para_E_test).ravel()
-    r_test      = np.atleast_1d(r_test).ravel()
+    Para_E_test = np.atleast_1d(Para_E_test).ravel(order="F")
+    r_test      = np.atleast_1d(r_test).ravel(order="F")
 
     print(f'  Gradient descent  (max {loop} steps, tol={tol:g})', flush=True)
     t_gd_start = _time.time()
@@ -463,10 +463,10 @@ def ga_gauss_newton_slow(op, Para_E_test, r_test, reg0, reg1, steps, loop, tol,
         Para_E_new, fit_new, r_new = ga_selection_best(
             Para_E_new_group, fit_grp, error_grp, 1, op
         )
-        r_new = np.atleast_1d(r_new).ravel()
+        r_new = np.atleast_1d(r_new).ravel(order="F")
 
         r_test      = r_new
-        Para_E_test = np.atleast_1d(Para_E_new).ravel()
+        Para_E_test = np.atleast_1d(Para_E_new).ravel(order="F")
 
         improvement = float(op * (fit_new - fit_[-1])) if fit_ else float('nan')
         fit_.append(fit_new)
@@ -496,12 +496,12 @@ def ga_gauss_newton_slow(op, Para_E_test, r_test, reg0, reg1, steps, loop, tol,
             np.array(Para_E_), np.array(fit_), np.array(error_), 1, op
         )
         # ga_selection_best with n_out=1 already squeezes to 1-D / scalar
-        Para_E_after_g = np.atleast_1d(Para_E_after_g).ravel()
-        error_after_g  = np.atleast_1d(error_after_g).ravel()
+        Para_E_after_g = np.atleast_1d(Para_E_after_g).ravel(order="F")
+        error_after_g  = np.atleast_1d(error_after_g).ravel(order="F")
     else:
-        Para_E_after_g = np.atleast_1d(Para_E_test).ravel()
+        Para_E_after_g = np.atleast_1d(Para_E_test).ravel(order="F")
         fit_after_g    = float(fit_new)
-        error_after_g  = np.atleast_1d(r_test).ravel()
+        error_after_g  = np.atleast_1d(r_test).ravel(order="F")
 
     return fit_after_g, Para_E_after_g, error_after_g
 
@@ -562,7 +562,7 @@ def ga_gradient_search(P, r, conf, stop_crit, verbose=0):
             function_call,
             reference,
         )
-        r_i = np.atleast_1d(r_i).ravel()
+        r_i = np.atleast_1d(r_i).ravel(order="F")
         if r_post is None:
             r_post = np.zeros((N, len(r_i)))
         fit_post[i]  = fit_i
