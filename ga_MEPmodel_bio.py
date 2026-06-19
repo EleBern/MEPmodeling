@@ -197,7 +197,7 @@ def _run_and_save(ref, root, result_path):
             with h5py.File(tmpname_fixed, 'r') as f:
                 tmp_fixed = load_h5_to_dict(f)
             if 'p_post' in tmp_fixed:
-                p_tmp = np.atleast_1d(tmp_fixed['p_post']).ravel()
+                p_tmp = np.atleast_1d(tmp_fixed['p_post']).ravel(order="F")
                 p_tmp[11] = ampa_arr[0]   # ensure the parameter matches the requested value
                 solution_ini = np.vstack([solution_ini, p_tmp])
         else:
