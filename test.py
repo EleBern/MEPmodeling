@@ -1,10 +1,9 @@
-from GA.ga_toolbox.crossover import crossover
+from GA.ga_toolbox.fitness_function import fitness_function
 import numpy as np
 
-X=np.linspace(0,400,200)
-X=X.reshape((50,4), order="F")
-n=100
-Y=crossover(X,n)
+y=np.loadtxt("y_goal.txt")
+h=np.loadtxt("h.txt")
+f=fitness_function(y,h)
 
 #############################################################
 # from load_muap import load_muap
