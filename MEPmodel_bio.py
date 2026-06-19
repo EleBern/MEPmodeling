@@ -134,7 +134,7 @@ def cal_error(ref, sim):
     else:
         simMEP2 = simMEP
 
-    error = np.ravel(simMEP2 - y0, order="F")
+    error = np.ravel(simMEP2, order="F") - np.ravel(y0, order="F")
 
     NRMSD = (
         np.linalg.norm(y0 - simMEP2)
