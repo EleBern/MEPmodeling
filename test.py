@@ -1,15 +1,12 @@
-from GA.ga_toolbox.mutation_single import mutation_single
+from GA.ga_toolbox.mutationV import mutationV
 import numpy as np
+import scipy.io
 
-LR = np.zeros(12)
-LR[-2] = 5
-LR[-3] = 1
-UR = np.ones(12) *10
-UR[-1] = 1
-UR[5] = 20
-UR[6] = 20
-s = np.array([0.9866,	2.2701,	5.2968,	1.1048,	6.7311,	7.0840,	0.8022,	0.4778,	0.0355,	3.3689, 5.0966,	0.0639])
-mutation_single(s, LR,UR)
+
+n = 100
+X = scipy.io.loadmat("X.mat")
+X=X["X"]
+mutationV(X, n)
 #############################################################
 # from load_muap import load_muap
 # load_muap(1)
