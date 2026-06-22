@@ -1,5 +1,5 @@
 import numpy as np
-from population import population
+from GA.ga_toolbox.population import population
 
 
 def selection_uniq(P1, B, p, r, op, LR, UR):

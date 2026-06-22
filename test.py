@@ -1,14 +1,19 @@
-from GA.gradient_toolbox.selection_best import selection_best
+from GA.ga_toolbox.selection_uniq import selection_uniq
 import numpy as np
 import scipy.io
 
-R=scipy.io.loadmat("R")
-R=R["R"]
-P=scipy.io.loadmat("P")
-P=P["P"]
-E=scipy.io.loadmat("E")
-E=E["E"]
-selection_best(P, E, R, 60, -1)
+P1 = scipy.io.loadmat("P1.mat")
+P1=P1["P1"]
+B = scipy.io.loadmat("B.mat")
+B=B["B"].ravel(order="F")
+LR = np.zeros(12)
+LR[-2] = 5
+LR[-3] = 1
+UR = np.ones(12) *10
+UR[-1] = 1
+UR[5] = 20
+UR[6] = 20
+selection_uniq(P1, B, 60, 60, -1, LR, UR)
 #############################################################
 # from load_muap import load_muap
 # load_muap(1)
