@@ -19,15 +19,15 @@ def selection_best(P, E, R, p, op):
     YY2 : np.ndarray  [p,]                   fitness of YY1
     YY3 : np.ndarray  [n_data_sample x p]    residuals of YY1
     """
-    E = np.atleast_1d(E).ravel(order='F').copy()
-    R = np.atleast_2d(R)
+    #E = np.atleast_1d(E).ravel(order='F').copy()
+    #R = np.atleast_2d(R)
 
     # Turn minimisation into maximisation if necessary
     E = op * E
 
     # Sort from high to low — best first
-    index = np.argsort(E)[::-1]
-    E = E[index]
+    index = np.argsort(E)[0][::-1]
+    E = np.sort(E)[0][::-1]
     P = P[index, :]
     R = R[:, index]
 

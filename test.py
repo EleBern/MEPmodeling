@@ -1,17 +1,14 @@
-from GA.ga_toolbox.population import population
+from GA.gradient_toolbox.selection_best import selection_best
 import numpy as np
 import scipy.io
 
-
-
-LR = np.zeros(12)
-LR[-2]= 5
-LR[-3]= 1
-UR = np.ones(12)*10
-UR[-1]=1
-UR[5]=20
-UR[6]=20
-population(60,12, LR, UR)
+R=scipy.io.loadmat("R")
+R=R["R"]
+P=scipy.io.loadmat("P")
+P=P["P"]
+E=scipy.io.loadmat("E")
+E=E["E"]
+selection_best(P, E, R, 60, -1)
 #############################################################
 # from load_muap import load_muap
 # load_muap(1)
