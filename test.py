@@ -3,10 +3,18 @@ import numpy as np
 import scipy.io
 
 
-n = 100
-X = scipy.io.loadmat("X.mat")
-X=X["X"]
-mutationV(X, n)
+lowchance = 0.1
+highchance = 0.9
+LR = np.zeros(12)
+LR[-2]= 5
+LR[-3]= 1
+UR = np.ones(12)*10
+UR[-1]=1
+UR[5]=20
+UR[6]=20
+P = scipy.io.loadmat("P.mat")
+P=P["P"]
+mutationV(P, lowchance, highchance, LR, UR)
 #############################################################
 # from load_muap import load_muap
 # load_muap(1)

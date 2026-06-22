@@ -1,5 +1,5 @@
 import numpy as np
-from population import population
+from GA.ga_toolbox.population import population
 
 
 def mutationV(P, lowchance, highchance, LR, UR):
