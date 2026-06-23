@@ -23,7 +23,20 @@ import matplotlib.pyplot as plt
 from load_h5            import load_h5_to_dict
 from MEPmodel_bio       import MEPmodel_bio
 from config_model_bio   import config_model_bio
-from Optimizer          import ga_run
+
+# GA toolbox
+from GA.ga_toolbox.population       import population
+from GA.ga_toolbox.selection_uniq   import selection_uniq
+from GA.ga_toolbox.crossover        import crossover
+from GA.ga_toolbox.mutation         import mutation
+from GA.ga_toolbox.mutationV        import mutationV
+from GA.ga_toolbox.mutation_single  import mutation_single
+from GA.ga_toolbox.fitness_function import fitness_function
+from GA.ga_toolbox.gradient_search import gradient_search
+
+# Gradient toolbox
+from GA.gradient_toolbox.evaluation       import evaluation
+from GA.gradient_toolbox.selection_best   import selection_best
 
 
 # ==========================================================================
@@ -147,8 +160,8 @@ def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0):
 # ==========================================================================
 def _run_and_save(ref, root, result_path):
     """
-    Run the GA, save the result as an HDF5 file, and return the best
-    parameter set.
+    Inline translation of MATLAB run_ga.  Runs the full GA loop, saves the
+    result as an HDF5 file, and returns the best parameter set.
 
     Parameters
     ----------
@@ -158,66 +171,220 @@ def _run_and_save(ref, root, result_path):
 
     Returns
     -------
-    p_post : np.ndarray  [nParams,]
+    p_post : np.ndarray  [nParams,]  — parameters from the last generation
     """
-    # Promote ref['model']['boundary'] to ref['boundary'] so that ga_run,
-    # which expects the pheno convention, can find it at the top level.
-    # The full ref['model'] sub-dict is left intact for MEPmodel_bio.
-    ref['boundary'] = ref['model']['boundary']
+    # ------------------------------------------------------------------
+    # 0.  Hyperparameters  (mirrors MATLAB run_ga)
+    # ------------------------------------------------------------------
+    op = -1          # -1: minimise,  1: maximise
 
-    LR      = ref['boundary'][:, 0]
-    UR      = ref['boundary'][:, 1]
+    N1 = 60          # population size
+    N2 = 100         # crossover: number of pairs
+    N3 = 100         # mutation:  number of pairs
+    tg = 1           # total generations
+
+    # Gradient-search configuration
+    conf = {
+        'gLoop': 10,   # iterations per gradient search
+        'gL':    -12,
+        'gU':    12,
+        'gTol':  0.01,
+        'op':    op,
+        'myfunc': objective_function,
+    }
+    conf['gT'] = abs(conf['gU'] - conf['gL']) + 1
+
+    # ------------------------------------------------------------------
+    # 1.  Boundaries
+    # ------------------------------------------------------------------
+    LR      = ref['model']['boundary'][:, 0]
+    UR      = ref['model']['boundary'][:, 1]
     nParams = len(LR)
 
-    # ---- collect any previous solutions to seed the population ----
+    # Expose boundary at top level (MEPmodel_bio may need it)
+    ref['boundary'] = ref['model']['boundary']
+
+    # conf also needs the bounds and the full ref for gradient_search
+    conf['LR']     = LR
+    conf['UR']     = UR
+    conf['y_goal'] = ref
+
+    # ------------------------------------------------------------------
+    # 2.  Collect previous solutions to seed the population
+    #     Mirrors MATLAB: primary result file + fixed-AMPAweight loop
+    # ------------------------------------------------------------------
     solution_ini = np.empty((0, nParams))
 
-    # Primary result file
-    if os.path.isfile(result_path):
-        print(f'{result_path} found.')
-        with h5py.File(result_path, 'r') as f:
+    # 2a. Primary result file for this subject
+    primary_path = result_path          # already the .h5 path for this subject
+    if os.path.isfile(primary_path):
+        print(f'{primary_path} found.')
+        with h5py.File(primary_path, 'r') as f:
             tmp = load_h5_to_dict(f)
         solution_ini = np.vstack([solution_ini, np.atleast_2d(tmp['p_post'])])
 
-    # Fixed-AMPAweight result file — only loaded when AMPAweight is a 1-value list
-    ampa = ref['model'].get('AMPAweight')
-    ampa_arr = np.atleast_1d(ampa) if (ampa is not None and ampa != []) else np.array([])
-    if len(ampa_arr) == 1 and ref['model'].get('withRC'):
-        fixed_dir     = os.path.join(root, 'fitted_results', 'bio', 'fixedAMPA_weight')
-        tmpname_fixed = os.path.join(
-            fixed_dir, f"result_bio_s{ref['subj']}[{ampa_arr[0]:g}].h5"
-        )
-    elif len(ampa_arr) == 1 and ref['model'].get('withRC') == 0:
-        fixed_dir     = os.path.join(root, 'fitted_results', 'bioNoRC', 'fixedAMPA_weight')
-        tmpname_fixed = os.path.join(
-            fixed_dir, f"result_bio_s{ref['subj']}[{ampa_arr[0]:g}].h5"
-        )
-        if os.path.isfile(tmpname_fixed):
-            print(f'{tmpname_fixed} found.')
-            with h5py.File(tmpname_fixed, 'r') as f:
-                tmp_fixed = load_h5_to_dict(f)
-            if 'p_post' in tmp_fixed:
-                p_tmp = np.atleast_1d(tmp_fixed['p_post']).ravel(order="F")
-                p_tmp[11] = ampa_arr[0]   # ensure the parameter matches the requested value
-                solution_ini = np.vstack([solution_ini, p_tmp])
-        else:
-            print(f'No fixed-AMPAweight seed file found at:\n  {tmpname_fixed}')
+    # 2b. Fixed-AMPAweight loop (AMPAw = 0.2, 0.3, …, 0.8)
+    #     Mirrors MATLAB: for AMPAw=0.2:0.1:0.8 … load & optionally fix p(12)
+    ampa_fixed = ref['model'].get('AMPAweight')   # None / [] → free;  scalar → fixed
+    ampa_is_fixed = (ampa_fixed is not None and
+                     not (isinstance(ampa_fixed, (list, np.ndarray))
+                          and len(np.atleast_1d(ampa_fixed)) == 0))
 
-    # Rectify boundaries for seeded solutions
+    fixed_seed_dir = os.path.join(root, 'fitted_results', 'bio', 'fixed_AMPAweight')
+    for AMPAw in np.arange(0.2, 0.85, 0.1):       # 0.2 … 0.8 inclusive
+        AMPAw = round(AMPAw, 1)
+        tmpname = os.path.join(
+            fixed_seed_dir,
+            f"result_bio_s{ref['subj']}[{AMPAw:g}].h5"
+        )
+        if os.path.isfile(tmpname):
+            print(f'{tmpname} found.')
+            with h5py.File(tmpname, 'r') as f:
+                tmp = load_h5_to_dict(f)
+            p_tmp = np.atleast_1d(tmp['p_post']).ravel()
+            if ampa_is_fixed:
+                # fix AMPA weight parameter (0-indexed: param index 11 = MATLAB 12)
+                p_tmp = p_tmp.copy()
+                p_tmp[11] = float(np.atleast_1d(ampa_fixed).ravel()[0])
+            solution_ini = np.vstack([solution_ini, p_tmp])
+
+    # 2c. Clip seeded solutions to parameter bounds
     if solution_ini.size > 0:
         for i in range(nParams):
             solution_ini[:, i] = np.clip(solution_ini[:, i], LR[i], UR[i])
 
-    # ---- set up online plot ----
+    # ------------------------------------------------------------------
+    # 3.  Initialisation
+    # ------------------------------------------------------------------
+    print('======== Initialization ========')
+    P = population(N1, nParams, LR, UR)           # [N1 x nParams] random solutions
+    if solution_ini.size > 0:
+        P = np.vstack([P, solution_ini])           # append seeded solutions
+
+    E, R, _ = evaluation(P, objective_function, ref)  # E: [nSolutions,]  R: [T x nSolutions]
+    P, E, R = selection_best(P, E, R, N1, op)      # keep best N1
+    R1 = R[:, 0]                                   # residual of current best
+
+    print('done')
+    print(f'Minimum cost: {E[0]}')
+    print('================================')
+    E_crit = E[0]
+
+    # History accumulators  (row w holds generation w data)
+    K          = []   # [[avg_cost, best_cost], …]
+    KP         = []   # [best_params, …]
+    KS         = []   # [best_cost, …]
+    GA_counter = []   # [0/1 per generation]
+
+    # ------------------------------------------------------------------
+    # 4.  Online-plot setup
+    # ------------------------------------------------------------------
     fig, axes = plt.subplots(5, 1, figsize=(8, 12))
     plt.ion()
     plt.show()
 
-    # ---- GA run ----
-    def plot_callback(KP, KS, K, E, GA_counter, R1):
+    # ------------------------------------------------------------------
+    # 5.  Main GA loop
+    # ------------------------------------------------------------------
+    w = 0   # generation index (0-based, matching list append)
+    j = 1   # generation counter for stopping (mirrors MATLAB j=1 before loop)
+
+    while True:
+
+        # ---- 5a. Gradient search on current best ----
+        print('======= Gradient search ========')
+        Para_E_grd, E_grd, R_grd = gradient_search(P[0:1, :], R1, conf, E_crit)
+        # Replace best if gradient improved it
+        if op * E_grd[0] > op * E[0]:
+            P[0, :]  = Para_E_grd[0, :]
+            E[0]     = E_grd[0]
+            R[:, 0]  = R_grd[:, 0]
+        print('done')
+
+        # ---- 5b. Single-parameter mutation of current best ----
+        print('======= single-parameter mutation ========')
+        P_ = mutation_single(P[0:1, :], LR, UR)   # [nParams x nParams]
+        E_, R_ = evaluation(P_, objective_function, ref)
+        print('done')
+
+        # ---- 5c. Gradient search on each single-param mutant ----
+        print('======= Gradient search ========')
+        Para_E_grd = np.empty_like(P_)
+        E_grd      = np.empty(len(E_))
+        R_grd      = np.empty_like(R_)
+        for i in range(len(E_)):
+            print(f'[{i+1}/{len(E_)}] cost: {E_[i]:.6f}')
+            pg, eg, rg = gradient_search(P_[i:i+1, :], R_[:, i:i+1], conf, E_crit)
+            Para_E_grd[i, :] = pg[0, :]
+            E_grd[i]         = eg[0]
+            R_grd[:, i]      = rg[:, 0]
+
+        # Replace mutants where gradient improved them
+        index = op * E_grd > op * E_
+        P_[index, :]   = Para_E_grd[index, :]
+        E_[index]      = E_grd[index]
+        R_[:, index]   = R_grd[:, index]
+
+        # Append mutants to population
+        P = np.vstack([P, P_])                     # [(N1 + nParams) x nParams]
+        E = np.concatenate([E, E_])
+        R = np.hstack([R, R_])
+        print('done')
+
+        # Track best-after-gradient for GA-effectiveness check
+        _, E_show, _ = selection_best(P, E, R, 1, op)
+        print(f'best after gradient: {E_show[0]}')
+
+        # ---- 5d. GA operators ----
+        print('GA search...')
+        P_mutV     = mutationV(P[:N1, :], 0.1, 0.9, LR, UR)          # N1 solutions
+        P_cross    = crossover(P, N2)                                   # 2*N2 solutions
+        P_mut      = mutation(P, N3)                                    # 2*N3 solutions
+        P_new      = np.vstack([P_mutV, P_cross, P_mut])
+
+        # Evaluate only the newly generated solutions
+        E_new, _, _ = evaluation(P_new, objective_function, ref)
+
+        # Merge all solutions (mirrors MATLAB indexing: P(N1+nParams+1:end) is P_new)
+        P = np.vstack([P, P_new])
+        E = np.concatenate([E, E_new])
+
+        # Selection: keep N1 unique best solutions
+        P, E = selection_uniq(P, E, N1, N1, op, LR, UR)
+
+        # Re-evaluate residual of new best solution
+        _, R1_arr, _ = evaluation(P[0:1, :], objective_function, ref)
+        R1 = R1_arr[:, 0]
+        print('done')
+
+        # ---- 5e. Record history ----
+        avg_cost = E.sum() / N1
+        K.append([avg_cost, E[0]])
+        KP.append(P[0, :].copy())
+        KS.append(E[0])
+        E_crit = E[0]
+
+        print('========')
+        print(f'current best Loss: {KS[w]}')
+        print('========')
+
+        gof = fitness_function(ref['y0'].ravel(), R1)
+        print('========')
+        print(f'current best R2: {gof}')
+        print('========')
+
+        # GA-effectiveness flag
+        if E_show[0] > E[0]:
+            print('GA works')
+            GA_counter.append(1)
+        else:
+            print("GA doesn't work")
+            GA_counter.append(0)
+
+        # ---- 5f. Online plot ----
+        _, houtput = objective_function(KP[-1], ref)
         K_arr  = np.array(K)
         GA_arr = np.array(GA_counter)
-        _, houtput = objective_function(KP[-1], ref)
 
         for ax in axes:
             ax.cla()
@@ -255,23 +422,42 @@ def _run_and_save(ref, root, result_path):
         plt.pause(0.01)
         fig.canvas.draw()
 
-    p_post, KP_arr, KS_arr, P = ga_run(
-        ref,
-        objective_function,
-        N1=60, N2=100, N3=100, tg=1,
-        op=-1,
-        solution_ini=solution_ini,
-        plot_callback=plot_callback,
-    )
+        # ---- 5g. Stopping criteria ----
+        w += 1
+        j += 1
 
-    # ---- backup previous result if it exists ----
+        if j > tg:          # max generations reached
+            break
+        if KS[-1] < 0.01:   # good-enough fit
+            break
+
+    # ------------------------------------------------------------------
+    # 6.  Extract best overall result
+    #     MATLAB: p_post = KP(end,:)  — last generation's best
+    #     (The overall minimum across all generations is also reported.)
+    # ------------------------------------------------------------------
+    KS_arr = np.array(KS)
+    KP_arr = np.array(KP)
+
+    if op == -1:
+        best_idx = int(np.argmin(KS_arr))
+        print(f'minimum: {KS_arr[best_idx]}')
+    else:
+        best_idx = int(np.argmax(KS_arr))
+        print(f'maximum: {KS_arr[best_idx]}')
+
+    # p_post follows MATLAB convention: last generation's best
+    p_post = KP_arr[-1, :]
+
+    # ------------------------------------------------------------------
+    # 7.  Backup previous result (if any) then save
+    # ------------------------------------------------------------------
     if os.path.isfile(result_path):
         timestamp   = datetime.now().strftime('%Y-%m%d-%H%M')
         backup_path = os.path.splitext(result_path)[0] + f'_backup-{timestamp}.h5'
         shutil.copyfile(result_path, backup_path)
         print(f'Previous result backed up to: {backup_path}')
 
-    # ---- update ref and save to HDF5 ----
     _, ref_final = MEPmodel_bio(p_post, ref, 0)
     os.makedirs(os.path.dirname(result_path), exist_ok=True)
 
