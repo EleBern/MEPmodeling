@@ -329,7 +329,7 @@ def _run_and_save(ref, root, result_path):
 
         # Append mutants to population
         P = np.vstack([P, P_])                     # [(N1 + nParams) x nParams]
-        E = np.concatenate([E, E_])
+        E = np.hstack([np.atleast_2d(E), E_])
         R = np.hstack([R, R_])
         print('done')
 
@@ -349,7 +349,7 @@ def _run_and_save(ref, root, result_path):
 
         # Merge all solutions (mirrors MATLAB indexing: P(N1+nParams+1:end) is P_new)
         P = np.vstack([P, P_new])
-        E = np.concatenate([E, E_new])
+        E = np.hstack([E, E_new])
 
         # Selection: keep N1 unique best solutions
         P, E = selection_uniq(P, E, N1, N1, op, LR, UR)
