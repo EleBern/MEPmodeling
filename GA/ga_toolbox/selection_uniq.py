@@ -28,11 +28,13 @@ def selection_uniq(P1, B, p, r, op, LR, UR):
 
     # Remove inf entries
     index = np.isinf(B)
+    index = index.ravel()
     B  = B[~index]
     P1 = P1[~index, :]
 
     # Remove nan entries
     index = np.isnan(B)
+    index = index.ravel()
     B  = B[~index]
     P1 = P1[~index, :]
 
