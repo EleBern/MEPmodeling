@@ -304,7 +304,7 @@ def _run_and_save(ref, root, result_path):
         # ---- 5b. Single-parameter mutation of current best ----
         print('======= single-parameter mutation ========')
         P_ = mutation_single(P[0:1, :], LR, UR)   # [nParams x nParams]
-        E_, R_ = evaluation(P_, objective_function, ref)
+        E_, R_, _ = evaluation(P_, objective_function, ref)
         print('done')
 
         # ---- 5c. Gradient search on each single-param mutant ----
