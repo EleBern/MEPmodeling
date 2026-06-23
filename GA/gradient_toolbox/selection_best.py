@@ -26,8 +26,8 @@ def selection_best(P, E, R, p, op):
     E = op * E
 
     # Sort from high to low — best first
-    index = np.argsort(E)[0][::-1]
-    E = np.sort(E)[0][::-1]
+    index = np.argsort(E)[::-1]
+    E = np.sort(E)[::-1]
     P = P[index, :]
     R = R[:, index]
 
