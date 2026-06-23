@@ -1,7 +1,6 @@
 import time
 import sys
 import numpy as np
-from fitness_function import fitness_function
 
 
 def evaluation(X, func, y_goal):
