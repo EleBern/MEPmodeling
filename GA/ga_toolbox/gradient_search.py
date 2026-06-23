@@ -21,6 +21,8 @@ def gradient_search(P, r, conf, stop_crit):
     fit_post  : np.ndarray  [N,]           fit (= sumsqr(error)) after gradient search
     r_post    : np.ndarray  [timepoints x N]  residual after gradient search
     """
+    
+    P = np.atleast_2d(P)
     N, nParams = P.shape
     timepoints = r.shape[0]
     r = r.reshape(-1, 1)
