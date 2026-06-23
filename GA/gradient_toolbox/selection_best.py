@@ -24,10 +24,8 @@ def selection_best(P, E, R, p, op):
 
     # Turn minimisation into maximisation if necessary
     E = op * E
-    print("in selection best ", E.shape)
     # Sort from high to low — best first
     index = np.argsort(E)[::-1]
-    print("in selection best index ", index.shape)
     E = np.sort(E)[::-1]
     P = P[index, :]
     R = R[:, index]
