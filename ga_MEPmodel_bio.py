@@ -327,7 +327,7 @@ def _run_and_save(ref, root, result_path):
         print("in main shape index ", index.shape)
 
         P_[index, :]   = Para_E_grd[index, :]
-        E_[index]      = E_grd[index]
+        E_[0, index]      = E_grd[index]
         R_[:, index]   = R_grd[:, index]
 
         # Append mutants to population
