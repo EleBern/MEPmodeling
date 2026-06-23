@@ -320,11 +320,8 @@ def _run_and_save(ref, root, result_path):
             R_grd[:, i]      = rg[:, 0]
 
         # Replace mutants where gradient improved them
-        print("in main shape E_grd ", E_grd.shape)
-        print("in main shape E_ ", E_.shape)
         index = op * E_grd > op * E_
         index = index.ravel()
-        print("in main shape index ", index.shape)
 
         P_[index, :]   = Para_E_grd[index, :]
         E_[0, index]      = E_grd[index]
