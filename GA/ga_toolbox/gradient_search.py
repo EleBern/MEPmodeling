@@ -23,6 +23,7 @@ def gradient_search(P, r, conf, stop_crit):
     """
     N, nParams = P.shape
     timepoints = r.shape[0]
+    r = r.reshape(-1, 1)
 
     fit_post = np.zeros(N)
     P_post   = np.zeros((N, nParams))

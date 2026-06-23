@@ -1,11 +1,11 @@
 import numpy as np
-from NMM_diff_A_lfm import NMM_diff_A_lfm
+from GA.gradient_toolbox.NMM_diff_A_lfm import NMM_diff_A_lfm
 # Alternatives (uncomment to switch):
 # from NMM_diff_A_lfm_pade   import NMM_diff_A_lfm_pade   as NMM_diff_A_lfm
 # from NMM_diff_A_lfm_pade33 import NMM_diff_A_lfm_pade33 as NMM_diff_A_lfm
-from multi_lavenberg_regulization import multi_lavenberg_regulization
-from evaluation import evaluation
-from selection_best import selection_best
+from GA.gradient_toolbox.multi_lavenberg_regulization import multi_lavenberg_regulization
+from GA.gradient_toolbox.evaluation import evaluation
+from GA.gradient_toolbox.selection_best import selection_best
 
 
 def gauss_newton_slow(op, Para_E_test, r_test, func, y_goal,
