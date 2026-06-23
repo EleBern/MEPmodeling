@@ -310,7 +310,7 @@ def _run_and_save(ref, root, result_path):
         # ---- 5c. Gradient search on each single-param mutant ----
         print('======= Gradient search ========')
         Para_E_grd = np.empty_like(P_)
-        E_grd      = np.empty(len(E_))
+        E_grd      = np.empty(E_.shape[1])
         R_grd      = np.empty_like(R_)
         for i in range(E_.shape[1]):
             #print(f'[{i+1}/{len(E_)}] cost: {E_[i]:.6f}')
