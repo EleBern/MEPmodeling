@@ -1,11 +1,12 @@
-from GA.ga_toolbox.selection_uniq import selection_uniq
+from GA.gradient_toolbox.multi_lavenberg_regulization import multi_lavenberg_regulization
 import numpy as np
 import scipy.io
 
-P1 = scipy.io.loadmat("P1.mat")
-P1=P1["P1"]
-B = scipy.io.loadmat("B.mat")
-B=B["B"].ravel(order="F")
+Para_E = np.array([1.0079,2.2095,5.1515,0.9768,6.7231,10.1484,0.8018,0.4232,0.0346,3.3845,5.0966,0.1311])
+h_output = scipy.io.loadmat("h_output.mat")
+h_output=h_output["h_output"]
+J = scipy.io.loadmat("J.mat")
+J=J["J"]
 LR = np.zeros(12)
 LR[-2] = 5
 LR[-3] = 1
@@ -13,7 +14,7 @@ UR = np.ones(12) *10
 UR[-1] = 1
 UR[5] = 20
 UR[6] = 20
-selection_uniq(P1, B, 60, 60, -1, LR, UR)
+multi_lavenberg_regulization(25, -12, 12, Para_E, J, h_output, LR, UR)
 #############################################################
 # from load_muap import load_muap
 # load_muap(1)

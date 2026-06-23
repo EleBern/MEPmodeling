@@ -1,5 +1,5 @@
 import numpy as np
-from gradient_repair import gradient_repair
+from GA.gradient_toolbox.gradient_repair import gradient_repair
 
 
 def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
@@ -22,7 +22,7 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
     -------
     Y : np.ndarray  [n x nParams]  updated candidate solutions
     """
-    Para_E = Para_E.ravel(order='F')   # ensure 1-D, Fortran ordering to match MATLAB (:)
+    #Para_E = Para_E.ravel(order='F')   # ensure 1-D, Fortran ordering to match MATLAB (:)
     nParams = len(Para_E)
 
     Y = np.zeros((n, nParams))
@@ -51,5 +51,5 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
 
         # Clamp to boundary
         Y[i, :] = gradient_repair(Para_E_new, LR, UR)
-
+    np.savetxt("Y.txt", Y)
     return Y
