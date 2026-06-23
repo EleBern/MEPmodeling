@@ -312,15 +312,20 @@ def _run_and_save(ref, root, result_path):
         Para_E_grd = np.empty_like(P_)
         E_grd      = np.empty(len(E_))
         R_grd      = np.empty_like(R_)
-        for i in range(len(E_)):
-            print(f'[{i+1}/{len(E_)}] cost: {E_[i]:.6f}')
+        for i in range(E_.shape[1]):
+            #print(f'[{i+1}/{len(E_)}] cost: {E_[i]:.6f}')
             pg, eg, rg = gradient_search(P_[i:i+1, :], R_[:, i:i+1], conf, E_crit)
             Para_E_grd[i, :] = pg[0, :]
             E_grd[i]         = eg[0]
             R_grd[:, i]      = rg[:, 0]
 
         # Replace mutants where gradient improved them
+        print("in main shape E_grd ", E_grd.shape)
+        print("in main shape E_ ", E_.shape)
         index = op * E_grd > op * E_
+        index = index.ravel()
+        print("in main shape index ", index.shape)
+
         P_[index, :]   = Para_E_grd[index, :]
         E_[index]      = E_grd[index]
         R_[:, index]   = R_grd[:, index]
