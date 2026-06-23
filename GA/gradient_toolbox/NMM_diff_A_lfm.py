@@ -36,7 +36,7 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
         para_1 = para_save.copy()
         para_1[i] = para1[i]                         # perturb only parameter i
 
-        houtput_new = myfunc(para_1, y_goal)
+        houtput_new, _ = myfunc(para_1, y_goal)
         houtput_new_flat = np.asarray(houtput_new).ravel(order='F')
 
         f[:, i] = (houtput_new_flat - houtput_flat) / h
