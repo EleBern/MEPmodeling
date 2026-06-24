@@ -30,7 +30,7 @@ import matplotlib.pyplot as plt
 from ga_MEPmodel_bio import ga_MEPmodel_bio
 #ga_MEPmodel_bio("5LM", 1, [] , 0)
 
-for i in range(2):
+for i in range(20):
     print("############################################")
     print("This is the ", i, " iteration")
     ga_MEPmodel_bio("2PA", 1, [] , 1)
