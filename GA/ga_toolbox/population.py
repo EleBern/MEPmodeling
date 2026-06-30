@@ -23,4 +23,7 @@ def population(N, nParams, LR, UR):
     for i in range(nParams):
         P[:, i] = (UR[i] - LR[i]) * np.random.rand(N) + LR[i]
 
+    if N == 1:
+        P = P.ravel()
+
     return P

@@ -1,8 +1,5 @@
 import numpy as np
 from GA.gradient_toolbox.NMM_diff_A_lfm import NMM_diff_A_lfm
-# Alternatives (uncomment to switch):
-# from NMM_diff_A_lfm_pade   import NMM_diff_A_lfm_pade   as NMM_diff_A_lfm
-# from NMM_diff_A_lfm_pade33 import NMM_diff_A_lfm_pade33 as NMM_diff_A_lfm
 from GA.gradient_toolbox.multi_lavenberg_regulization import multi_lavenberg_regulization
 from GA.gradient_toolbox.evaluation import evaluation
 from GA.gradient_toolbox.selection_best import selection_best
@@ -16,8 +13,8 @@ def gauss_newton_slow(op, Para_E_test, r_test, func, y_goal,
     Parameters
     ----------
     op           : int        -1 → minimise, +1 → maximise
-    Para_E_test  : np.ndarray [nParams x 1] or [nParams,]  initial parameters
-    r_test       : np.ndarray [nData,] or [nData x 1]      initial residual
+    Para_E_test  : np.ndarray [nParams,]  initial parameters
+    r_test       : np.ndarray [nData,]    initial residual
     func         : callable   objective: error, houtput = func(P, y_goal)
     y_goal       : target output
     reg0         : float      log10 of minimum regularisation (passed to MLR)
@@ -35,8 +32,6 @@ def gauss_newton_slow(op, Para_E_test, r_test, func, y_goal,
     Para_E_after_g: np.ndarray [nParams,]  best parameters after gradient search
     error_after_g : np.ndarray [nData,]    residual of best solution
     """
-    Para_E_test = np.atleast_1d(Para_E_test).ravel(order='F')   # [nParams,]
-    r_test      = np.atleast_1d(r_test).ravel(order='F')        # [nData,]
 
     fit_     = []           # fitness history
     Para_E_  = []           # parameter history  [iter x nParams]
@@ -59,11 +54,11 @@ def gauss_newton_slow(op, Para_E_test, r_test, func, y_goal,
 
         # ---- Select best candidate ----
         Para_E_new, fit_new_arr, error_new = selection_best(
-            Para_E_new_group, fit_grp.ravel(), error_grp, 1, op
+            Para_E_new_group, fit_grp, error_grp, 1, op
         )
-        fit_new   = float(fit_new_arr.ravel()[0])
-        r_test    = error_new.ravel(order='F')          # [nData,]
-        Para_E_test = Para_E_new.ravel(order='F')       # [nParams,]
+        fit_new   = float(fit_new_arr[0])
+        r_test    = error_new      # [nData,]
+        Para_E_test = Para_E_new       # [nParams,]
 
         print(fit_new, flush=True)
 
@@ -88,9 +83,9 @@ def gauss_newton_slow(op, Para_E_test, r_test, func, y_goal,
         YY1, fit_after_arr, YY3 = selection_best(
             Para_E_mat, fit_arr, error_mat, 1, op
         )
-        Para_E_after_g = YY1.ravel(order='F')
-        fit_after_g    = float(fit_after_arr.ravel()[0])
-        error_after_g  = YY3.ravel(order='F')
+        Para_E_after_g = YY1
+        fit_after_g    = float(fit_after_arr[0])
+        error_after_g  = YY3
     else:
         # Converged early — use the last iterate
         Para_E_after_g = Para_E_test

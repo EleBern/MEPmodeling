@@ -9,25 +9,24 @@ def evaluation(X, func, y_goal):
 
     Parameters
     ----------
-    X      : np.ndarray  [x x nParams]  population (each row is one solution)
+    X      : np.ndarray  [x, nParams]  population (each row is one solution)
     func   : callable    objective function with signature:
                          error, houtput = func(P, y_goal)
     y_goal : target output passed through to func
 
     Returns
     -------
-    Fit     : np.ndarray  [1 x x]   fitness value (sumsqr of error) per solution
-    Error   : np.ndarray  [nData x x]  residuals per solution
+    Fit     : np.ndarray  [x, ]   fitness value (sumsqr of error) per solution
+    Error   : np.ndarray  [nData, x]  residuals per solution
     Houtput : list[any]  raw model outputs per solution
     """
     x, _ = X.shape  # x: population size
-    Fit = np.zeros((1, x))
+    Fit = np.zeros((x))
     total_pop = str(x)
 
     Error   = None  # will be built on first iteration
     Houtput = [None] * x
 
-    reverseStr = '   '
     for j in range(x):
         # -------- objective function --------
         P = X[j, :]              # parameter vector for this solution
@@ -42,12 +41,12 @@ def evaluation(X, func, y_goal):
         sys.stdout.write('\r' + msg)
         sys.stdout.flush()
 
-        Fit[0, j] = fit
+        Fit[j] = fit
 
         # Initialise Error array on first iteration once we know its shape
         if Error is None:
             Error = np.zeros((error.size, x))
-        Error[:, j] = error.ravel(order='F')   # MATLAB column-major flattening
+        Error[:, j] = error
 
         Houtput[j] = houtput
 

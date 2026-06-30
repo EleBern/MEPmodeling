@@ -9,7 +9,7 @@ def mutationV(P, lowchance, highchance, LR, UR):
 
     Parameters
     ----------
-    P          : np.ndarray  [n_pop x n_parameter]  ranked population,
+    P          : np.ndarray  [n_pop, n_parameter]  ranked population,
                              best (lowest cost) individual at the first row
     lowchance  : float  mutation probability for the best individual
     highchance : float  mutation probability for the worst individual
@@ -18,7 +18,7 @@ def mutationV(P, lowchance, highchance, LR, UR):
 
     Returns
     -------
-    mutateP : np.ndarray  [n_pop x n_parameter]  mutated population
+    mutateP : np.ndarray  [n_pop, n_parameter]  mutated population
     """
     mutateP = P.copy()                                          # [n_pop x n_parameter]
 

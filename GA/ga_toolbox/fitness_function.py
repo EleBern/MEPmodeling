@@ -15,6 +15,6 @@ def fitness_function(y_goal, h_output):
     fit : float  fitness value (lower is better)
     """
     tmp = y_goal - h_output
-    fit = np.var(tmp.ravel(order="F")) / np.var(y_goal.ravel(order="F"))  # 1 - R2
+    fit = np.var(tmp) / np.var(y_goal)  # 1 - R2
 
     return fit

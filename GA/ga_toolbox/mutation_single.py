@@ -8,22 +8,23 @@ def mutation_single(solution, LR, UR):
 
     Parameters
     ----------
-    solution : np.ndarray  [1 x nParams] or [nParams,]  best solution
+    solution : np.ndarray  [nParams,]  best solution
     LR       : array-like  lower boundary
     UR       : array-like  upper boundary
 
     Returns
     -------
-    P : np.ndarray  [nParams x nParams]  nParams mutated solutions,
+    P : np.ndarray  [nParams, nParams]  nParams mutated solutions,
         each differing from `solution` in exactly one parameter position.
     """
-    solution = np.atleast_1d(solution).ravel(order="F")
+
     nParams  = len(solution)
 
     P = np.tile(solution, (nParams, 1))           # replicate solution nParams times
 
     # Replace the diagonal entries with fresh random values (one per row)
     diag_mask = np.eye(nParams, dtype=bool)
-    P[diag_mask] = population(1, nParams, LR, UR).ravel()
+    P[diag_mask] = population(1, nParams, LR, UR)
+    prova = population(1, nParams, LR, UR)
 
     return P

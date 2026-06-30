@@ -7,12 +7,12 @@ def mutation(X, n):
 
     Parameters
     ----------
-    X : np.ndarray  [x x y]  population
+    X : np.ndarray  [x, y]  population
     n : int         number of pairs of chromosomes to mutate
 
     Returns
     -------
-    Y : np.ndarray  [2*n x y]  mutated offspring
+    Y : np.ndarray  [2*n, y]  mutated offspring
     """
     x, y = X.shape
     E = np.zeros((2 * n, y))

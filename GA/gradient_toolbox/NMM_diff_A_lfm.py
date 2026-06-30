@@ -10,8 +10,8 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
 
     Parameters
     ----------
-    para    : np.ndarray  [nParams,] or [nParams x 1]  current parameter vector
-    houtput : np.ndarray  [T,] or [T x 1]  function output at `para` (reference)
+    para    : np.ndarray  [nParams,] current parameter vector
+    houtput : np.ndarray  [T,]  function output at `para` (reference)
     myfunc  : callable    black-box function: error = myfunc(para, y_goal)
     y_goal  : target output passed through to myfunc
 
@@ -21,13 +21,10 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
     """
     h = 1e-6
 
-    para = para.ravel(order='F')   # ensure 1-D, Fortran ordering to match MATLAB (:)
-    houtput_flat = houtput.ravel(order='F')
-
     para1 = para + h   # perturbed parameter vector (all elements shifted; only one used at a time)
 
     para_save = para.copy()
-    T = len(houtput_flat)
+    T = len(houtput)
     nParams = len(para)
 
     f = np.zeros((T, nParams))
@@ -37,9 +34,9 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
         para_1[i] = para1[i]                         # perturb only parameter i
 
         houtput_new, _ = myfunc(para_1, y_goal)
-        houtput_new_flat = np.asarray(houtput_new).ravel(order='F')
+        houtput_new_flat = np.asarray(houtput_new)
 
-        f[:, i] = (houtput_new_flat - houtput_flat) / h
+        f[:, i] = (houtput_new_flat - houtput) / h
 
     j = f   # [T x nParams]
 

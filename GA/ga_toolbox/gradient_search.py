@@ -22,7 +22,6 @@ def gradient_search(P, r, conf, stop_crit):
     r_post    : np.ndarray  [timepoints x N]  residual after gradient search
     """
     
-    P = np.atleast_2d(P)
     N, nParams = P.shape
     timepoints = r.shape[0]
     r = r.reshape(-1, 1)
@@ -35,7 +34,7 @@ def gradient_search(P, r, conf, stop_crit):
         print(f'G{i}:')
         fit_post[i], P_post[i, :], r_post[:, i] = gauss_newton_slow(
             conf['op'],
-            P[i, :].reshape(-1, 1),  # column vector, equivalent to P(i,:)'
+            P[i, :],  
             r[:, i],
             conf['myfunc'],
             conf['y_goal'],

@@ -10,9 +10,9 @@ def run_gradient(P, target, boundary, conf=None):
 
     Parameters
     ----------
-    P        : np.ndarray  [N x nParams]  initial population
+    P        : np.ndarray  [N, nParams]  initial population
     target   : target output (y_goal)
-    boundary : np.ndarray  [nParams x 2]  columns are [lower, upper] bounds
+    boundary : np.ndarray  [nParams, 2]  columns are [lower, upper] bounds
     conf     : dict or None
                If None, defaults are used (matching the MATLAB nargin<4 branch).
                Expected keys when provided:
@@ -24,7 +24,7 @@ def run_gradient(P, target, boundary, conf=None):
     P_post : np.ndarray  [nParams,]  best solution after gradient search
     """
     if conf is None:
-        from objective_function import objective_function   # assumed defined elsewhere
+        from objective_function import objective_function  
 
         conf = {}
         conf['op']     = -1                           # -1: find global minimum

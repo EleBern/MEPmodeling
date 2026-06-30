@@ -20,9 +20,10 @@ import numpy as np
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-from load_h5            import load_h5_to_dict
 from MEPmodel_bio       import MEPmodel_bio
+from load_h5            import load_h5_to_dict
 from config_model_bio   import config_model_bio
+from objective_function import objective_function
 
 # GA toolbox
 from GA.ga_toolbox.population       import population
@@ -37,17 +38,6 @@ from GA.ga_toolbox.gradient_search import gradient_search
 # Gradient toolbox
 from GA.gradient_toolbox.evaluation       import evaluation
 from GA.gradient_toolbox.selection_best   import selection_best
-
-
-# ==========================================================================
-def objective_function(p, ref):
-    """
-    Objective function: runs the biological MEP model and returns the residual.
-    """
-    _, ref_updated = MEPmodel_bio(p, ref)
-    error = ref_updated['error']
-    return error, ref_updated
-
 
 # ==========================================================================
 def _to_h5_compatible(value):
@@ -303,16 +293,16 @@ def _run_and_save(ref, root, result_path):
 
         # ---- 5b. Single-parameter mutation of current best ----
         print('======= single-parameter mutation ========')
-        P_ = mutation_single(P[0:1, :], LR, UR)   # [nParams x nParams]
+        P_ = mutation_single(P[0:1, :].ravel(), LR, UR)   # [nParams x nParams]
         E_, R_, _ = evaluation(P_, objective_function, ref)
         print('done')
 
         # ---- 5c. Gradient search on each single-param mutant ----
         print('======= Gradient search ========')
         Para_E_grd = np.empty_like(P_)
-        E_grd      = np.empty(E_.shape[1])
+        E_grd      = np.empty(len(E_))
         R_grd      = np.empty_like(R_)
-        for i in range(E_.shape[1]):
+        for i in range(len(E_)):
             #print(f'[{i+1}/{len(E_)}] cost: {E_[i]:.6f}')
             pg, eg, rg = gradient_search(P_[i:i+1, :], R_[:, i:i+1], conf, E_crit)
             Para_E_grd[i, :] = pg[0, :]
@@ -324,12 +314,12 @@ def _run_and_save(ref, root, result_path):
         index = index.ravel()
 
         P_[index, :]   = Para_E_grd[index, :]
-        E_[0, index]      = E_grd[index]
+        E_[index]      = E_grd[index]
         R_[:, index]   = R_grd[:, index]
 
         # Append mutants to population
         P = np.vstack([P, P_])                     # [(N1 + nParams) x nParams]
-        E = np.hstack([np.atleast_2d(E), E_])
+        E = np.hstack([E, E_])
         R = np.hstack([R, R_])
         print('done')
 

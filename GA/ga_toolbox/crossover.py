@@ -7,12 +7,12 @@ def crossover(X, n):
 
     Parameters
     ----------
-    X : np.ndarray  [x x y]  population
+    X : np.ndarray  [x, y]  population
     n : int         number of pairs of chromosomes to crossover
 
     Returns
     -------
-    Y : np.ndarray  [2*n x y]  offspring after crossover
+    Y : np.ndarray  [2*n, y]  offspring after crossover
     """
     x, y = X.shape  # x: population size, y: parameter size
     E = np.zeros((2 * n, y))

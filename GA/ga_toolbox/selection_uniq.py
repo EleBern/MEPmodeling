@@ -9,7 +9,7 @@ def selection_uniq(P1, B, p, r, op, LR, UR):
 
     Parameters
     ----------
-    P1 : np.ndarray  [n_pop x n_parameter]  population
+    P1 : np.ndarray  [n_pop, n_parameter]  population
     B  : np.ndarray  [n_pop,]               fitness values
     p  : int         desired output population size
     r  : int         number of top solutions guaranteed to be kept
@@ -19,13 +19,12 @@ def selection_uniq(P1, B, p, r, op, LR, UR):
 
     Returns
     -------
-    YY1 : np.ndarray  [p x n_parameter]  selected population
+    YY1 : np.ndarray  [p, n_parameter]  selected population
     YY2 : np.ndarray  [p,]               fitness of YY1
     """
     # Turn minimisation into maximisation if necessary
     B = op * B.copy()
     dim = P1.shape[1]
-    B = B.ravel()
 
     # Remove inf entries
     index = np.isinf(B)

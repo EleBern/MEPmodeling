@@ -12,9 +12,9 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
     n       : int        number of candidate solutions to return
     reg0    : float      log10 of minimum regularisation value
     reg1    : float      log10 of maximum regularisation value
-    Para_E  : np.ndarray [nParams x 1] or [nParams,]  current parameter vector
-    J       : np.ndarray [nData x nParams]  Jacobian matrix
-    h_output: np.ndarray [nData,] or [nData x 1]  current residual (f(x) - y_goal)
+    Para_E  : np.ndarray [nParams,]  current parameter vector
+    J       : np.ndarray [nData, nParams]  Jacobian matrix
+    h_output: np.ndarray [nData,]  current residual (f(x) - y_goal)
     LR      : float or array-like  lower boundary
     UR      : float or array-like  upper boundary
 
@@ -22,14 +22,12 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
     -------
     Y : np.ndarray  [n x nParams]  updated candidate solutions
     """
-    #Para_E = Para_E.ravel(order='F')   # ensure 1-D, Fortran ordering to match MATLAB (:)
+
     nParams = len(Para_E)
 
     Y = np.zeros((n, nParams))
 
     reg = 10.0 ** np.linspace(reg0, reg1, n)
-
-    h_output_flat = h_output.ravel(order='F')   # flatten as MATLAB column-major
 
     for i in range(n):
         # Levenberg-Marquardt regularisation step
@@ -38,7 +36,7 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
         except Exception:
             return Y
 
-        d = -D @ J.T @ h_output_flat   # parameter update (f(x) - y_goal convention)
+        d = -D @ J.T @ h_output   # parameter update (f(x) - y_goal convention)
 
         if np.any(np.isnan(d)):
             # equivalent to MATLAB's keyboard — raise to allow inspection
