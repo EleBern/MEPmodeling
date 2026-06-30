@@ -40,15 +40,15 @@ def run_gradient(P, target, boundary, conf=None):
 
     # ---- Evaluate initial population ----
     Para_E = P
-    fit, error, _ = evaluation(Para_E, conf['myfunc'], conf['y_goal'])
-    print('fit: ' + str(fit))   # fit is sumsquare(error)
+    F, E, _ = evaluation(Para_E, conf['myfunc'], conf['y_goal'])
+    print('fit: ' + str(F))   # F is sumsquare(error)
 
     # ---- Gradient search ----
     print('gradient search....')
-    fit_new, P_post, error_new = gauss_newton_slow(
+    F_new, P_post, E_new = gauss_newton_slow(
         conf['op'],
         Para_E.T,           # [nParams x N] — matches MATLAB Para_E'
-        error,              # [nData x N]
+        E,                  # [nData x N]
         conf['myfunc'],
         conf['y_goal'],
         conf['gL'],
@@ -58,7 +58,7 @@ def run_gradient(P, target, boundary, conf=None):
         conf['gTol'],
         conf['LR'],
         conf['UR'],
-        error,              # fit_crit = error (mirrors MATLAB call)
+        E,                  # fit_crit = E (mirrors MATLAB call)
     )
 
     return P_post

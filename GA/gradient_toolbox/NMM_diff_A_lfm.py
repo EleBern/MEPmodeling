@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
+def NMM_diff_A_lfm(para, E, myfunc, y_goal):
     """
     Estimate the Jacobian of a black-box function using forward finite differences.
 
@@ -11,7 +11,7 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
     Parameters
     ----------
     para    : np.ndarray  [nParams,] current parameter vector
-    houtput : np.ndarray  [T,]  function output at `para` (reference)
+    E       : np.ndarray  [T,]  residual (error) at `para` (reference)
     myfunc  : callable    black-box function: error = myfunc(para, y_goal)
     y_goal  : target output passed through to myfunc
 
@@ -24,7 +24,7 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
     para1 = para + h   # perturbed parameter vector (all elements shifted; only one used at a time)
 
     para_save = para.copy()
-    T = len(houtput)
+    T = len(E)
     nParams = len(para)
 
     f = np.zeros((T, nParams))
@@ -33,10 +33,9 @@ def NMM_diff_A_lfm(para, houtput, myfunc, y_goal):
         para_1 = para_save.copy()
         para_1[i] = para1[i]                         # perturb only parameter i
 
-        houtput_new, _ = myfunc(para_1, y_goal)
-        houtput_new_flat = np.asarray(houtput_new)
+        E_new, _ = myfunc(para_1, y_goal)
 
-        f[:, i] = (houtput_new_flat - houtput) / h
+        f[:, i] = (E_new - E) / h
 
     j = f   # [T x nParams]
 

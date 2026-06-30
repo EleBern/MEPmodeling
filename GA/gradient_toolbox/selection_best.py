@@ -1,15 +1,15 @@
 import numpy as np
 
 
-def selection_best(P, E_, R, p, op):
+def selection_best(P, F_, E, p, op):
     """
     Select the top-p solutions by fitness.
 
     Parameters
     ----------
     P  : np.ndarray  [n_pop, n_parameter]  population
-    E  : np.ndarray  [n_pop,]               fitness values
-    R  : np.ndarray  [n_data_sample, n_pop] residuals (y - h_output)
+    F_ : np.ndarray  [n_pop,]               fitness values
+    E  : np.ndarray  [n_data_sample, n_pop] residuals (y - h_output)
     p  : int         number of solutions to return
     op : int         -1 → select minimum fitness, +1 → select maximum fitness
 
@@ -20,18 +20,18 @@ def selection_best(P, E_, R, p, op):
     YY3 : np.ndarray  [n_data_sample, p]    residuals of YY1
     """
     # Turn minimisation into maximisation if necessary
-    E = E_.copy()
-    E = op * E
+    F = F_.copy()
+    F = op * F
     # Sort from high to low — best first
-    index = np.argsort(E)[::-1]
-    E = np.sort(E)[::-1]
+    index = np.argsort(F)[::-1]
+    F = np.sort(F)[::-1]
     P = P[index, :]
-    R = R[:, index]
+    E = E[:, index]
 
 
     YY1 = P[:p, :]
-    YY2 = op * E[:p]   # turn back to original sign
-    YY3 = R[:, :p]
+    YY2 = op * F[:p]   # turn back to original sign
+    YY3 = E[:, :p]
 
     if p == 1:
         YY1 = YY1.ravel()

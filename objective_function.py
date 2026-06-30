@@ -1,5 +1,5 @@
 
-from MEPmodel_bio       import MEPmodel_bio
+from MEPmodel_bio import MEPmodel_bio
 
 def objective_function(p, ref):
     """

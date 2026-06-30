@@ -2,7 +2,7 @@ import numpy as np
 from GA.gradient_toolbox.gradient_repair import gradient_repair
 
 
-def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
+def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, E, LR, UR):
     """
     Generate n candidate parameter updates via Levenberg-Marquardt regularisation,
     each with a different regularisation strength on a log scale [reg0, reg1].
@@ -14,7 +14,7 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
     reg1    : float      log10 of maximum regularisation value
     Para_E  : np.ndarray [nParams,]  current parameter vector
     J       : np.ndarray [nData, nParams]  Jacobian matrix
-    h_output: np.ndarray [nData,]  current residual (f(x) - y_goal)
+    E       : np.ndarray [nData,]  current residual (f(x) - y_goal)
     LR      : float or array-like  lower boundary
     UR      : float or array-like  upper boundary
 
@@ -36,13 +36,13 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, h_output, LR, UR):
         except Exception:
             return Y
 
-        d = -D @ J.T @ h_output   # parameter update (f(x) - y_goal convention)
+        d = -D @ J.T @ E   # parameter update (f(x) - y_goal convention)
 
         if np.any(np.isnan(d)):
             # equivalent to MATLAB's keyboard — raise to allow inspection
             raise RuntimeError(
                 f'NaN detected in gradient update at regularisation step {i}. '
-                f'reg={reg[i]:.4g}, check J and h_output.'
+                f'reg={reg[i]:.4g}, check J and E.'
             )
 
         Para_E_new = Para_E + d

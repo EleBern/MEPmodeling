@@ -16,15 +16,15 @@ def evaluation(X, func, y_goal):
 
     Returns
     -------
-    Fit     : np.ndarray  [x, ]   fitness value (sumsqr of error) per solution
-    Error   : np.ndarray  [nData, x]  residuals per solution
+    F       : np.ndarray  [x, ]   fitness value (sumsqr of error) per solution
+    E       : np.ndarray  [nData, x]  residuals per solution
     Houtput : list[any]  raw model outputs per solution
     """
     x, _ = X.shape  # x: population size
-    Fit = np.zeros((x))
+    F = np.zeros((x))
     total_pop = str(x)
 
-    Error   = None  # will be built on first iteration
+    E = None  # will be built on first iteration
     Houtput = [None] * x
 
     for j in range(x):
@@ -41,14 +41,14 @@ def evaluation(X, func, y_goal):
         sys.stdout.write('\r' + msg)
         sys.stdout.flush()
 
-        Fit[j] = fit
+        F[j] = fit
 
-        # Initialise Error array on first iteration once we know its shape
-        if Error is None:
-            Error = np.zeros((error.size, x))
-        Error[:, j] = error
+        # Initialise E array on first iteration once we know its shape
+        if E is None:
+            E = np.zeros((error.size, x))
+        E[:, j] = error
 
         Houtput[j] = houtput
 
     print()   # newline after progress output
-    return Fit, Error, Houtput
+    return F, E, Houtput

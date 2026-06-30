@@ -251,14 +251,14 @@ def _run_and_save(ref, root, result_path):
     if solution_ini.size > 0:
         P = np.vstack([P, solution_ini])           # append seeded solutions
 
-    E, R, _ = evaluation(P, objective_function, ref)  # E: [nSolutions,]  R: [T x nSolutions]
-    P, E, R = selection_best(P, E, R, N1, op)      # keep best N1
-    R1 = R[:, 0]                                   # residual of current best
+    F, E, _ = evaluation(P, objective_function, ref)  # F: [nSolutions,]  E: [T x nSolutions]
+    P, F, E = selection_best(P, F, E, N1, op)      # keep best N1
+    E1 = E[:, 0]                                   # residual of current best
 
     print('done')
-    print(f'Minimum cost: {E[0]}')
+    print(f'Minimum cost: {F[0]}')
     print('================================')
-    E_crit = E[0]
+    F_crit = F[0]
 
     # History accumulators  (row w holds generation w data)
     K          = []   # [[avg_cost, best_cost], …]
@@ -283,49 +283,49 @@ def _run_and_save(ref, root, result_path):
 
         # ---- 5a. Gradient search on current best ----
         print('======= Gradient search ========')
-        Para_E_grd, E_grd, R_grd = gradient_search(P[0:1, :], R1, conf, E_crit)
+        Para_E_grd, F_grd, E_grd = gradient_search(P[0:1, :], E1, conf, F_crit)
         # Replace best if gradient improved it
-        if op * E_grd[0] > op * E[0]:
+        if op * F_grd[0] > op * F[0]:
             P[0, :]  = Para_E_grd[0, :]
-            E[0]     = E_grd[0]
-            R[:, 0]  = R_grd[:, 0]
+            F[0]     = F_grd[0]
+            E[:, 0]  = E_grd[:, 0]
         print('done')
 
         # ---- 5b. Single-parameter mutation of current best ----
         print('======= single-parameter mutation ========')
         P_ = mutation_single(P[0:1, :].ravel(), LR, UR)   # [nParams x nParams]
-        E_, R_, _ = evaluation(P_, objective_function, ref)
+        F_, E_, _ = evaluation(P_, objective_function, ref)
         print('done')
 
         # ---- 5c. Gradient search on each single-param mutant ----
         print('======= Gradient search ========')
         Para_E_grd = np.empty_like(P_)
-        E_grd      = np.empty(len(E_))
-        R_grd      = np.empty_like(R_)
-        for i in range(len(E_)):
-            #print(f'[{i+1}/{len(E_)}] cost: {E_[i]:.6f}')
-            pg, eg, rg = gradient_search(P_[i:i+1, :], R_[:, i:i+1], conf, E_crit)
+        F_grd      = np.empty(len(F_))
+        E_grd      = np.empty_like(E_)
+        for i in range(len(F_)):
+            #print(f'[{i+1}/{len(F_)}] cost: {F_[i]:.6f}')
+            pg, eg, rg = gradient_search(P_[i:i+1, :], E_[:, i:i+1], conf, F_crit)
             Para_E_grd[i, :] = pg[0, :]
-            E_grd[i]         = eg[0]
-            R_grd[:, i]      = rg[:, 0]
+            F_grd[i]         = eg[0]
+            E_grd[:, i]      = rg[:, 0]
 
         # Replace mutants where gradient improved them
-        index = op * E_grd > op * E_
+        index = op * F_grd > op * F_
         index = index.ravel()
 
         P_[index, :]   = Para_E_grd[index, :]
-        E_[index]      = E_grd[index]
-        R_[:, index]   = R_grd[:, index]
+        F_[index]      = F_grd[index]
+        E_[:, index]   = E_grd[:, index]
 
         # Append mutants to population
         P = np.vstack([P, P_])                     # [(N1 + nParams) x nParams]
+        F = np.hstack([F, F_])
         E = np.hstack([E, E_])
-        R = np.hstack([R, R_])
         print('done')
 
         # Track best-after-gradient for GA-effectiveness check
-        _, E_show, _ = selection_best(P, E, R, 1, op)
-        print(f'best after gradient: {E_show[0]}')
+        _, F_show, _ = selection_best(P, F, E, 1, op)
+        print(f'best after gradient: {F_show[0]}')
 
         # ---- 5d. GA operators ----
         print('GA search...')
@@ -339,34 +339,34 @@ def _run_and_save(ref, root, result_path):
 
         # Merge all solutions (mirrors MATLAB indexing: P(N1+nParams+1:end) is P_new)
         P = np.vstack([P, P_new])
-        E = np.hstack([E, E_new])
+        F = np.hstack([F, E_new])
 
         # Selection: keep N1 unique best solutions
-        P, E = selection_uniq(P, E, N1, N1, op, LR, UR)
+        P, F = selection_uniq(P, F, N1, N1, op, LR, UR)
 
         # Re-evaluate residual of new best solution
-        _, R1_arr, _ = evaluation(P[0:1, :], objective_function, ref)
-        R1 = R1_arr[:, 0]
+        _, E1_arr, _ = evaluation(P[0:1, :], objective_function, ref)
+        E1 = E1_arr[:, 0]
         print('done')
 
         # ---- 5e. Record history ----
-        avg_cost = E.sum() / N1
-        K.append([avg_cost, E[0]])
+        avg_cost = F.sum() / N1
+        K.append([avg_cost, F[0]])
         KP.append(P[0, :].copy())
-        KS.append(E[0])
-        E_crit = E[0]
+        KS.append(F[0])
+        F_crit = F[0]
 
         print('========')
         print(f'current best Loss: {KS[w]}')
         print('========')
 
-        gof = fitness_function(ref['y0'].ravel(), R1)
+        gof = fitness_function(ref['y0'].ravel(), E1)
         print('========')
         print(f'current best R2: {gof}')
         print('========')
 
         # GA-effectiveness flag
-        if E_show[0] > E[0]:
+        if F_show[0] > F[0]:
             print('GA works')
             GA_counter.append(1)
         else:
@@ -389,7 +389,7 @@ def _run_and_save(ref, root, result_path):
         axes[0].set_yscale('log')
         axes[0].grid(True)
 
-        axes[1].plot(E, 'b.')
+        axes[1].plot(F, 'b.')
         axes[1].set_xlabel('Chromosomes')
         axes[1].set_ylabel('Loss function')
         axes[1].set_yscale('log')
