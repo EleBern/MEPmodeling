@@ -2,7 +2,6 @@ import re
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-from load_h5 import load_h5_to_dict
 
 HDF5_PATH = "/home/bernasconi/Documents/Programma/MEP_Python/MEPmodeling/data_diLazarro/DiLazarro_di_wave_data.hdf5"
 
@@ -16,7 +15,7 @@ SUBJ_TO_YEAR = {
 }
 
 
-def _find_subject_group(thr_type_group, year, subj_num_in_year):
+def _find_subject_group(thr_type_group, subj_num_in_year):
     """
     Return the HDF5 group for the requested subject inside a threshold_type
     group.  Subject folders end in '# N' for 2004 data; for other years there
@@ -199,7 +198,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     # ------------------------------------------------------------------
     with h5py.File(HDF5_PATH, 'r') as f:
         thr_type_group = f[year][orientation]['RMT']
-        subj_group     = _find_subject_group(thr_type_group, year, subj_num_in_year)
+        subj_group     = _find_subject_group(thr_type_group, subj_num_in_year)
 
     
         intensities = np.array(subj_group['intensities']).flatten()
