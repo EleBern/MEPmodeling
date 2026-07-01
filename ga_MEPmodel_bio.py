@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 from MEPmodel_bio       import MEPmodel_bio
 from load_h5            import load_h5_to_dict
 from config_model_bio   import config_model_bio
-from objective_function import objective_function
+from objective_function import objective_function_bio as objective_function
 
 # GA toolbox
 from GA.ga_toolbox.population       import population
@@ -304,10 +304,10 @@ def _run_and_save(ref, root, result_path):
         E_grd      = np.empty_like(E_)
         for i in range(len(F_)):
             #print(f'[{i+1}/{len(F_)}] cost: {F_[i]:.6f}')
-            pg, eg, rg = gradient_search(P_[i:i+1, :], E_[:, i:i+1], conf, F_crit)
+            pg, fg, eg = gradient_search(P_[i:i+1, :], E_[:, i:i+1], conf, F_crit)
             Para_E_grd[i, :] = pg[0, :]
-            F_grd[i]         = eg[0]
-            E_grd[:, i]      = rg[:, 0]
+            F_grd[i]         = fg[0]
+            E_grd[:, i]      = eg[:, 0]
 
         # Replace mutants where gradient improved them
         index = op * F_grd > op * F_
@@ -335,11 +335,11 @@ def _run_and_save(ref, root, result_path):
         P_new      = np.vstack([P_mutV, P_cross, P_mut])
 
         # Evaluate only the newly generated solutions
-        E_new, _, _ = evaluation(P_new, objective_function, ref)
+        F_new, _, _ = evaluation(P_new, objective_function, ref)
 
         # Merge all solutions (mirrors MATLAB indexing: P(N1+nParams+1:end) is P_new)
         P = np.vstack([P, P_new])
-        F = np.hstack([F, E_new])
+        F = np.hstack([F, F_new])
 
         # Selection: keep N1 unique best solutions
         P, F = selection_uniq(P, F, N1, N1, op, LR, UR)
