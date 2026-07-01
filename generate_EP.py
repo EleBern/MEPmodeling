@@ -2,7 +2,7 @@ import os
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
-from load_h5 import load_h5_to_dict
+from h5_helpers import load_h5_to_dict
 from scipy.interpolate import interp1d
 
 def generate_EP(d=0.01, plotOn=0, Axontype=1):

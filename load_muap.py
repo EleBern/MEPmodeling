@@ -2,7 +2,7 @@ import os
 import numpy as np
 import h5py
 import matplotlib.pyplot as plt
-from load_h5 import load_h5_to_dict
+from h5_helpers import load_h5_to_dict
 
 
 def load_muap(plotOn=0):
