@@ -80,11 +80,11 @@ def run_ga(ref):
     # rng(200)  # not set, matching commented-out MATLAB line
     # warnings ignored, matching commented-out MATLAB line
 
-    K = np.zeros((0, 2))     # history of [average cost, best cost]
+    K = np.zeros((0, 2))         # history of [average cost, best cost]
     KP = np.zeros((0, nParams))  # history of [best solution]
-    KS = np.zeros(0)         # history of [best cost]
-    w = 0                    # counter (0-based to match python indexing)
-    j = 1                    # counter
+    KS = np.zeros(0)             # history of [best cost]
+    w = 0                        # counter (0-based to match python indexing)
+    j = 1                        # counter
 
     fig = plt.figure()
 
@@ -98,7 +98,6 @@ def run_ga(ref):
             tmp = load_h5_to_dict(f)
         solution_ini = np.vstack([solution_ini, np.atleast_2d(tmp['p_post'])])
 
-
     # rectify min max
     for i in range(nParams):
         if solution_ini.shape[0] > 0:
@@ -109,88 +108,88 @@ def run_ga(ref):
     P = population(N1, nParams, LR, UR)  # generate [60 x nParams] random solutions
     if solution_ini.shape[0] > 0:
         P = np.vstack([P, solution_ini])  # add pre-selected solutions
-    E, R, _ = evaluation(P, myfunc, ref)  # E: evaluation fitness, R: residual, error
-    P, E, R = selection_best(P, E, R, N1, op)
-    R1 = R[:, 0]
+    F, E, _ = evaluation(P, myfunc, ref)  # F: fitness, E: residual
+    P, F, E = selection_best(P, F, E, N1, op)
+    E1 = E[:, 0]
     print('done')
-    print(f'Minimum cost: {E[0]}')
+    print(f'Minimum cost: {F[0]}')
     print('================================')
-    E_crit = E[0]
+    F_crit = F[0]
 
     GA_counter = []
 
     # -----loop-----
     while True:
         print('======= Gradient search ========')
-        Para_E_grd, E_grd, R_grd = gradient_search(P[0:1, :], R1, conf, E_crit)
+        Para_E_grd, F_grd, E_grd = gradient_search(P[0:1, :], E1, conf, F_crit)
         # replace
-        if op * E_grd > op * E[0]:
+        if op * F_grd > op * F[0]:
             P[0, :] = Para_E_grd
-            E[0] = E_grd[0]
-            R[:, 0] = R_grd[:, 0]
+            F[0] = F_grd[0]
+            E[:, 0] = E_grd[:, 0]
         print('done')
 
         print('======= single-parameter mutation ========')
         P_ = mutation_single(P[0, :], LR, UR)
 
-        E_, R_, _ = evaluation(P_, myfunc, ref)
+        F_, E_, _ = evaluation(P_, myfunc, ref)
         print('done')
 
         print('======= Gradient search ========')
-        Para_E_grd = np.zeros((len(E_), nParams))
-        E_grd = np.zeros(len(E_))
-        R_grd = np.zeros((R_.shape[0], len(E_)))
-        for i in range(len(E_)):
-            print(f'[{i + 1}/{len(E_)}] cost: {E_[i]:f}')
-            pg, eg, rg = gradient_search(P_[i:i+1, :], R_[:, i:i+1], conf, E_crit)
+        Para_E_grd = np.zeros((len(F_), nParams))
+        F_grd = np.zeros(len(F_))
+        E_grd = np.zeros((E_.shape[0], len(F_)))
+        for i in range(len(F_)):
+            print(f'[{i + 1}/{len(F_)}] cost: {F_[i]:f}')
+            pg, fg, eg = gradient_search(P_[i:i+1, :], E_[:, i:i+1], conf, F_crit)
             Para_E_grd[i, :] = pg[0, :]
-            E_grd[i]         = eg[0]
-            R_grd[:, i]      = rg[:, 0]
+            F_grd[i]         = fg[0]
+            E_grd[:, i]      = eg[:, 0]
 
         # replace
-        index = op * E_grd > op * E_
-        P_[index, :] = Para_E_grd[index, :]  # update gradient mutation
-        E_[index] = E_grd[index]
-        R_[:, index] = R_grd[:, index]
-        P = np.vstack([P, P_])  # [(60 + nParams) x nParams] solutions
-        E = np.concatenate([E, E_])  # [1 x (60 + nParams)] cost
-        R = np.hstack([R, R_])  # [timepoints x (60 + nParams)] residual
+        index = op * F_grd > op * F_
+        P_[index, :]  = Para_E_grd[index, :]  # update gradient mutation
+        F_[index]     = F_grd[index]
+        E_[:, index]  = E_grd[:, index]
+        P = np.vstack([P, P_])   # [(60 + nParams) x nParams] solutions
+        F = np.concatenate([F, F_])  # [1 x (60 + nParams)] fitness
+        E = np.hstack([E, E_])       # [timepoints x (60 + nParams)] residual
         print('done')
 
         # %%%%%%%%%%
         # add to show, delete later
-        _, E_show, _ = selection_best(P, E, R, 1, op)
-        print(f'best after gradient: {E_show}')
+        _, F_show, _ = selection_best(P, F, E, 1, op)
+        print(f'best after gradient: {F_show}')
         # %%%%%%%%%%
 
         # GA
         print('GA search...')
-        P_mutV     = mutationV(P[:N1, :], 0.1, 0.9, LR, UR)          # N1 solutions
-        P_cross    = crossover(P, N2)                                   # 2*N2 solutions
-        P_mut      = mutation(P, N3)                                    # 2*N3 solutions
+        P_mutV  = mutationV(P[:N1, :], 0.1, 0.9, LR, UR)   # N1 solutions
+        P_cross = crossover(P, N2)                            # 2*N2 solutions
+        P_mut   = mutation(P, N3)                             # 2*N3 solutions
         P_new = np.vstack([P_mutV, P_cross, P_mut])
 
-        E_, _, _ = evaluation(P_new, myfunc, ref)
+        F_, _, _ = evaluation(P_new, myfunc, ref)
 
         P = np.vstack([P, P_new])
-        E = np.hstack([E, E_])  # cost [1 x (N1+N2+N3)*2+nParams]
+        F = np.hstack([F, F_])   # fitness [1 x (N1+N2+N3)*2+nParams]
 
         # selection
-        P, E = selection_uniq(P, E, N1, N1, op, LR, UR)  # select N1 solutions
-        _, R1, _ = evaluation(P[0:1, :], myfunc, ref)  # R1: residual of best solution
+        P, F = selection_uniq(P, F, N1, N1, op, LR, UR)  # select N1 solutions
+        _, E1, _ = evaluation(P[0:1, :], myfunc, ref)    # E1: residual of best solution
         print('done')
 
         # grow histories
-        K = np.vstack([K, [np.sum(E) / N1, E[0]]])  # average cost, best cost (for plot)
+        K = np.vstack([K, [np.sum(F) / N1, F[0]]])  # average cost, best cost (for plot)
 
         KP_row = P[0, :nParams]
         KP = np.vstack([KP, KP_row])  # save best
-        KS = np.append(KS, E[0])      # save best
-        E_crit = E[0]
+        KS = np.append(KS, F[0])      # save best
+        F_crit = F[0]
         print('========')
         print(f'current best Loss: {KS[w]}')
         print('========')
-        gof = fitness_function(np.ravel(ref['y0']), R1)
+        gof = fitness_function(np.ravel(ref['y0']), E1)
 
         print('========')
         print(f'current best R2: {gof}')
@@ -198,7 +197,7 @@ def run_ga(ref):
 
         # %%%%%%%
         # add to show, delete later
-        if E_show > E[0]:
+        if F_show > F[0]:
             print('GA works')
             GA_counter.append(1)
         else:
@@ -222,7 +221,7 @@ def run_ga(ref):
         plt.yscale('log')
 
         plt.subplot(5, 1, 2)
-        plt.plot(E, 'b.')
+        plt.plot(F, 'b.')
         plt.xlabel('Cromosomes')
         plt.ylabel('Loss function')
         plt.grid(True)
@@ -292,7 +291,7 @@ def run_ga(ref):
 
 
 if __name__ == '__main__':
-    subj       = int(sys.argv[1])   if len(sys.argv) > 1 else 1
-    reRun      = int(sys.argv[2])   if len(sys.argv) > 2 else 0
+    subj  = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+    reRun = int(sys.argv[2]) if len(sys.argv) > 2 else 0
     ga_MEPmodel_pheno(subj, reRun)
     pass
