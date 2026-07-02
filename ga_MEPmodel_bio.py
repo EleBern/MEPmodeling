@@ -321,9 +321,9 @@ def _run_and_save(ref, root, result_path):
         axes[2].plot(KP[-1], '-ko')
         axes[2].set_title('parameter')
 
-        axes[3].plot(ref['y0'].flatten(order='F'), 'k', linewidth=1.5)
+        axes[3].plot(ref['y0'], 'k', linewidth=1.5)
         axes[3].plot(
-            houtput['sim']['simMEP2'].flatten(order='F'), 'r', linewidth=1.0
+            houtput['sim']['simMEP2'], 'r', linewidth=1.0
         )
         axes[3].set_title('target & best fit')
 
