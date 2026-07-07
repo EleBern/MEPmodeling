@@ -26,15 +26,15 @@
 # plot_emg("data_diLazarro/DiLazarro_di_wave_data_by_year_merged.hdf5", "PA", None, 2013)
 # plot_emg("data_diLazarro/DiLazzaro_di_wave_data_down.hdf5", "PA", None, 2013)
 #############################################################
-# import matplotlib.pyplot as plt
-# from ga_MEPmodel_bio import ga_MEPmodel_bio
-# #ga_MEPmodel_bio("5LM", 1, [] , 0)
+import matplotlib.pyplot as plt
+from ga_MEPmodel_bio import ga_MEPmodel_bio
+#ga_MEPmodel_bio("5LM", 1, [] , 0)
 
-# for i in range(20):
-#     print("############################################")
-#     print("This is the ", i, " iteration")
-#     ga_MEPmodel_bio("5LM", 1, [] , 1)
-#     plt.close("all")
+for i in range(20):
+    print("############################################")
+    print("This is the ", i, " iteration")
+    ga_MEPmodel_bio(1, 1, [] , 1)
+    plt.close("all")
     
 #############################################################
 # from gen_DIwave import gen_DIwave
@@ -47,6 +47,3 @@
 
 # from ga_MEPmodel_pheno import ga_MEPmodel_pheno
 # ga_MEPmodel_pheno("5LM", 1)
-
-from ga_MEPmodel_bio import ga_MEPmodel_bio
-ga_MEPmodel_bio("5LM", 1, [] , 1)

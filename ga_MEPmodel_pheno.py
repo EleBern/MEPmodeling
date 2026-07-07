@@ -41,12 +41,16 @@ def ga_MEPmodel_pheno(subj, reRun=0):
         with h5py.File(result_path, 'r') as f:
             tmp = load_h5_to_dict(f)
         p_post = tmp['p_post'].flatten()
+    elif not os.path.isfile(result_path):
+        print(f'Fitted result \n{ref["resultname"]} does not exist. Start running optimization')
+        p_post = run_ga(ref)
     else:
         p_post = run_ga(ref)
 
     # ----- show result -----
     plotOn = 1
     MEPmodel_pheno(p_post, ref, plotOn)
+    print("R2 ", ref["R2"])
 
 # ==========================================================================
 def run_ga(ref):
@@ -86,7 +90,7 @@ def run_ga(ref):
     w = 0                        # counter (0-based to match python indexing)
     j = 1                        # counter
 
-    fig = plt.figure()
+    #fig = plt.figure()
 
     # %%%%%%%%%%collect previous solutions%%%%%%%%%%%%%
     root = os.path.dirname(os.path.abspath(__file__))

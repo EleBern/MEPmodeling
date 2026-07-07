@@ -66,7 +66,7 @@ def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0):
         p_post = _run_and_save(ref, root, result_path)
 
     # ----- show result -----
-    plotOn = 0
+    plotOn = 1
     MEPmodel_bio(p_post, ref, plotOn)
     print("R2 ", ref["R2"])
 
@@ -126,7 +126,7 @@ def _run_and_save(ref, root, result_path):
     # 2.  Collect previous solutions to seed the population
     #     Mirrors MATLAB: primary result file + fixed-AMPAweight loop
     # ------------------------------------------------------------------
-    solution_ini = np.empty((0, nParams))
+    solution_ini = np.empty((0, nParams))  
 
     # 2a. Primary result file for this subject
     primary_path = result_path          # already the .h5 path for this subject
@@ -165,7 +165,7 @@ def _run_and_save(ref, root, result_path):
     if solution_ini.size > 0:
         for i in range(nParams):
             solution_ini[:, i] = np.clip(solution_ini[:, i], LR[i], UR[i])
-
+            
     # ------------------------------------------------------------------
     # 3.  Initialisation
     # ------------------------------------------------------------------
