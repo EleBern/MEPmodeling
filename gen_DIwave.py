@@ -5,7 +5,7 @@ def sigmoid(x, x0, r, a):
     y = a / (1+ np.exp(r * (x0 - x)))
     return y
 
-def gen_DIwave(t, intensity, PlotOn):
+def gen_DIwave(t, intensity):
     t0 = 5
     T = 1.5
     width = 0.25
@@ -17,14 +17,12 @@ def gen_DIwave(t, intensity, PlotOn):
     r =  [18.50774852, 9.26210842, 5.91559859, 17.7805388, 425.51252596]
     a =  [0.34532065, 1.0, 0.80577286, 0.46054753, 0.27828232]
 
-    mso = 50 / 100 * intensity # assume the MSO is 50% for each subject RMT
-
     for i in range(5):
-        DIwave = DIwave + np.exp(-(t-t0 -i * T)**2 /2 /width**2) * sigmoid(mso, x0[i], r[i], a[i])
+        DIwave = DIwave + np.exp(-(t-t0 -i * T)**2 /2 /width**2) * sigmoid(intensity, x0[i], r[i], a[i])
     
 
     # ----- plotting -----
-    if PlotOn:
+    if False:
         plt.figure()
         plt.plot(t, DIwave)
         plt.grid(True)
