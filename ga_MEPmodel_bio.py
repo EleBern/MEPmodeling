@@ -94,7 +94,7 @@ def _run_and_save(ref, root, result_path):
     N1 = 60          # population size
     N2 = 100         # crossover: number of pairs
     N3 = 100         # mutation:  number of pairs
-    tg = 1           # total generations
+    tg = 2           # total generations
 
     # Gradient-search configuration
     conf = {
@@ -130,6 +130,9 @@ def _run_and_save(ref, root, result_path):
 
     # 2a. Primary result file for this subject
     primary_path = result_path          # already the .h5 path for this subject
+    if "fixed_AMPAweight" in primary_path: # add free ampa weight fitted parameters to solution_ini even if given a fixed ampa weight
+        tmp = result_path.split("fixed_AMPAweight/")
+        primary_path = tmp[0] + tmp[1].split("[")[0] + ".h5"
     if os.path.isfile(primary_path):
         print(f'{primary_path} found.')
         with h5py.File(primary_path, 'r') as f:
@@ -138,28 +141,25 @@ def _run_and_save(ref, root, result_path):
 
     # 2b. Fixed-AMPAweight loop (AMPAw = 0.2, 0.3, …, 0.8)
     #     Mirrors MATLAB: for AMPAw=0.2:0.1:0.8 … load & optionally fix p(12)
-    ampa_fixed = ref['model'].get('AMPAweight')   # None / [] → free;  scalar → fixed
-    ampa_is_fixed = (ampa_fixed is not None and
-                     not (isinstance(ampa_fixed, (list, np.ndarray))
-                          and len(np.atleast_1d(ampa_fixed)) == 0))
-
-    fixed_seed_dir = os.path.join(root, 'fitted_results', 'bio', 'fixed_AMPAweight')
-    for AMPAw in np.arange(0.2, 0.85, 0.1):       # 0.2 … 0.8 inclusive
-        AMPAw = round(AMPAw, 1)
-        tmpname = os.path.join(
-            fixed_seed_dir,
-            f"result_bio_s{ref['subj']}[{AMPAw:g}].h5"
-        )
-        if os.path.isfile(tmpname):
-            print(f'{tmpname} found.')
-            with h5py.File(tmpname, 'r') as f:
-                tmp = load_h5_to_dict(f)
-            p_tmp = np.atleast_1d(tmp['p_post']).ravel()
-            if ampa_is_fixed:
-                # fix AMPA weight parameter (0-indexed: param index 11 = MATLAB 12)
+    if "bioNoRC" not in primary_path:
+        fixed_seed_dir = os.path.join(root, 'fitted_results', 'bio', 'fixed_AMPAweight')
+        for AMPAw in np.arange(0.2, 0.85, 0.1):       # 0.2 … 0.8 inclusive
+            AMPAw = round(AMPAw, 1)
+            tmpname = os.path.join(
+                fixed_seed_dir,
+                f"result_bio_s{ref['subj']}[{AMPAw:g}].h5"
+            )
+            if os.path.isfile(tmpname):
+                print(f'{tmpname} found.')
+                with h5py.File(tmpname, 'r') as f:
+                    tmp = load_h5_to_dict(f)
+                p_tmp = np.atleast_1d(tmp['p_post']).ravel()
+                #if ampa_is_fixed:
+                    # fix AMPA weight parameter (0-indexed: param index 11 = MATLAB 12)
                 p_tmp = p_tmp.copy()
-                p_tmp[11] = float(np.atleast_1d(ampa_fixed).ravel()[0])
-            solution_ini = np.vstack([solution_ini, p_tmp])
+                if len(ref['model']['AMPAweight']) > 0:
+                    p_tmp[11] = ref['model']['AMPAweight'][0] 
+                solution_ini = np.vstack([solution_ini, p_tmp])
 
     # 2c. Clip seeded solutions to parameter bounds
     if solution_ini.size > 0:
