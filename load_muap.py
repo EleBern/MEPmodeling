@@ -19,7 +19,7 @@ def load_muap(plotOn=0):
     muaps : np.ndarray  [n_samples x n_muaps]   MUAPs 
     t     : np.ndarray  [n_samples x 1]         time vector (ms)
     """
-    root    = os.getcwd()
+    root    = os.path.dirname(os.path.realpath(__file__))
     h5_path = os.path.join(root, "data_MUAP", "muap.h5")
 
     if os.path.exists(h5_path):
