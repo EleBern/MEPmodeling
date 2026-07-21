@@ -9,9 +9,12 @@ def config_model_pheno(subj):
 
     # ----- MEP (target) -----
     ref['tcrop'] = [20, 50]   # ms, time window of interest
-
-    y0, t0, _, intensities, _, _ = load_MEP(subj, None, ref["tcrop"], 0)
-
+    if subj == 10: 
+        intensity_idx = np.arange(6) # remove 50% intensity as no MEP is elicited
+    else:
+        intensity_idx = None
+    y0, t0, _, intensities, _, _ = load_MEP(subj, intensity_idx, ref["tcrop"], 0)
+    intensity_idx = np.arange(len(intensities))
     ref['y0']          = y0.T          # [t x N]
     ref['t0']          = t0
     ref['intensities'] = intensities

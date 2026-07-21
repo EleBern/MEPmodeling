@@ -18,7 +18,11 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     ref = {}
     ref["subj"] = subj
     ref["tcrop"] = [20, 50]
-    y0, t0, _, intensities, _, _ = load_MEP(subj, None, ref["tcrop"], 0)
+    if ref["subj"] == 10: 
+        intensity_idx = np.arange(6) # remove 50% intensity as no MEP is elicited
+    else:
+        intensity_idx = None
+    y0, t0, _, intensities, _, _ = load_MEP(subj, intensity_idx, ref["tcrop"], 0)
     ref["intensities"] = intensities
     intensity_idx = np.arange(len(intensities))
     ref["intensity_idx"] = intensity_idx
@@ -36,10 +40,10 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
         ref["RMT"] = 38
     elif ref["subj"] == 4:
         ref["RMT"] = 41
-    elif ref["subj"] == 5:
+    elif ref["subj"] == 5 or ref["subj"] == 6:
         ref["RMT"] = 47
     else:
-        ref["RMT"] = 50
+        ref["RMT"] = 44
 
     # ----- simulated DI wave -----
     tlength = t0[-1] # ms
