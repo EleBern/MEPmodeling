@@ -123,16 +123,17 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     model["boundary"] = boundary
     ref["model"] = model
 
+    root = os.path.dirname(os.path.realpath(__file__))
     if withRC == 1:
         if AMPAweight is None or len(np.atleast_1d(AMPAweight)) == 0:
             # Free fit — no fixed AMPAweight
-            ref["resultname"] = os.path.join("fitted_results", "bio", f"result_bio_s{subj}.h5")
+            ref["resultname"] = os.path.join(root, "fitted_results", "bio", f"result_bio_s{subj}.h5")
         else:
             # Fixed AMPAweight provided — encode each value in the filename
             ampa_tag = '_'.join(f'{v:g}' for v in np.atleast_1d(AMPAweight))
-            ref["resultname"] = os.path.join("fitted_results", "bio", "fixed_AMPAweight", f"result_bio_s{subj}[{ampa_tag}].h5")
+            ref["resultname"] = os.path.join(root, "fitted_results", "bio", "fixed_AMPAweight", f"result_bio_s{subj}[{ampa_tag}].h5")
     else:
-            ref["resultname"] = os.path.join("fitted_results", "bioNoRC", f"result_bioNoRC_s{subj}.h5")
+            ref["resultname"] = os.path.join(root, "fitted_results", "bioNoRC", f"result_bioNoRC_s{subj}.h5")
     ref["figname"] = ref["resultname"][:-3]+".svg"
 
     return ref

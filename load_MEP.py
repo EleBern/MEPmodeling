@@ -10,7 +10,7 @@ def load_MEP(subj, iidx=None, tcrop=[20, 50], plotOn=1):
     TSTIM = 100  # TMS stimulus was at t=100 ms
 
     # ----- load data -----
-    root = os.getcwd()
+    root = os.path.dirname(os.path.realpath(__file__))
     mat_path = os.path.join(
         root,
         "data_Oxford_MEP",
