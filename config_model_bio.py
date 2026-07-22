@@ -58,8 +58,10 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     model["AMPA"], model["NMDA"] = gen_kernels(dt, tlength)
 
     # ----- AchR, GlyR kernels -----
-    model[("kernel", "tau")] = [[0.5, 3.6], [1.8, 20.2], [1, 6]]
-    model[("kernel", "h")] = [[1.5977], [1.3908], [1.7175]]
+    if "kernel" not in model.keys():
+        model["kernel"] = {}
+    model["kernel"]["tau"] = [[0.5, 3.6], [1.8, 20.2], [1, 6]]
+    model["kernel"]["h"] = [[1.5977], [1.3908], [1.7175]]
 
     # ----- Motor neuron -----
     model["tauLIF"] = 10 # ms

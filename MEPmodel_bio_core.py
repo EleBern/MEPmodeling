@@ -24,8 +24,8 @@ def MEPmodel_bio_core(model):
     maxES          = model['maxES']
     fastAChRweight = model['fastAChRweight']
     rc             = model['rc']
-    tau            = np.array(model[('kernel', 'tau')]) # Nested structure handled as dict
-    h              = np.array(model[('kernel', 'h')])
+    tau            = np.array(model['kernel']['tau']) # Nested structure handled as dict
+    h              = np.array(model['kernel']['h'])
 
     # ------------record for all TMS intensities--------------
     nIntensities = DIwave.shape[0]
