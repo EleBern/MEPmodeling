@@ -27,6 +27,10 @@ def MEPmodel_bio_core(model):
     tau            = np.array(model['kernel']['tau']) # Nested structure handled as dict
     h              = np.array(model['kernel']['h'])
 
+    if isinstance(model['maxES'], np.ndarray):
+        maxES = model['maxES'].item()
+    if isinstance(model['dt'], np.ndarray):
+        dt = model['dt'].item()
     # ------------record for all TMS intensities--------------
     nIntensities = DIwave.shape[0]
     simMEP = np.zeros((nIntensities, len(t)))
