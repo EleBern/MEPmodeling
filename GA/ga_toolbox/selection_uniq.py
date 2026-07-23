@@ -22,7 +22,7 @@ def selection_uniq(P1, F, p, r, op, LR, UR):
     YY1 : np.ndarray  [p, n_parameter]  selected population
     YY2 : np.ndarray  [p,]               fitness of YY1
     """
-    # Turn minimisation into maximisation if necessary
+
     F = op * F.copy()
     dim = P1.shape[1]
 
