@@ -1,4 +1,6 @@
 # Model performance (goodness-of-fit to the MEPs of 10 subjects)
+This folder contains scripts to reproduce the figures from the paper as well as a demo of the model. Please run these scripts from this directory. 
+
 ## 1️⃣ Biological model
 <p align="center">
   <a href="figures/fig_result_full.pdf">
@@ -21,11 +23,11 @@
 </p>
 
 ## 📗Comparison
-```matlab
-fig_result_summary()
+```
+python fig_result_summary.py
 ```
 <p align="center">
   <a href="figures/fig_result_summary.pdf">
-    <img src="figures/fig_result_summary.png" alt="Click to view PDF" width="600">
+    <img src="figures/fig_result_summary.svg" alt="Click to view PDF" width="600">
   </a>
 </p>
