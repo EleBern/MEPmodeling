@@ -11,14 +11,12 @@ def gen_resistance_mono(p):
     Returns:
     numpy.ndarray: Resistances for 100 motoneurons.
     """
-    # Ensure p is a flat array (equivalent to p(:) in MATLAB)
     p = np.asarray(p).flatten()
     
     # Define indices for MN[1, 10, 20, 60, 100]
     n = np.array([1, 10, 20, 60, 100])
     
     # Calculate R of MN[1, 10, 20, 60, 100]
-    # Note: MATLAB p(1:5) corresponds to Python p[:5]
     R_points = np.flipud(np.cumsum(p[:5]))
     
     # Interpolate for motoneurons 1 to 100 using Piecewise Cubic Hermite Interpolating Polynomial

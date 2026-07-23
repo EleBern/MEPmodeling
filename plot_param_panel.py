@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def plot_param_panel(p, ref):
-    # Mapping variables from the ref dictionary using tuple keys for nested structures
     spike_times  = ref['sim']['spike_times']
     NRMSD        = ref['NRMSD']
     R            = ref['model']['R']
@@ -16,7 +15,6 @@ def plot_param_panel(p, ref):
     subj         = ref['subj']
     tcrop        = ref['tcrop']
     
-    # Optional/conditional fields
     boundary     = ref['model']['boundary'] if 'boundary' in ref['model'] else None
     boundarytext = ref['model']['boundarytext'] if 'boundarytext' in ref['model'] else []
     axonalDelay  = ref['model']['axonalDelay'] if 'axonalDelay' in ref['model'] else 0
@@ -24,7 +22,7 @@ def plot_param_panel(p, ref):
     withRC       = ref['model']['withRC'] if 'withRC' in ref['model'] else False
 
     nParams = len(p)
-    plt.figure(figsize=(10, 8)) # Replicating set(gcf,'position',[50 50 800 600]) ratio
+    plt.figure(figsize=(10, 8)) 
 
     # --- Top Row: Parameter value indicators ---
     for i in range(nParams):
@@ -52,34 +50,31 @@ def plot_param_panel(p, ref):
 
     # --- Middle Row: MEP comparison across intensities (Subplot 312) ---
     plt.subplot(3, 1, 2)
-    # Using 'F' order (column-major) to flatten arrays to match MATLAB's (:) operator
     y0_flat = y0.flatten(order='F')
     simMEP_flat = simMEP.flatten(order='F')
     
     plt.plot(y0_flat, 'k', linewidth=2, label='MEP')
     plt.plot(simMEP_flat, 'r', linewidth=1, label='simMEP')
     
-    # R^2 = 1 - sumsqr(err) / sumsqr(y - mean(y))
     R2 = 1 - (np.sum((y0_flat - simMEP_flat)**2) / np.sum((y0_flat - np.mean(y0_flat))**2))
     print(f'R^2 = {R2}')
     plt.title(f"MEPs of subject {subj} \n(R^2 = {R2:.2g}, NRMSD = {NRMSD*100:.2g}%)")
 
     # Draw vertical lines for intensity boundaries
-    # size(simMEP, 1) in MATLAB refers to the number of points per intensity block
     pts_per_intensity = simMEP.shape[0]
     for i in range(simMEP.shape[1]):
         plt.axvline(x=i * pts_per_intensity, color='black', linewidth=0.5)
     
     plt.xlim([0, len(simMEP_flat)])
     plt.xlabel(f"Time ({tcrop[0]}-{tcrop[1]} ms)")
-    plt.xticks([]) # Equivalent to xticklabel, []
+    plt.xticks([]) 
     
     ylimit = plt.gca().get_ylim()
     for i in range(len(intensities)):
         plt.text(pts_per_intensity * (i + 0.5), ylimit[1] * 0.5, 
                  f"{int(intensities[i])}%\nRMT", ha='center', fontsize=8)
     
-    plt.legend(loc='center left', prop={'size': 8}) # 'west' equivalent
+    plt.legend(loc='center left', prop={'size': 8}) 
     plt.ylabel('Amplitude (mV)')
 
     # Select 3 intensities to show in detail [Last, Middle, First]
@@ -118,9 +113,7 @@ def plot_param_panel(p, ref):
 
     # --- Subplot 11: MU Trigger Time (Raster Plot) ---
     plt.subplot(3, 4, 11)
-    # spike_times is (100, maxES, nIntensities)
     for s_idx in sel:
-        # Replicate MATLAB's reshape/repmat logic for scatter plotting
         st = (spike_times[:, :, s_idx] + axonalDelay).flatten()
         units = np.repeat(np.arange(1, 101), maxES)
         mask = ~np.isnan(st)
@@ -139,7 +132,6 @@ def plot_param_panel(p, ref):
     for s_idx in sel:
         data = (spike_times[:, :, s_idx] + axonalDelay).flatten()
         data = data[~np.isnan(data)]
-        # count density = count / bin_width
         counts, edges = np.histogram(data, bins=bins)
         centers = edges[:-1] + np.diff(edges) / 2
         plt.plot(centers, counts / np.diff(edges), linewidth=1.5)

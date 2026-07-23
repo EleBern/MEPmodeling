@@ -9,7 +9,6 @@ def generate_EP(d=0.01, plotOn=0, Axontype=1):
     # ----------load AP (by Arancibia-Carcamo model)
     root = os.path.dirname(os.path.abspath(__file__))
     
-    # Path logic equivalent to MATLAB's switch Axontype
     if Axontype == 1:
         data_path = os.path.join(root, 'MyelinatedAxonModel', 'EP', 'AP.h5')
     else:
@@ -23,7 +22,7 @@ def generate_EP(d=0.01, plotOn=0, Axontype=1):
     MEMBRANE_POTENTIAL = mat_contents['MEMBRANE_POTENTIAL']
 
     # ----------------------------------------------------
-    idx = 20  # MATLAB idx=21 corresponds to index 20 in 0-based Python
+    idx = 20  
     padding = 1000
     dt = times[1] - times[0]
     
@@ -38,7 +37,7 @@ def generate_EP(d=0.01, plotOn=0, Axontype=1):
     v_padding = v_padding.reshape(-1, 1)
     v = np.concatenate((v_segment, v_padding))
 
-    # Calculate derivatives (preserving MATLAB structure)
+    # Calculate derivatives 
     if isinstance(idx, int):
         s = 1
     else:
@@ -50,7 +49,6 @@ def generate_EP(d=0.01, plotOn=0, Axontype=1):
     EP = np.zeros(ddv.shape)
     for i in range(v.shape[1]):
         for t_idx in range(len(times)):
-            # mask = 1./sqrt((times-times(t)).^2+d^2)'
             mask = 1.0 / np.sqrt((times - times[t_idx])**2 + d**2).T
             EP[t_idx, i] = np.sum(ddv[:, i] * mask)
 

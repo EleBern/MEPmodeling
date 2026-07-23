@@ -114,10 +114,8 @@ def _run_and_save(ref, root, result_path):
     UR      = ref['model']['boundary'][:, 1]
     nParams = len(LR)
 
-    # Expose boundary at top level (MEPmodel_bio may need it)
     ref['boundary'] = ref['model']['boundary']
 
-    # conf also needs the bounds and the full ref for gradient_search
     conf['LR']     = LR
     conf['UR']     = UR
     conf['y_goal'] = ref
@@ -129,8 +127,8 @@ def _run_and_save(ref, root, result_path):
     solution_ini = np.empty((0, nParams))  
 
     # 2a. Primary result file for this subject
-    primary_path = result_path          # already the .h5 path for this subject
-    if "fixed_AMPAweight" in primary_path: # add free ampa weight fitted parameters to solution_ini even if given a fixed ampa weight
+    primary_path = result_path          
+    if "fixed_AMPAweight" in primary_path: 
         tmp = result_path.split("fixed_AMPAweight/")
         primary_path = tmp[0] + tmp[1].split("[")[0] + ".h5"
     if os.path.isfile(primary_path):
@@ -140,10 +138,10 @@ def _run_and_save(ref, root, result_path):
         solution_ini = np.vstack([solution_ini, np.atleast_2d(tmp['p_post'])])
 
     # 2b. Fixed-AMPAweight loop (AMPAw = 0.2, 0.3, …, 0.8)
-    #     Mirrors MATLAB: for AMPAw=0.2:0.1:0.8 … load & optionally fix p(12)
+    # add free ampa weight fitted parameters to solution_ini even if given a fixed ampa weight to aid optimization
     if "bioNoRC" not in primary_path:
         fixed_seed_dir = os.path.join(root, 'fitted_results', 'bio', 'fixed_AMPAweight')
-        for AMPAw in np.arange(0.2, 0.85, 0.1):       # 0.2 … 0.8 inclusive
+        for AMPAw in np.arange(0.2, 0.85, 0.1):       
             AMPAw = round(AMPAw, 1)
             tmpname = os.path.join(
                 fixed_seed_dir,
@@ -154,8 +152,6 @@ def _run_and_save(ref, root, result_path):
                 with h5py.File(tmpname, 'r') as f:
                     tmp = load_h5_to_dict(f)
                 p_tmp = np.atleast_1d(tmp['p_post']).ravel()
-                #if ampa_is_fixed:
-                    # fix AMPA weight parameter (0-indexed: param index 11 = MATLAB 12)
                 p_tmp = p_tmp.copy()
                 if len(ref['model']['AMPAweight']) > 0:
                     p_tmp[11] = ref['model']['AMPAweight'][0] 
@@ -172,7 +168,7 @@ def _run_and_save(ref, root, result_path):
     print('======== Initialization ========')
     P = population(N1, nParams, LR, UR)           # [N1 x nParams] random solutions
     if solution_ini.size > 0:
-        P = np.vstack([P, solution_ini])           # append seeded solutions
+        P = np.vstack([P, solution_ini])           
 
     F, E, _ = evaluation(P, objective_function, ref)  # F: [nSolutions,]  E: [T x nSolutions]
     P, F, E = selection_best(P, F, E, N1, op)      # keep best N1
@@ -199,8 +195,7 @@ def _run_and_save(ref, root, result_path):
     # ------------------------------------------------------------------
     # 5.  Main GA loop
     # ------------------------------------------------------------------
-    w = 0   # generation index (0-based, matching list append)
-    j = 1   # generation counter for stopping (mirrors MATLAB j=1 before loop)
+    w = 0   # generation index
 
     while True:
 
@@ -226,7 +221,6 @@ def _run_and_save(ref, root, result_path):
         F_grd      = np.empty(len(F_))
         E_grd      = np.empty_like(E_)
         for i in range(len(F_)):
-            #print(f'[{i+1}/{len(F_)}] cost: {F_[i]:.6f}')
             pg, fg, eg = gradient_search(P_[i:i+1, :], E_[:, i:i+1], conf, F_crit)
             Para_E_grd[i, :] = pg[0, :]
             F_grd[i]         = fg[0]
@@ -339,9 +333,8 @@ def _run_and_save(ref, root, result_path):
 
         # ---- 5g. Stopping criteria ----
         w += 1
-        j += 1
 
-        if j > tg:          # max generations reached
+        if w >=  tg:          # max generations reached
             break
         if KS[-1] < 0.01:   # good-enough fit
             break
@@ -349,7 +342,6 @@ def _run_and_save(ref, root, result_path):
     # ------------------------------------------------------------------
     # 6.  Extract best overall result
     #     MATLAB: p_post = KP(end,:)  — last generation's best
-    #     (The overall minimum across all generations is also reported.)
     # ------------------------------------------------------------------
     KS_arr = np.array(KS)
     KP_arr = np.array(KP)
@@ -361,7 +353,6 @@ def _run_and_save(ref, root, result_path):
         best_idx = int(np.argmax(KS_arr))
         print(f'maximum: {KS_arr[best_idx]}')
 
-    # p_post follows MATLAB convention: last generation's best
     p_post = KP_arr[-1, :]
 
     # ------------------------------------------------------------------

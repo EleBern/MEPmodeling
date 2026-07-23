@@ -5,12 +5,8 @@ def gen_kernels(dt, tlength):
     Generate AMPA and NMDA kernels (in msec) for convolution.
     Parameters and refs are based on Roese's report.
     """
-    
-    # t = 0:dt:(tlength-dt)
+
     t = np.arange(0, tlength, dt)
-    
-    # kernels=zeros(5,tlength/dt)
-    # Using t.size to ensure the dimensions match the time vector
     kernels = np.zeros((5, t.size))
 
     # tau = [rise, decay]
@@ -24,18 +20,13 @@ def gen_kernels(dt, tlength):
     
     # h = normalizing terms
     h = np.array([1.8692, 1.2731, 1.5977, 1.3908, 1.7175]) * 1e-2
-    
-    # for i=1:5
+
     for i in range(5):
-        # kernels(i,:) = h(i) * (exp(-t /tau(i,2))-exp(-t/tau(i,1)))
         kernels[i, :] = h[i] * (np.exp(-t / tau[i, 1]) - np.exp(-t / tau[i, 0]))
     
-    # AMPA=kernels(1,:)
     AMPA = kernels[0, :]
-    # NMDA=kernels(2,:)
     NMDA = kernels[1, :]
 
-    # Optional plotting logic (equivalent to 'if 0' in MATLAB)
     plotOn = False
     if plotOn:
         import matplotlib.pyplot as plt

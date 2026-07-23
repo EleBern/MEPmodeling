@@ -4,7 +4,6 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
-#sys.path.insert(0, os.path.realpath(os.path.pardir))
 parentDir = os.path.dirname(os.getcwd())
 sys.path.append(parentDir)
 

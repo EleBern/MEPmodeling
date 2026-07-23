@@ -12,9 +12,7 @@ def plot_TMScondition(ref, idx):
     - ref is a dictionary where nested fields are accessed via tuples: ref[['parent', 'child')]
     - cal_R2 and cal_NRMSD are defined elsewhere.
     """
-    
-    # Extract variables from ref dictionary
-    # MATLAB: spike_times=ref.sim.spike_times;
+
     spike_times = ref['sim']['spike_times']
     spike_times2 = ref['sim']['spike_times2']
     simMEP = ref['sim']['simMEP2']
@@ -25,10 +23,9 @@ def plot_TMScondition(ref, idx):
     Rr_all = ref['sim']['mRC_all']
     Vr_all = ref['sim']['vRC_all']
 
-    # Setup figure
-    # width=10; height=15; centimeters to inches conversion (~2.54 cm/inch)
     fig, axes = plt.subplots(6, 1, figsize=(10/2.54, 15/2.54), constrained_layout=True)
     fig.canvas.manager.set_window_title('plot_result_detail')
+
 
     # Nexttile 1: DI-waves
     ax = axes[0]
@@ -43,12 +40,9 @@ def plot_TMScondition(ref, idx):
     ax.set_ylabel('Rate (Hz)', fontsize=10)
     ax.set_xlim([0, 50])
 
-
     # Nexttile 2: Effective conductances
     ax = axes[1]
-    # area(t, gexc_all)
     ax.fill_between(t, gexc_all[idx, :], color=[0.5, 0.5, 0.5], alpha=0.5, label='g$_{exc}$/g$_{leak}$')
-    # area(t, ginh_all)
     ax.fill_between(t, ginh_all[idx, :], color=[109/255, 158/255, 235/255], alpha=0.5, label='g$_{inh}$/g$_{leak}$')
     
     ylimit = ax.get_ylim()
@@ -63,8 +57,6 @@ def plot_TMScondition(ref, idx):
 
     # Nexttile 3: MN spikes
     ax = axes[2]
-    # spike_times2{idx} is a matrix where col 2 is time and col 1 is neuron index
-    # Note: Adjusting index for Python if spike_times2 was a cell array
     spikes = spike_times2[idx]
     ax.scatter(spikes[:, 1], spikes[:, 0], s=5, c='k', marker='.')
     ax.set_xlim([0, 50])
@@ -96,8 +88,6 @@ def plot_TMScondition(ref, idx):
 
     # Nexttile 5: MU trigger times
     ax = axes[4]
-    # scatter(spike_times(:,:,idx)+ref.model.axonalDelay, 1:100)
-    # spike_times structure is [Neurons x Spikes x Intensity]
     delay = ref['model']['axonalDelay']
     for n in range(100):
         row_spikes = spike_times[n, :, idx] + delay
@@ -121,7 +111,6 @@ def plot_TMScondition(ref, idx):
     ax.plot(ref['t0'], simMEP[:, idx], 'r', linewidth=1.5, label='simMEP')
     ax.legend(loc='upper left', fontsize=8)
     
-    # Assuming cal_R2 and cal_NRMSD are costume functions available in the environment
     R2 = cal_R2(ref['y0'][:, idx], simMEP[:, idx])
     NRMSD = cal_NRMSD(ref['y0'][:, idx], simMEP[:, idx])
     

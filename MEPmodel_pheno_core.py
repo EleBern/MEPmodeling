@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.stats import gamma as gamma_dist
 from scipy.interpolate import interp1d
-from scipy.signal import butter, filtfilt
 
 
 def MEPmodel_pheno_core(ref, p):

@@ -108,7 +108,7 @@ def cal_error(ref, sim):
     y0 = ref["y0"]
     t0 = ref["t0"]
 
-    simMEP = sim["simMEP"].T  # transpose like MATLAB '
+    simMEP = sim["simMEP"].T  
     t = sim["t"]
 
     # align peaks
@@ -117,7 +117,7 @@ def cal_error(ref, sim):
 
     axonalDelay = max(0, t0[i1] - t[i2])
 
-    # interpolation (MATLAB interp1 equivalent)
+    # interpolation 
     f_interp = interp1d(
         t + axonalDelay,
         simMEP,

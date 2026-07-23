@@ -21,18 +21,15 @@ def gradient_repair(Para_E, LR, UR):
     UR_arr = UR.copy()
 
     if len(LR_arr) == 1:
-        # All parameters share the same constraint
         LR_val = float(LR_arr[0])
         UR_val = float(UR_arr[0])
 
         mask_hi = Para_E > UR_val
         if np.any(mask_hi):
-            prova = population(1, int(np.sum(mask_hi)), LR_val, UR_val)
             Para_E[mask_hi] = population(1, int(np.sum(mask_hi)), LR_val, UR_val).ravel()
 
         mask_lo = Para_E < LR_val
         if np.any(mask_lo):
-            prova = population(1, int(np.sum(mask_lo)), LR_val, UR_val)
             Para_E[mask_lo] = population(1, int(np.sum(mask_lo)), LR_val, UR_val).ravel()
 
     else:

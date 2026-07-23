@@ -81,16 +81,10 @@ def run_ga(ref):
     N3 = 100  # mutation, number of pairs to mutate
     tg = 10   # maximum number of generations
 
-    # rng(200)  # not set, matching commented-out MATLAB line
-    # warnings ignored, matching commented-out MATLAB line
-
     K = np.zeros((0, 2))         # history of [average cost, best cost]
     KP = np.zeros((0, nParams))  # history of [best solution]
     KS = np.zeros(0)             # history of [best cost]
-    w = 0                        # counter (0-based to match python indexing)
-    j = 1                        # counter
-
-    #fig = plt.figure()
+    w = 0                        # generation counter 
 
     # %%%%%%%%%%collect previous solutions%%%%%%%%%%%%%
     root = os.path.dirname(os.path.abspath(__file__))
@@ -208,8 +202,7 @@ def run_ga(ref):
             print("GA doesn't work")
             GA_counter.append(0)
         # %%%%%%%%%%
-        w = w + 1  # update generation
-        j = j + 1  # update generation counter
+        w = w + 1  # update generation counter
 
         # online plot
         _, houtput = myfunc(KP[-1, :], ref)
@@ -249,12 +242,12 @@ def run_ga(ref):
         plt.pause(0.001)
 
         # stop: number of generations
-        if j > tg:
+        if w >= tg:
             break
 
         # stop: good fit
         if KS[-1] < 0.01:
-            j = tg + 1
+
             break
 
     # get final result

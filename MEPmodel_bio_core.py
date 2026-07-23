@@ -1,7 +1,6 @@
 import numpy as np
 from sigmoid import sigmoid
 from scipy.interpolate import interp1d
-from scipy.signal import butter, filtfilt
 
 def MEPmodel_bio_core(model):
     # Mapping dictionary keys from the model structure
@@ -67,12 +66,11 @@ def MEPmodel_bio_core(model):
         for tt in range(len(t) - 1):
 
             # -----MN rate-----
-            mMN[tt] = np.mean(Wexc * sMN[:, tt]) # Wexc' in MATLAB is handled by element-wise if Wexc is 1D
+            mMN[tt] = np.mean(Wexc * sMN[:, tt]) 
 
             # -----RC rate-----
             if withRC:
                 rescale = 100 
-                # Assuming sigmoid is defined elsewhere as a custom function
                 mRC[tt] = sigmoid(v[0, tt] * fastAChRweight + v[1, tt] * (1 - fastAChRweight), 
                                   rc['v_thr'] / rescale, rc['r'] * rescale, rc['fmax'])
             
@@ -134,12 +132,10 @@ def MEPmodel_bio_core(model):
             # ---------------------------------
             for k in range(len(idxES)):
                 curr_idx = idxES[k]
-                # Linear interpolation for precise spike time
                 spike_t = (dt / (Vm_lag[n, curr_idx] - Vm[n, curr_idx - 1]) * (V_thr - Vm[n, curr_idx - 1]) + t[curr_idx - 1])
                 
                 spike_times[n, k, i] = spike_t
                 
-                # Cumulative interpolation of MUAP
                 f_interp = interp1d((tmuap + spike_t).flatten(), (muaps[:, n]).flatten(), kind='linear', 
                                     bounds_error=False, fill_value=0)
                 MEPcomps[n, :] += f_interp(t)

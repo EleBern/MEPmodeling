@@ -82,7 +82,7 @@ def plot_param_panel_pheno(p, ref):
     ax_mep.set_ylabel('Amplitude (mV)')
 
     n_int   = len(ref['intensities'])
-    sel_idx = [n_int - 1, round((n_int - 1) / 2), 0]   # 0-based indices
+    sel_idx = [n_int - 1, round((n_int - 1) / 2), 0]   
     legend_labels = [f"{ref['intensities'][s]:.4g}%" for s in sel_idx]
 
     # ------------------------------------------------------------------
@@ -97,7 +97,7 @@ def plot_param_panel_pheno(p, ref):
     pdf_vals = gamma_dist.pdf(t, a=shape, scale=1.0 / rate)
 
     for s in sel_idx:
-        offset = (n_int - 1 - s) * tshift   # 0-indexed equivalent of (nIntensities - sel(i))
+        offset = (n_int - 1 - s) * tshift   
         ax_pdf.plot(t + delay + offset, pdf_vals, linewidth=1.5)
 
     ax_pdf.set_title('Model param.')

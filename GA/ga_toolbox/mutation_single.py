@@ -20,11 +20,10 @@ def mutation_single(solution, LR, UR):
 
     nParams  = len(solution)
 
-    P = np.tile(solution, (nParams, 1))           # replicate solution nParams times
+    P = np.tile(solution, (nParams, 1))           
 
     # Replace the diagonal entries with fresh random values (one per row)
     diag_mask = np.eye(nParams, dtype=bool)
     P[diag_mask] = population(1, nParams, LR, UR)
-    prova = population(1, nParams, LR, UR)
 
     return P

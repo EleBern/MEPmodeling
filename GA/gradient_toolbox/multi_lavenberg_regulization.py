@@ -39,7 +39,6 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, E, LR, UR):
         d = -D @ J.T @ E   # parameter update (f(x) - y_goal convention)
 
         if np.any(np.isnan(d)):
-            # equivalent to MATLAB's keyboard — raise to allow inspection
             raise RuntimeError(
                 f'NaN detected in gradient update at regularisation step {i}. '
                 f'reg={reg[i]:.4g}, check J and E.'

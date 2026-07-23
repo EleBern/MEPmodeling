@@ -9,7 +9,7 @@ parentDir = os.path.dirname(os.getcwd())
 sys.path.append(parentDir)
 
 # ---------fig_method_4.png----------
-fig, axes = plt.subplots(1, 3, figsize=(15 , 5))#figsize=(15 / 2.54, 5 / 2.54))
+fig, axes = plt.subplots(1, 3, figsize=(15 , 5))
 fig.subplots_adjust(wspace=0.2)
 
 # -----gamma-----

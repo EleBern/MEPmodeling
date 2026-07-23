@@ -9,14 +9,11 @@ from load_MEP import load_MEP
 from scipy.io import loadmat
 
 def plot_summary(p, ref):
-    # Extracting variables from the nested ref dictionary using tuple keys
     spike_times = ref['sim']['spike_times']
     R = ref['model']['R']
     Wexc = ref['model']['Wexc']
     RWinh = ref['model']['RWinh']  # R*Winh
     simMEP = ref['sim']['simMEP2']
-    
-    # Simple keys
     y0 = ref['y0']
     t0 = ref['t0']
     intensities = ref['intensities']
@@ -28,8 +25,6 @@ def plot_summary(p, ref):
     ax1 = fig.add_subplot(gs[0, 0])
     space = (np.max(y0) - np.min(y0)) / 2
     
-    # MATLAB: repmat((1:size(ref.y0,2))*space,[size(ref.y0,1),1])
-    # y0 is assumed [time x intensities]
     offsets = np.arange(1, y0.shape[1] + 1) * space
     
     h1 = ax1.plot(t0, y0 + offsets, 'k', linewidth=1.5)
@@ -124,7 +119,6 @@ def plot_summary(p, ref):
     axonal_delay = ref['model']['axonalDelay'] 
     maxES = ref['model']['maxES']
     
-    # Using 'case 2' logic from MATLAB
     tmp = np.transpose(spike_times + axonal_delay, (0, 2, 1)) # [100 x intensities x maxES]
     tmp_flat = np.reshape(tmp, (100 * len(intensities), maxES), order='F')
 
@@ -232,8 +226,6 @@ def _fit_sigmoid(x, y):
         [float(x.mean()),     r_est, a_est],
     ]
 
-    # x0 can extend well beyond the data range for late-rising curves;
-    # r must stay positive; a must be positive
     x_range = float(x[-1]) - float(x[0])
     bounds = (
         [float(x[0]),                    1e-4,  0.0   ],

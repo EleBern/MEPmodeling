@@ -8,10 +8,7 @@ import matplotlib.pyplot as plt
 parentDir = os.path.dirname(os.getcwd())
 sys.path.append(parentDir)
 
-# h5_helpers.py lives in the parent directory alongside the other helper
-# scripts (ga_MEPmodel_bio.py, MEPmodel_bio.py, etc.).
 from h5_helpers import load_h5_to_dict
-
 
 def load_h5(filename):
     """Open an .h5 file and recursively load it into a nested dict."""
@@ -50,7 +47,7 @@ for subj in range(1, 11):
         np.mean(ref['model']['RWinh']),
     ]
 
-fig, axes = plt.subplots(2, 5, figsize=(15 / 2.54 * 2.54, 6))  # sized to roughly match a 2x5 tile layout
+fig, axes = plt.subplots(2, 5, figsize=(15, 6))  
 axes = axes.flatten()
 
 for subj in range(1, 11):

@@ -61,7 +61,5 @@ ax2.grid(True)
 ax2.legend(labels)
 ax2.set_title('Biexponential synaptic kernels (numerical)')
 
-# Note: like the original MATLAB script, only the figure created last
-# (the numerical kernels) is saved to disk.
 os.makedirs('figures', exist_ok=True)
 fig2.savefig(os.path.join('figures', 'fig_method_5.png'))

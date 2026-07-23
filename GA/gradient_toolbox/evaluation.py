@@ -24,7 +24,7 @@ def evaluation(X, func, y_goal):
     F = np.zeros((x))
     total_pop = str(x)
 
-    E = None  # will be built on first iteration
+    E = None  
     Houtput = [None] * x
 
     for j in range(x):
@@ -33,7 +33,7 @@ def evaluation(X, func, y_goal):
 
         t_start = time.time()
         error, houtput = func(P, y_goal)   # error and model output
-        fit = np.sum(error ** 2)           # sumsqr(error)
+        fit = np.sum(error ** 2)           
         gettime = time.time() - t_start
         # ------------------------------------
 
@@ -43,12 +43,11 @@ def evaluation(X, func, y_goal):
 
         F[j] = fit
 
-        # Initialise E array on first iteration once we know its shape
         if E is None:
             E = np.zeros((error.size, x))
         E[:, j] = error
 
         Houtput[j] = houtput
 
-    print()   # newline after progress output
+    print()  
     return F, E, Houtput

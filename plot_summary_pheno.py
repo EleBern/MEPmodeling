@@ -230,8 +230,6 @@ def _fit_sigmoid(x, y):
         [float(x.mean()),     r_est, a_est],
     ]
 
-    # x0 can extend well beyond the data range for late-rising curves;
-    # r must stay positive; a must be positive
     x_range = float(x[-1]) - float(x[0])
     bounds = (
         [float(x[0]),                  1e-4,  0.0   ],

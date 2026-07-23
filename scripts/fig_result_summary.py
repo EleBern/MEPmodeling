@@ -8,8 +8,6 @@ import matplotlib.pyplot as plt
 parentDir = os.path.dirname(os.getcwd())
 sys.path.append(parentDir)
 
-# h5_helpers.py lives in the parent directory alongside the other helper
-# scripts (ga_MEPmodel_bio.py, MEPmodel_bio.py, etc.).
 from h5_helpers import load_h5_to_dict
 from MEPmodel_pheno import MEPmodel_pheno
 from MEPmodel_bio import MEPmodel_bio
@@ -43,7 +41,7 @@ for subj in range(1, 11):
 
 fig = plt.figure()
 markerColor = np.array([128, 128, 128]) / 255
-boxColor = np.array([0, 139, 139]) / 255  # noqa: F841 (kept for parity with source)
+boxColor = np.array([0, 139, 139]) / 255  
 face = (*boxColor, 0.2)
 edge = (*boxColor, 1) 
 width = 15
@@ -56,9 +54,6 @@ plt.setp(bp["medians"], color=boxColor, linewidth=2)
 plt.setp(bp["boxes"], facecolor=face, edgecolor=edge, linewidth=2)
 plt.setp(bp["medians"], color=edge)
 
-
-# for patch in bp['boxes']:
-#     patch.set(facecolor=boxColor, alpha=0.5) 
 ax1.plot([1, 2, 3], score.T, '-o', markerfacecolor='none', color=markerColor, linewidth=0.5)
 ax1.set_xticks([1, 2, 3])
 ax1.set_xticklabels(['Pheno.', 'Bio.', 'Bio.(w/o RC)'], fontname='calibri')

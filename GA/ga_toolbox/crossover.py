@@ -17,10 +17,10 @@ def crossover(X, n):
     x, y = X.shape  # x: population size, y: parameter size
     E = np.zeros((2 * n, y))
 
-    for i in range(n):  # crossover repeat n times
+    for i in range(n):  # repeat crossover n times
         # r: select two chromosomes for crossover
-        r = np.random.randint(0, x, size=2)  # two indices in [0, x)
-        while r[0] == r[1]:                  # make sure they are different
+        r = np.random.randint(0, x, size=2)  
+        while r[0] == r[1]:                  
             r = np.random.randint(0, x, size=2)
 
         A = X[r[0], :].copy()  # chromosome 1 for crossover
@@ -28,10 +28,10 @@ def crossover(X, n):
 
         c = 1 + np.random.randint(0, y - 1)  # select cut point 
 
-        D = A[c:y].copy()   # reserve
+        D = A[c:y].copy()   
         A[c:y] = B[c:y]
         B[c:y] = D
-        # Now A and B are chromosomes after crossover
+        
 
         E[2 * i, :]     = A
         E[2 * i + 1, :] = B

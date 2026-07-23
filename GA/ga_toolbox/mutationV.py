@@ -24,7 +24,7 @@ def mutationV(P, lowchance, highchance, LR, UR):
 
     mutateChance = np.linspace(lowchance, highchance, mutateP.shape[0])  # per-row probability
 
-    mask = np.random.rand(*mutateP.shape) < mutateChance[:, np.newaxis]  # broadcast
+    mask = np.random.rand(*mutateP.shape) < mutateChance[:, np.newaxis]  
 
     tmp = population(mutateP.shape[0], mutateP.shape[1], LR, UR)
     mutateP[mask] = tmp[mask]

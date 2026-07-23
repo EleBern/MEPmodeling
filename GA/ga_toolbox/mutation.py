@@ -27,7 +27,7 @@ def mutation(X, n):
 
         c = np.random.randint(0, y)  # select cut point (0-indexed)
 
-        D    = A[c]   # reserve
+        D    = A[c]   
         A[c] = B[c]   # exchange 1 parameter for mutation
         B[c] = D
 
