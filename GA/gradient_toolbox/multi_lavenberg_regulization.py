@@ -48,5 +48,4 @@ def multi_lavenberg_regulization(n, reg0, reg1, Para_E, J, E, LR, UR):
 
         # Clamp to boundary
         Y[i, :] = gradient_repair(Para_E_new, LR, UR)
-    np.savetxt("Y.txt", Y)
     return Y
