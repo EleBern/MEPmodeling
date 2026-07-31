@@ -103,8 +103,8 @@ def plot_param_panel(p, ref):
     plt.plot(neurons[hi_idx], R[hi_idx], 'ko', fillstyle='none')
     
     if withRC:
-        h2, = plt.plot(neurons, Wexc, 'b', linewidth=1.5, label='Wexc')
-        h3, = plt.plot(neurons, RWinh, 'm', linewidth=1.5, label='R*Winh')
+        h2, = plt.plot(neurons, Wexc, 'b', linewidth=1.5, label='wMN')
+        h3, = plt.plot(neurons, RWinh, 'm', linewidth=1.5, label='wRC*R')
         plt.legend(handles=[h1, h2, h3], fontsize=7)
     else:
         plt.legend(handles=[h1], labels=['R'], fontsize=7)
