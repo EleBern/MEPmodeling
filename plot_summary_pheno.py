@@ -60,7 +60,7 @@ def plot_summary_pheno(p, ref):
     # Tile 2 – IO curve
     # ------------------------------------------------------------------
     ax2  = fig.add_subplot(t_layout[1])
-    IO, simIO, myfit1, myfit2 = get_iocurve(simMEP, ref)
+    IO, simIO, myfit1, myfit2, gof = get_iocurve(simMEP, ref)
 
     x1 = np.linspace(IO[0, 0], IO[-1, 0], 100)
     ax2.plot(x1, sigmoid(x1, *myfit1), 'k', linewidth=1)
@@ -75,7 +75,7 @@ def plot_summary_pheno(p, ref):
     ax2.spines['right'].set_visible(False)
     ax2.set_xlabel('TMS intensity (%RMT)', fontsize=10)
     ax2.set_ylabel('Amplitude (mV)', fontsize=8)
-    ax2.set_title('IO curve')
+    ax2.set_title(f'IO (R²={gof:.2f})')
 
     if ref['subj'] in (1, 2, 4, 7, 9):
         yticks = sorted(set(list(ax2.get_yticks()) + [0.5]))
@@ -190,7 +190,9 @@ def get_iocurve(simMEP, ref):
     popt1 = _fit_sigmoid(IO[:, 0],    IO[:, 1])
     popt2 = _fit_sigmoid(simIO[:, 0], simIO[:, 1])
 
-    return IO, simIO, popt1, popt2
+    gof = 1 - np.sum((IO[:,1]- simIO[:,1])**2) / np.sum((IO[:,1] - np.mean(IO[:,1]))**2)
+
+    return IO, simIO, popt1, popt2, gof
 
 
 def _fit_sigmoid(x, y):
