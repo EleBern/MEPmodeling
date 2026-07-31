@@ -32,7 +32,7 @@ def plot_summary(p, ref):
     
     # R^2 calculation
     R2 = 1 - np.sum((y0.flatten() - simMEP.flatten())**2) / np.sum((y0.flatten() - np.mean(y0.flatten()))**2)
-    ax1.set_title(f'MEP (R^2= {R2:.2g})', fontsize=9)
+    ax1.set_title(f'MEP (R²= {R2:.2g})', fontsize=9)
     ax1.spines['left'].set_visible(False)
     ax1.spines['right'].set_visible(False)
     ax1.spines['top'].set_visible(False)
@@ -56,7 +56,7 @@ def plot_summary(p, ref):
 
     # --- Nexttile(2): IO Curve ---
     ax2 = fig.add_subplot(gs[0, 1])
-    IO, simIO, myfit1, myfit2 = get_iocurve(simMEP, ref)
+    IO, simIO, myfit1, myfit2, gof = get_iocurve(simMEP, ref)
     
     x1 = np.linspace(IO[0, 0], IO[-1, 0], 100)
     ax2.plot(x1, sigmoid(x1, *myfit1), 'k', linewidth=1)
@@ -73,7 +73,7 @@ def plot_summary(p, ref):
     ax2.spines['right'].set_visible(False)
     ax2.set_xlabel('TMS intensity (%RMT)', fontsize=10)
     ax2.set_ylabel('Amplitude (mV)', fontsize=8)
-    ax2.set_title('IO curve', fontsize=9)
+    ax2.set_title(f'IO (R²={gof:.2f})', fontsize=9)
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
 
@@ -185,7 +185,9 @@ def get_iocurve(simMEP, ref):
     popt1 = _fit_sigmoid(IO[:, 0],    IO[:, 1])
     popt2 = _fit_sigmoid(simIO[:, 0], simIO[:, 1])
 
-    return IO, simIO, popt1, popt2
+    gof = 1 - np.sum((IO[:,1]- simIO[:,1])**2) / np.sum((IO[:,1] - np.mean(IO[:,1]))**2)
+
+    return IO, simIO, popt1, popt2, gof
 
 
 def _fit_sigmoid(x, y):
