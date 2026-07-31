@@ -50,7 +50,6 @@ def ga_MEPmodel_pheno(subj, reRun=0):
     # ----- show result -----
     plotOn = 1
     MEPmodel_pheno(p_post, ref, plotOn)
-    print("R2 ", ref["R2"])
 
 # ==========================================================================
 def run_ga(ref):
