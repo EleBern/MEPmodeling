@@ -57,8 +57,8 @@ def plot_param_panel(p, ref):
     plt.plot(simMEP_flat, 'r', linewidth=1, label='simMEP')
     
     R2 = 1 - (np.sum((y0_flat - simMEP_flat)**2) / np.sum((y0_flat - np.mean(y0_flat))**2))
-    print(f'R^2 = {R2}')
-    plt.title(f"MEPs of subject {subj} \n(R^2 = {R2:.2g}, NRMSD = {NRMSD*100:.2g}%)")
+    print(f'R² = {R2}')
+    plt.title(f"MEPs of subject {subj} \n(R² = {R2:.2g}, NRMSD = {NRMSD*100:.2g}%)")
 
     # Draw vertical lines for intensity boundaries
     pts_per_intensity = simMEP.shape[0]
