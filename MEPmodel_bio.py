@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
-from plot_summary import plot_summary
+from plot_summary import plot_summary, get_iocurve
 from plot_param_panel import plot_param_panel
 from plot_TMScondition import plot_TMScondition
 from MEPmodel_bio_core import MEPmodel_bio_core
@@ -13,6 +13,7 @@ def MEPmodel_bio(p, ref, plotOn=0):
     sim = MEPmodel_bio_core(ref["model"])  # simulation 
     ref = cal_error(ref, sim)
     simMEP = ref["sim"]["simMEP2"]
+    _, _, _, _, ref['gof'] = get_iocurve(simMEP, ref)
 
     if plotOn:
         plot_param_panel(p, ref)

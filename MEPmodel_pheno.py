@@ -1,7 +1,7 @@
 import numpy as np
 from MEPmodel_pheno_core import MEPmodel_pheno_core
 from plot_param_panel_pheno import plot_param_panel_pheno
-from plot_summary_pheno import plot_summary_pheno
+from plot_summary_pheno import plot_summary_pheno, get_iocurve
 
 
 def MEPmodel_pheno(p, ref, plotOn=0):
@@ -16,6 +16,7 @@ def MEPmodel_pheno(p, ref, plotOn=0):
     sim = MEPmodel_pheno_core(ref, p)
     ref = cal_error(ref, sim)
     simMEP = ref['sim']['simMEP2']
+    _, _, _, _, ref['gof'] = get_iocurve(simMEP, ref)
 
     if plotOn:
         plot_param_panel_pheno(p, ref)
