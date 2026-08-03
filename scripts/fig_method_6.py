@@ -30,8 +30,8 @@ for subj in range(1, 11):
             f'result_bio_s{subj}[{w:g}].h5'))
         ref = tmp['ref']
         score[j, :, s] = [
-            ref['model']['AMPAweight'].item(),
-            ref['R2'].item(),
+            ref['model']['AMPAweight'],
+            ref['R2'],
             np.mean(ref['model']['R']),
             np.mean(ref['model']['Wexc']),
             np.mean(ref['model']['RWinh']),
@@ -40,8 +40,8 @@ for subj in range(1, 11):
         parentDir, 'fitted_results', 'bio', f'result_bio_s{subj}.h5'))
     ref = tmp['ref']
     score[-1, :, s] = [
-        ref['model']['AMPAweight'].item(),
-        ref['R2'].item(),
+        ref['model']['AMPAweight'],
+        ref['R2'],
         np.mean(ref['model']['R']),
         np.mean(ref['model']['Wexc']),
         np.mean(ref['model']['RWinh']),

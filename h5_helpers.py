@@ -8,7 +8,10 @@ def load_h5_to_dict(group):
         if isinstance(item, h5py.Group):
             data[key] = load_h5_to_dict(item)
         else:
-            data[key] = item[()] # [()] extracts the data as a numpy array/scalar
+            value = item[()]  # [()] extracts the data as a numpy array/scalar
+            if isinstance(value, np.ndarray) and value.size == 1:
+                value = value.item()
+            data[key] = value
     return data
 
 # ==========================================================================
