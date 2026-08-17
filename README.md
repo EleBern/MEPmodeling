@@ -8,13 +8,18 @@ The workflow involves three main steps:
 2. **Generate model inputs** – Simulate DI-waves based on the given TMS intensities.  
 3. **Optimize model parameters** – Fit the model to experimental MEP waveforms using optimization techniques.
 
+
+This branch is to test whether the detailed MUAPs are necessary to obtain a good fit: the detailed MUAPs (described below) are substituted by a Hermit-Rodriguez function [1]
+
+[1] Moezzi B, Schaworonkow N, Plogmacher L, et al. Simulation of electromyographic recordings following transcranial magnetic stimulation. J Neurophysiol. 2018 Jul 5;120(5):2532-2541. doi: 10.1152/jn.00626.2017.
+
 ## Optimizer
 
-This repository contains a hybrid optimization algorithm that combines a genetic algorithm (GA) with local gradient-based search to fit a model's parameters to a target dataset. The algorithm is adapted from the previous work of Dr. Peng Wang [1,2] and his colleague, Dr. Vincent Chien [2]. The standalone implementation of the optimizer can be found at https://github.com/EleBern/Optimizer.
+This repository contains a hybrid optimization algorithm that combines a genetic algorithm (GA) with local gradient-based search to fit a model's parameters to a target dataset. The algorithm is adapted from the previous work of Dr. Peng Wang [2,3] and his colleague, Dr. Vincent Chien [3]. The standalone implementation of the optimizer can be found at https://github.com/EleBern/Optimizer.
 
-[1] Wang, P., Kong, R., Kong, X., Liégeois, R., Orban, C., Deco, G., ... & Thomas Yeo, B. T. (2019). Inversion of a large-scale circuit model reveals a cortical hierarchy in the dynamic resting human brain. Science advances, 5(1), eaat7854.
+[2] Wang, P., Kong, R., Kong, X., Liégeois, R., Orban, C., Deco, G., ... & Thomas Yeo, B. T. (2019). Inversion of a large-scale circuit model reveals a cortical hierarchy in the dynamic resting human brain. Science advances, 5(1), eaat7854.
 
-[2] Chien, V. S., Wang, P., Maess, B., Fishman, Y., & Knösche, T. R. (2023). Laminar neural dynamics of auditory evoked responses: Computational modeling of local field potentials in auditory cortex of non-human primates. NeuroImage, 281, 120364.
+[3] Chien, V. S., Wang, P., Maess, B., Fishman, Y., & Knösche, T. R. (2023). Laminar neural dynamics of auditory evoked responses: Computational modeling of local field potentials in auditory cortex of non-human primates. NeuroImage, 281, 120364.
 
 ## 🥗 Model Evaluation
 
