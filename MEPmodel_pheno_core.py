@@ -56,7 +56,7 @@ def MEPmodel_pheno_core(ref, p):
         'simMEP':       simMEP,
         'spike_times':  spike_times,
         'MEPcomps':     MEPcomps,
-        'axonalDelday': axonalDelay + t0[0],
+        'axonalDelay': axonalDelay + t0[0],
         'shape':        shape,
         'rate':         rate,
         'tshift':       tshift,

@@ -93,7 +93,7 @@ def plot_param_panel_pheno(p, ref):
     shape  = ref['sim']['shape']
     rate   = ref['sim']['rate']
     tshift = ref['sim']['tshift']
-    delay  = ref['sim']['axonalDelday']
+    delay  = ref['sim']['axonalDelay']
     pdf_vals = gamma_dist.pdf(t, a=shape, scale=1.0 / rate)
 
     for s in sel_idx:

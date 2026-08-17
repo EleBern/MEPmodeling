@@ -89,7 +89,7 @@ def plot_summary_pheno(p, ref):
     shape = ref['sim']['shape']
     rate  = ref['sim']['rate']
     tshift = ref['sim']['tshift']
-    delay  = ref['sim']['axonalDelday']
+    delay  = ref['sim']['axonalDelay']
     pdf_vals = gamma_dist.pdf(x, a=shape, scale=1.0 / rate)
 
     ax3.plot(x + delay, pdf_vals, 'k', linewidth=1)
