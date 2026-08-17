@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from load_MEP import load_MEP
+from load_muap import load_muap
 
 
 def config_model_pheno(subj):
@@ -17,6 +18,7 @@ def config_model_pheno(subj):
     ref['y0']          = y0.T          # [t x N]
     ref['t0']          = t0
     ref['intensities'] = intensities
+    ref['muaps'], ref['tmuap'] = load_muap()
     ref['subj']          = subj
     intensity_idx = np.arange(len(intensities))
     ref['intensity_idx'] = intensity_idx

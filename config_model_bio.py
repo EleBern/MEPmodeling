@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from load_MEP import load_MEP
+from load_muap import load_muap
 from gen_DIwave import gen_DIwave
 from plot_DIwave import plot_DIwave
 from gen_kernels import gen_kernels
@@ -27,6 +28,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     ref["intensity_idx"] = intensity_idx
     ref["t0"] = t0
     ref["y0"] = y0.T
+    model["muaps"], model["tmuap"] = load_muap()
 
     # -----subject RMT ---------
     # (by eyeballing the IO curve)
