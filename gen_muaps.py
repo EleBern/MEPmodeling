@@ -107,7 +107,7 @@ import numpy as np
 import h5py
 
 
-def gen_muaps(spike_times, axonalDelay=7, a=1.2e-2, lam=2.0):
+def gen_muaps(spike_times, axonalDelay=7, a=1.2e-5, lam=2.0):
     """
     Generate MUAP waveforms using the first-order Hermite-Rodriguez
     function described in the paper (Eqs. 4-5). See module docstring for
@@ -206,11 +206,11 @@ if __name__ == "__main__":
     print("muaps shape:", muaps.shape)  # (200, N)
     print("tmuap shape:", tmuap.shape)  # (200,)
     print("tmuap range:", tmuap[0], "to", tmuap[-1])
-    print("Amplitude range (mV):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
+    print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
 
     plt.figure(figsize=(8, 5))
     for n in range(N):
-        plt.plot(tmuap, muaps[:, n], label=f"MU {n + 1}")
+        plt.plot(tmuap, 1e3 * muaps[:, n], label=f"MU {n + 1}")
     plt.xlabel("Time (ms)")
     plt.ylabel("Amplitude (mV)")
     plt.title("Simulated MUAP shapes (first-order Hermite-Rodriguez function)")
