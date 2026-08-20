@@ -9,7 +9,7 @@ The workflow involves three main steps:
 3. **Optimize model parameters** – Fit the model to experimental MEP waveforms using optimization techniques.
 
 
-This branch is to test whether the detailed MUAPs are necessary to obtain a good fit: the detailed MUAPs (described below) are substituted by a Hermit-Rodriguez function [1]
+This branch is to test whether the detailed MUAPs are necessary to obtain a good fit: the detailed MUAPs (described below) are substituted by a Hermit-Rodriguez function [1].
 
 [1] Moezzi B, Schaworonkow N, Plogmacher L, et al. Simulation of electromyographic recordings following transcranial magnetic stimulation. J Neurophysiol. 2018 Jul 5;120(5):2532-2541. doi: 10.1152/jn.00626.2017.
 
