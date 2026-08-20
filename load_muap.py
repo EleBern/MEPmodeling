@@ -29,6 +29,8 @@ def load_muap(plotOn=0):
         muaps = tmp["muaps"]   # [n_samples x n_muaps]
         t     = tmp["t"].T     # [n_samples x 1]
 
+    amplitude_distribution(muaps)
+
     if plotOn:
         fig = plt.figure()
         for i in range(1, 21):   # 1:20
@@ -47,3 +49,16 @@ def load_muap(plotOn=0):
         plt.show()
 
     return muaps, t
+
+def amplitude_distribution(muaps):
+    max_peak = np.max(muaps, axis=0)
+    min_peak = np.min(muaps, axis=0)
+    amplitude = 1e3 * np.sort(max_peak - min_peak)
+    fig = plt.figure()
+    print(np.shape(max_peak))
+    plt.plot(np.arange(len(amplitude)), amplitude, "*")
+    plt.title("MUAPs amplitude distribution")
+    plt.ylabel("Amplitude [mV]")
+    plt.xlabel("Motor unit sorted index")
+    plt.xlim([0, 100])
+    plt.show()
