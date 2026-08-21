@@ -163,7 +163,8 @@ def gen_muaps(spike_times, axonalDelay=7, a=1.2e-5, lam=2.0):
         frac = np.arange(n_neurons) / (n_neurons - 1)
     else:
         frac = np.zeros(1)
-    A = a * 100.0 ** frac  # shape (N,)
+    #A = a * 100.0 ** frac  # shape (N,)
+    A = a * 5.28518724e+02 ** frac  # shape (N,)
 
     # Nominal single motoneuron spike (tm_i = 0) for MUAP-template
     # generation; tau_i = tm_i + tD_i = tD_i (see docstring note on the
@@ -201,7 +202,7 @@ if __name__ == "__main__":
     # motor units.
     axonalDelay = 100#7.0
 
-    muaps, tmuap = gen_muaps(fake_spike_times)
+    muaps, tmuap = gen_muaps(fake_spike_times, a=3.75457942e-06/2)
 
     print("muaps shape:", muaps.shape)  # (200, N)
     print("tmuap shape:", tmuap.shape)  # (200,)
