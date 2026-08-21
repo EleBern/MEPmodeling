@@ -30,12 +30,13 @@ def load_muap(plotOn=0, amplitudeDist=0):
         muaps = tmp["muaps"]   # [n_samples x n_muaps]
         t     = tmp["t"].T     # [n_samples x 1]
 
+    # Calculate and fit MUAPs amplitude distribution
     if amplitudeDist:
         amplitude_distribution(muaps)
 
     if plotOn:
         fig = plt.figure()
-        for i in range(1, 21):   # 1:20
+        for i in range(1, 21):  
             ax = fig.add_subplot(4, 5, i)
             start_col = (i - 1) * 5
             end_col   = i * 5
@@ -53,13 +54,19 @@ def load_muap(plotOn=0, amplitudeDist=0):
     return muaps, t
 
 def amplitude_distribution(muaps):
+    """
+        Plot the MUAPs amplitude distribution and its best fit
+    
+        Parameters
+        ----------
+        muaps   : np.array [n_muaps,] MUAPs
+    """
     max_peak = np.max(muaps, axis=0)
-    print(np.max(max_peak))
+    print("Peak amplitude (from 0 V to positive peak) of largest MUAP: ", np.max(max_peak), " V")
     min_peak = np.min(muaps, axis=0)
     amplitude = 1e3 * np.sort(max_peak - min_peak)
     popt = fit_amplitude(amplitude)
     fig = plt.figure()
-    print(np.shape(max_peak))
     plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
     plt.plot(np.arange(len(amplitude)), exponential(np.arange(len(amplitude)) / (len(amplitude)-1), *popt), "r", label="Best fit")
     plt.title("MUAPs amplitude distribution")
@@ -73,9 +80,20 @@ def exponential(x, a, b):
     return a*b**(x)
 
 def fit_amplitude(amplitude):
+    """
+        Find the best fit for the MUAPs amplitude distribution, prints the best fit parameters
+    
+        Parameters
+        ----------
+        amplitude   : np.array [n_muaps,] amplitude of the MUAPs
+                    
+    
+        Returns
+        -------
+        popt : np.array  [2,]   best exponential fit parameters: minimum amplitude, base of the exponential
+    """
     x = np.arange(len(amplitude)) / (len(amplitude)-1)
-    #y = exponential(x, 2.5)
-    popt, pcov = curve_fit(exponential, x, amplitude, p0=[1e-5, 100])
+    popt, _ = curve_fit(exponential, x, amplitude, p0=[1e-5, 100])
     print(popt)
 
     return popt
