@@ -2,4 +2,4 @@
 # ga_MEPmodel_pheno(1,0)
 
 from load_muap import load_muap
-load_muap(1)
+load_muap(1, 1)
