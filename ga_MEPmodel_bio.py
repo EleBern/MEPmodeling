@@ -93,7 +93,7 @@ def _run_and_save(ref, root, result_path):
     N1 = 60          # population size
     N2 = 100         # crossover: number of pairs
     N3 = 100         # mutation:  number of pairs
-    tg = 10          # maximum number of generations
+    tg = 20          # maximum number of generations
 
     # Gradient-search configuration
     conf = {
