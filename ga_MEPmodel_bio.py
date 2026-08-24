@@ -66,7 +66,7 @@ def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0):
         p_post = _run_and_save(ref, root, result_path)
 
     # ----- show result -----
-    plotOn = 1
+    plotOn = 0
     MEPmodel_bio(p_post, ref, plotOn)
 
 # ==========================================================================
