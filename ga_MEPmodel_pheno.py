@@ -78,7 +78,7 @@ def run_ga(ref):
     N1 = 60   # population size
     N2 = 100  # crossover, number of pairs to crossover
     N3 = 100  # mutation, number of pairs to mutate
-    tg = 10   # maximum number of generations
+    tg = 20   # maximum number of generations
 
     K = np.zeros((0, 2))         # history of [average cost, best cost]
     KP = np.zeros((0, nParams))  # history of [best solution]
