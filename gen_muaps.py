@@ -73,10 +73,11 @@ def gen_muaps(n_neurons=100, a=3.75457942e-06/2, b=5.28518724e+02):
     t_D = np.ones(n_neurons) * axonalDelay  # shape (N,)
     t_D = t_D[None, :]      # (1, N)
     A = A[None, :]          # (1, N)
-
-    z = t_D - t_M  # (200, N)
+  
+    z = axonalDelay - t_mn - tmuap  # (200, N)
+    z = np.vstack((z,) * 100).T
     normalization_factor = np.max(z * np.exp(-(z / lam) ** 2)) # To ensure that Am = b * A1
-    muaps = A * (z * np.exp(-(z / lam) ** 2)) / normalization_factor
+    muaps = A * (z * np.exp(-(z / lam) ** 2)) / normalization_factor 
 
     return muaps, tmuap
 
