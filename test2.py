@@ -1,0 +1,2 @@
+from ga_MEPmodel_pheno import ga_MEPmodel_pheno
+ga_MEPmodel_pheno(8,1)
