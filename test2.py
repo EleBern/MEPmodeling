@@ -1,2 +1,2 @@
-from ga_MEPmodel_pheno import ga_MEPmodel_pheno
-ga_MEPmodel_pheno(8,1)
+from ga_MEPmodel_bio import ga_MEPmodel_bio
+ga_MEPmodel_bio(1,1,[],1)
