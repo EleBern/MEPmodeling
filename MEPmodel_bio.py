@@ -13,7 +13,10 @@ def MEPmodel_bio(p, ref, plotOn=0):
     sim = MEPmodel_bio_core(ref["model"])  # simulation 
     ref = cal_error(ref, sim)
     simMEP = ref["sim"]["simMEP2"]
-    _, _, _, _, ref['gof'] = get_iocurve(simMEP, ref)
+    try:
+        _, _, _, _, ref['gof'] = get_iocurve(simMEP, ref)
+    except:
+        print("Sigmoid curve_fit failed for all initial guesses.")
 
     if plotOn:
         plot_param_panel(p, ref)
