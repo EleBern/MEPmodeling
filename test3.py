@@ -12,6 +12,6 @@ except:
 
 try:
     from ga_MEPmodel_pheno import ga_MEPmodel_pheno
-    ga_MEPmodel_pheno(3,1,[],0)
+    ga_MEPmodel_pheno(3,1)
 except:
     print("Pheno model failed")
