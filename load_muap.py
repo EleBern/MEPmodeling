@@ -64,7 +64,7 @@ def amplitude_distribution(muaps):
     max_peak = np.max(muaps, axis=0)
     print("Peak amplitude (from 0 V to positive peak) of largest MUAP: ", np.max(max_peak), " V")
     min_peak = np.min(muaps, axis=0)
-    amplitude = 1e3 * np.sort(max_peak - min_peak)
+    amplitude = 1e3 * (max_peak - min_peak)
     popt = fit_amplitude(amplitude)
     fig = plt.figure()
     plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
