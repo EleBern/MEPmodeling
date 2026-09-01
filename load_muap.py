@@ -32,7 +32,7 @@ def load_muap(plotOn=0, amplitudeDist=0):
 
     # Calculate and fit MUAPs amplitude distribution
     if amplitudeDist:
-        amplitude_distribution(muaps)
+        _ = amplitude_distribution(muaps)
 
     if plotOn:
         fig = plt.figure()
@@ -75,6 +75,8 @@ def amplitude_distribution(muaps):
     plt.xlim([0, 100])
     plt.legend()
     plt.show()
+    return popt
+
 
 def exponential(x, a, b):
     return a*b**(x)
@@ -94,6 +96,6 @@ def fit_amplitude(amplitude):
     """
     x = np.arange(len(amplitude)) / (len(amplitude)-1)
     popt, _ = curve_fit(exponential, x, amplitude, p0=[1e-5, 100])
-    print(popt)
+    print("Optimal exponential parameters (scaling factor, base):", popt)
 
     return popt

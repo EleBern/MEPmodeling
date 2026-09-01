@@ -24,8 +24,10 @@ Difference from the paper:
 """
 
 import os
-import numpy as np
 import h5py
+import numpy as np
+from h5_helpers import load_h5_to_dict
+from load_muap import amplitude_distribution
 
 
 def gen_muaps(n_neurons=100, a=3.75457942e-06/2, b=5.28518724e+02):
@@ -85,9 +87,22 @@ def gen_muaps(n_neurons=100, a=3.75457942e-06/2, b=5.28518724e+02):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
+    root    = os.path.dirname(os.path.realpath(__file__))
+    h5_path = os.path.join(root, "data_MUAP", "muap.h5")
+
+    if os.path.exists(h5_path):
+        with h5py.File(h5_path, 'r') as f:
+            tmp = load_h5_to_dict(f)
+
+        anatomical_muaps = tmp["muaps"]   # [n_samples x n_muaps]
+    # Calculate and fit MUAPs amplitude distribution
+        popt = amplitude_distribution(anatomical_muaps)
+
+
+
     N = 100
 
-    muaps, tmuap = gen_muaps()
+    muaps, tmuap = gen_muaps(n_neurons=N, a=popt[0], b=popt[1])
 
     print("muaps shape:", muaps.shape)  # (200, N)
     print("tmuap shape:", tmuap.shape)  # (200,)
@@ -106,7 +121,6 @@ if __name__ == "__main__":
     # plt.legend(fontsize=7, ncol=2)
     plt.tight_layout()
     plt.show()
-    print("Saved demo plot to muaps_demo.png")
 
     # Save muaps and the corresponding time vector (t_muaps) to an HDF5
     out_dir = os.path.join(os.getcwd(), "data_MUAP")
