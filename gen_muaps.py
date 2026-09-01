@@ -30,7 +30,7 @@ from h5_helpers import load_h5_to_dict
 from load_muap import amplitude_distribution
 
 
-def gen_muaps(n_neurons=100, a=3.75457942e-06/2, b=5.28518724e+02):
+def gen_muaps(n_neurons=100, a=1.04495487e-02/2, b=1.59019399e+02):
     """
     Generate MUAP waveforms using the first-order Hermite-Rodriguez
     function described in the paper (Eqs. 4-5). See module docstring for
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Generate the synthetic MUAPs with that amplitude distribution
     N = 100
 
-    muaps, tmuap = gen_muaps(n_neurons=N, a=popt[0], b=popt[1])
+    muaps, tmuap = gen_muaps(n_neurons=N, a=popt[0]/2, b=popt[1])
 
     print("muaps shape:", muaps.shape)  # (200, N)
     print("tmuap shape:", tmuap.shape)  # (200,)
