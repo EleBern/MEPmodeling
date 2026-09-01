@@ -21,7 +21,7 @@ def load_muap(plotOn=0, amplitudeDist=0):
     t     : np.ndarray  [n_samples x 1]         time vector (ms)
     """
     root    = os.path.dirname(os.path.realpath(__file__))
-    h5_path = os.path.join(root, "data_MUAP", "muap3.h5")
+    h5_path = os.path.join(root, "data_MUAP", "muap4.h5")
 
     if os.path.exists(h5_path):
         with h5py.File(h5_path, 'r') as f:
