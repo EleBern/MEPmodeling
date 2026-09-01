@@ -87,6 +87,7 @@ def gen_muaps(n_neurons=100, a=3.75457942e-06/2, b=5.28518724e+02):
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
 
+    # Import anatomical MUAPs and calculate the amplitude distribution
     root    = os.path.dirname(os.path.realpath(__file__))
     h5_path = os.path.join(root, "data_MUAP", "muap.h5")
 
@@ -99,7 +100,7 @@ if __name__ == "__main__":
         popt = amplitude_distribution(anatomical_muaps)
 
 
-
+    # Generate the synthetic MUAPs with that amplitude distribution
     N = 100
 
     muaps, tmuap = gen_muaps(n_neurons=N, a=popt[0], b=popt[1])
