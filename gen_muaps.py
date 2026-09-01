@@ -93,6 +93,8 @@ if __name__ == "__main__":
     print("tmuap shape:", tmuap.shape)  # (200,)
     print("tmuap range:", tmuap[0], "to", tmuap[-1])
     print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
+    print("max |muaps[0]| (V):", np.abs(muaps[0]).max())
+    print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
 
     plt.figure(figsize=(8, 5))
     for n in range(N):
@@ -100,7 +102,8 @@ if __name__ == "__main__":
     plt.xlabel("Time (ms)")
     plt.ylabel("Amplitude (mV)")
     plt.title("Simulated MUAP shapes (first-order Hermite-Rodriguez function)")
-    plt.legend(fontsize=7, ncol=2)
+    plt.xlim([0, 20])
+    # plt.legend(fontsize=7, ncol=2)
     plt.tight_layout()
     plt.show()
     print("Saved demo plot to muaps_demo.png")
