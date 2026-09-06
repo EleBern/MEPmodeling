@@ -3,28 +3,26 @@ gen_muaps.py
 ============
 
 Generate Motor Unit Action Potential (MUAP) waveforms using the first-order
-Hermite-Rodriguez function, exactly as described in:
+Hermite-Rodriguez function, as described in:
 
     https://journals.physiology.org/doi/full/10.1152/jn.00626.2017
 
 (Eqs. 4-5)
 -----------------------
 
-Difference from the paper:
+Differences from the paper:
     - The whole MUAP waveform is generated and saved, it is then sampled according to the motor neurons' spike times 
       in MEPmodel_bio_core.py and MEPmodel_pheno_core.py. For this purpose:
         - The heaviside function is not used
         - Motor neuron spike times are replaced by an array of times between 0 and 20 ms with 0.1 ms steps
-        - The axonal delay is arbitrary. The peaks of the simulated MEPs are aligned to the peaks of the recorded
-          MEPs, giving the axonal delay
-    - The MUAP amplitude distribution should reproduce that of the anatomically derived MUAPs (https://pubmed.ncbi.nlm.nih.gov/31465437/).
-      For this purpose:
-        - A1 is set to 3.75457942e-06/2 
-        - Am = 5.28518724e+02 * A1
-    - lambda is not hard-coded: one value per motor unit is obtained with
-      scipy.optimize.curve_fit by fitting the Hermite-Rodriguez waveform to the
-      corresponding anatomically derived MUAP (see fit_lam), and is passed to
-      gen_muaps.
+The parameters of the synthetic MUAPs are not taken from the paper, but fit to anatomically derived
+MUAPs (https://pubmed.ncbi.nlm.nih.gov/31465437/). For this purpose:
+    - The axonal delay is set to align the zero-crossing of the synthetic MUAPs with the zero-crossing of
+      reference anatomical MUAPs
+    - Either the MUAP amplitude distribution, or the amplitude of each MUAP
+      reproduces that of the anatomically derived 
+    - The duration of the synthetic MUAPs (lambda) is fit to the anatomical MUAPs.
+      Either each MUAP duration is fit, or an average is used.
 """
 
 import os
@@ -41,17 +39,6 @@ def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.
     """
     Fit the shape parameter lambda of the first-order Hermite-Rodriguez
     function to each anatomically derived MUAP with scipy.optimize.curve_fit.
-
-    The fitted model is the same expression used in gen_muaps,
-
-        H_i(t) = A_i * (z * exp(-(z/lambda_i)^2)) / max(z * exp(-(z/lambda_i)^2))
-
-    with z = tau_i - t_mn - t_muap, so that lambda_i only controls the shape
-    (duration) of the waveform while its peak stays equal to A_i.
-
-    curve_fit is run from several initial guesses (p0) and the solution with
-    the smallest sum of squared residuals is kept, which avoids the local
-    minima of this cost function.
 
     Parameters
     ----------
@@ -147,7 +134,8 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
     tmuap : ndarray, shape (200,)
     """
     # Paper parameters
-    lam = np.atleast_1d(np.asarray(lam, dtype=float))[None, :]  # (1, N) or (1, 1)
+    if isinstance(lam, np.ndarray):
+        lam = np.atleast_1d(np.asarray(lam, dtype=float))[None, :]
 
     # Time vector
     tmuap = np.arange(0, 20, 0.1)
@@ -157,13 +145,17 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
     # range, from A_1 = a (first-recruited MU) to A_M = b*a
     # (last-recruited MU). Motor units are assumed ordered by recruitment
     # order (column index 0 = first recruited).
-    # if n_neurons > 1:
-    #     frac = np.arange(n_neurons) / (n_neurons - 1)
-    # else:
-    #     frac = np.zeros(1)
-    # A = a * b ** frac  
-    A = amplitude
-
+    if len(amplitude) == 2:
+        a = amplitude[0]
+        b = amplitude[1]
+        if n_neurons > 1:
+            frac = np.arange(n_neurons) / (n_neurons - 1)
+        else:
+            frac = np.zeros(1)
+        A = a * b ** frac  
+    else:
+        A = amplitude
+    print(A)
     # Eq. 4: H_i(t) = A_i * (tau_i - t) * exp(-((tau_i - t)/lambda)^2) * u(tau_i - t)
     t_M = t_mn[:, None]      # (200, 1)
     t_D = axonalDelay        # shape (N,)
@@ -197,7 +189,7 @@ if __name__ == "__main__":
 
     anatomical_muaps = tmp["muaps"]   # [n_samples x n_muaps]
     # Calculate and fit MUAPs amplitude distribution
-    # popt = amplitude_distribution(anatomical_muaps)
+    popt = amplitude_distribution(anatomical_muaps)
     max_peak = np.max(anatomical_muaps, axis=0)
     print("Peak amplitude (from 0 V to positive peak) of largest MUAP: ", np.max(max_peak), " V")
     min_peak = np.min(anatomical_muaps, axis=0)
@@ -227,7 +219,7 @@ if __name__ == "__main__":
     # Generate the synthetic MUAPs with that amplitude distribution
     N = 100
 
-    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam)
+    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam)
 
     print("muaps shape:", muaps.shape)  # (200, N)
     print("tmuap shape:", tmuap.shape)  # (200,)
@@ -235,6 +227,7 @@ if __name__ == "__main__":
     print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
     print("max |muaps[0]| (V):", np.abs(muaps[0]).max())
     print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
+    print(np.argwhere(np.isnan(muaps[0])))
 
     plt.figure(figsize=(8, 5))
     for n in range(N):
