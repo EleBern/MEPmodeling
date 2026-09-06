@@ -21,17 +21,107 @@ Difference from the paper:
       For this purpose:
         - A1 is set to 3.75457942e-06/2 
         - Am = 5.28518724e+02 * A1
+    - lambda is not hard-coded: one value per motor unit is obtained with
+      scipy.optimize.curve_fit by fitting the Hermite-Rodriguez waveform to the
+      corresponding anatomically derived MUAP (see fit_lam), and is passed to
+      gen_muaps.
 """
 
 import os
 import h5py
 import numpy as np
+from scipy.optimize import curve_fit
 from h5_helpers import load_h5_to_dict
 from load_muap import amplitude_distribution
 from zero_crossing import crossing_times
 
 
-def gen_muaps(n_neurons, amplitude, axonalDelay):
+def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.0),
+            lam_bounds=(0.05, 20.0)):
+    """
+    Fit the shape parameter lambda of the first-order Hermite-Rodriguez
+    function to each anatomically derived MUAP with scipy.optimize.curve_fit.
+
+    The fitted model is the same expression used in gen_muaps,
+
+        H_i(t) = A_i * (z * exp(-(z/lambda_i)^2)) / max(z * exp(-(z/lambda_i)^2))
+
+    with z = tau_i - t_mn - t_muap, so that lambda_i only controls the shape
+    (duration) of the waveform while its peak stays equal to A_i.
+
+    curve_fit is run from several initial guesses (p0) and the solution with
+    the smallest sum of squared residuals is kept, which avoids the local
+    minima of this cost function.
+
+    Parameters
+    ----------
+    anatomical_muaps : ndarray, shape (200, N)
+        Anatomically derived MUAPs [V], one per column.
+    amplitude : ndarray, shape (N,)
+        Half peak-to-peak amplitude A_i of each MUAP [V].
+    axonalDelay : ndarray, shape (N,)
+        Axonal delay tau_i of each motor unit [ms].
+    p0 : sequence of float, optional
+        Initial guesses for lambda [ms].
+    lam_bounds : (float, float), optional
+        Lower and upper bound for lambda [ms].
+
+    Returns
+    -------
+    lam : ndarray, shape (N,)
+        Best-fitting lambda of each motor unit [ms].
+    """
+    # Same time vectors as in gen_muaps
+    tmuap = np.arange(0, 20, 0.1)
+    t_mn = np.linspace(0, 20, 200)
+
+    anatomical_muaps = np.asarray(anatomical_muaps, dtype=float)
+    amplitude = np.asarray(amplitude, dtype=float)
+    axonalDelay = np.asarray(axonalDelay, dtype=float)
+
+    n_mu = anatomical_muaps.shape[1]
+    lam = np.full(n_mu, np.nan)
+
+    for i in range(n_mu):
+        z = axonalDelay[i] - t_mn - tmuap        # (200,)
+        y = anatomical_muaps[:, i]               # (200,)
+        A = amplitude[i]
+
+        if not np.isfinite(A) or A <= 0:
+            continue                              # flat MUAP, nothing to fit
+
+        def hermite_rodriguez(z, lam_i):
+            shape = z * np.exp(-(z / lam_i) ** 2)
+            return shape / np.max(shape)          # unit-peak waveform
+
+        # Both the model and the data are divided by A_i: this leaves the
+        # minimum unchanged but keeps the residuals of the order of 1, which
+        # is needed because curve_fit stops on an absolute gradient tolerance
+        # and would otherwise return p0 unchanged for data of ~1e-6 V.
+        y_n = y / A
+
+        best_sse = np.inf
+        for guess in p0:
+            try:
+                popt, _ = curve_fit(hermite_rodriguez, z, y_n, p0=[guess],
+                                    bounds=([lam_bounds[0]], [lam_bounds[1]]))
+            except (RuntimeError, ValueError):
+                continue                          # this start did not converge
+            sse = np.sum((hermite_rodriguez(z, popt[0]) - y_n) ** 2)
+            if sse < best_sse:
+                best_sse = sse
+                lam[i] = popt[0]
+
+    bad = ~np.isfinite(lam)
+    if bad.any():
+        lam[bad] = np.nanmedian(lam)
+        print(f"Warning: lambda could not be fitted for {bad.sum()} MUAP(s); "
+              f"the median lambda was used instead.")
+
+    return lam
+
+
+def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
     """
     Generate MUAP waveforms using the first-order Hermite-Rodriguez
     function described in the paper (Eqs. 4-5). See module docstring for
@@ -47,6 +137,9 @@ def gen_muaps(n_neurons, amplitude, axonalDelay):
     b : float, optional
         The base of the exponential of the amplitude of the MUAPs
         (default 5.28518724e+02).
+    lam : float or ndarray, shape (N,)
+        Shape parameter of the Hermite-Rodriguez function [ms], one value per
+        motor unit as returned by fit_lam.
 
     Returns
     -------
@@ -54,7 +147,7 @@ def gen_muaps(n_neurons, amplitude, axonalDelay):
     tmuap : ndarray, shape (200,)
     """
     # Paper parameters
-    lam = 2
+    lam = np.atleast_1d(np.asarray(lam, dtype=float))[None, :]  # (1, N) or (1, 1)
 
     # Time vector
     tmuap = np.arange(0, 20, 0.1)
@@ -83,7 +176,9 @@ def gen_muaps(n_neurons, amplitude, axonalDelay):
     z = t_D - t_M - t_MUAP # (200, N)
 
     #z = np.vstack((z,) * 100).T
-    normalization_factor = np.max(z * np.exp(-(z / lam) ** 2)) # To ensure that Am = b * A1
+    # Peak of each MUAP taken separately (lambda now differs between motor
+    # units, and the peak of z*exp(-(z/lam)^2) scales with lambda)
+    normalization_factor = np.max(z * np.exp(-(z / lam) ** 2), axis=0, keepdims=True) # To ensure that Am = b * A1
     muaps = A * (z * np.exp(-(z / lam) ** 2)) / normalization_factor 
 
     return muaps, tmuap
@@ -124,10 +219,15 @@ if __name__ == "__main__":
     t2 = t2 - t2.min()
     axonalDelay = 2 * crossing_times(t2, anatomical_muaps2)
 
+    # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
+    lam = fit_lam(anatomical_muaps, amplitude, axonalDelay)
+    print("lam shape:", lam.shape)
+    print("lam range (ms):", lam.min(), "to", lam.max())
+
     # Generate the synthetic MUAPs with that amplitude distribution
     N = 100
 
-    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay)
+    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam)
 
     print("muaps shape:", muaps.shape)  # (200, N)
     print("tmuap shape:", tmuap.shape)  # (200,)
