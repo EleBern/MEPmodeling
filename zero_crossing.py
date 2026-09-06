@@ -141,6 +141,16 @@ def zero_crossings_all(t, muaps, time_axis: int = 0, rel_threshold: float = 0.0)
 
     return [zero_crossings(t, col, rel_threshold) for col in muaps.T]
 
+def crossing_times(t, muaps):
+    crossings = zero_crossings_all(t, muaps)
+    crossing_times = np.zeros(np.shape(muaps)[1])
+    for i in range(np.shape(muaps)[1]):
+        if len(crossings[i].times) == 1:
+            crossing_times[i] = crossings[i].times
+        elif len(crossings[i].times) > 1:
+            j = np.argwhere(crossings[i].rising == False)
+            crossing_times[i] = crossings[i].times[j]
+    return crossing_times
 
 def load_muaps(path: str = "muap.h5"):
     """Read (t, muaps) from the HDF5 file."""
@@ -187,15 +197,19 @@ if __name__ == "__main__":
     for n in np.unique(counts):
         print(f"  {int((counts == n).sum()):3d} waveform(s) with {n} crossing(s)")
 
-    import matplotlib.pyplot as plt
-    for i in [42,52,72]:#range(np.shape(muaps)[1]):
-        plt.figure()
-        plt.plot(t, muaps[:,i])
-        plt.plot(np.linspace(0,20,50), np.zeros(50), "k--", linewidth=0.5)
-        if len(crossings[i].times) == 1:
-            plt.plot(crossings[i].times, 0, "r*")
-        elif len(crossings[i].times) > 1:
-            j = np.argwhere(crossings[i].rising == False)
-            plt.plot(crossings[i].times[j], 0, "r*")
-        plt.title(i)
-        plt.show()
+    print(crossing_times(t,muaps))
+    # import matplotlib.pyplot as plt
+    # for i in range(np.shape(muaps)[1]):
+    #     #plt.figure()
+    #     #plt.plot(t, muaps[:,i])
+    #     #plt.plot(np.linspace(0,20,50), np.zeros(50), "k--", linewidth=0.5)
+    #     if len(crossings[i].times) == 1:
+    #         #plt.plot(crossings[i].times, 0, "r*")
+    #         print(crossings[i].times)
+    #     elif len(crossings[i].times) > 1:
+    #         j = np.argwhere(crossings[i].rising == False)
+    #         #plt.plot(crossings[i].times[j], 0, "r*")
+    #         print(crossings[i].times[j])
+
+        # plt.title(i)
+        # plt.show()
