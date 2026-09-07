@@ -48,7 +48,7 @@ def ga_MEPmodel_pheno(subj, reRun=0):
         p_post = run_ga(ref)
 
     # ----- show result -----
-    plotOn = 1
+    plotOn = 0
     MEPmodel_pheno(p_post, ref, plotOn)
 
 # ==========================================================================
