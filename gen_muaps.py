@@ -19,10 +19,10 @@ The parameters of the synthetic MUAPs are not taken from the paper, but fit to a
 MUAPs (https://pubmed.ncbi.nlm.nih.gov/31465437/). For this purpose:
     - The axonal delay is set to align the zero-crossing of the synthetic MUAPs with the zero-crossing of
       reference anatomical MUAPs
-    - Either the MUAP amplitude distribution, or the amplitude of each MUAP
+    - Either the MUAP amplitude distribution (real_A = False), or the amplitude of each MUAP (real_A = True)
       is set to reproduce that of the anatomically derived  MUAPs
     - The duration of the synthetic MUAPs (lambda) is fit to the anatomical MUAPs.
-      Either each MUAP duration is fit, or an average is used.
+      Either each MUAP duration is fit (real_lam), or an average is used (real_lam).
 """
 
 import os
@@ -178,6 +178,8 @@ if __name__ == "__main__":
 
     verbose = True  # Print info on MUAP parameters
     plotOn = True   # Plot generated MUAPs
+    real_A = True
+    real_lam = False
 
     # Import anatomical MUAPs
     root    = os.path.dirname(os.path.realpath(__file__))
@@ -196,12 +198,17 @@ if __name__ == "__main__":
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
     lam = fit_lam(downsampled_muaps, amplitude, axonalDelay)
+    if not real_lam:
+        lam = np.mean(lam)
     
 
     # Generate the synthetic MUAPs with that amplitude distribution
     N = 100
 
-    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam)
+    if real_A:
+        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam)
+    else:
+        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam)
 
     if verbose:
         print("Peak amplitude (from 0 V to positive peak) of largest anatomical MUAP: ", np.max(max_peak), " V")
