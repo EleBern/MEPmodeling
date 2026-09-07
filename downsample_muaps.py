@@ -2,17 +2,28 @@ import os
 import h5py
 import numpy as np
 from scipy.interpolate import interp1d
-from h5_helpers import load_h5_to_dict, _save_dict_to_h5
+from h5_helpers import load_h5_to_dict
 
-"""
-Preprocess MUAPs of 5 hand models to save the data in hdf5 files instead of in MATLAB format.
-Follow the preprocessing done originally (https://github.com/vscChien/MEPmodeling/blob/main/load_muap.m)
-"""
-
-root    = os.path.dirname(os.path.realpath(__file__))
-for i in range(1, 6):
-    h5_path = os.path.join(root, "data_MUAP", "Dist{0}_Monopolar_Rest_NormalCV_New.hdf5".format(i))
-    output_path = os.path.join(root, "data_MUAP", "muap{0}.h5".format(i))
+def load_unprocessed_muaps(h5_path="Dist1_Monopolar_Rest_NormalCV_New.hdf5"):
+    """
+        Funtion that loads and processes anatomical MUAPs. 
+    
+        Parameters
+        ----------
+        h5_path   : string, file name of the original hand model
+                    
+    
+        Returns
+        -------
+        tmuap : np.array 
+            time vector of the anatomical MUAPs
+        muaps : np.array
+            MUAPs waveform
+        downsampled_t : np.array
+            downsampled time vector with 0.1 ms dt
+        downsampled_muaps : np.array
+            downsampled MUAPs waveform
+    """
 
     if os.path.exists(h5_path):
         with h5py.File(h5_path, 'r') as f:
@@ -30,14 +41,10 @@ for i in range(1, 6):
     tmuap = tmuap[idx:]
     tmuap = tmuap - tmuap.min()
 
-    # ------------------------------------
     # downsample to dt = 0.1 msec
     dt = 0.1  # ms
-    t = np.arange(0, 20, dt)
+    downsampled_t = np.arange(0, 20, dt)
     f = interp1d(tmuap, muaps, axis=0, kind='linear', bounds_error=False, fill_value=0)
-    muaps = f(t)
+    downsampled_muaps = f(downsampled_t)
 
-    output_dict = {"muaps": muaps, "t": t}
-
-    with h5py.File(output_path, 'w') as f:
-        _save_dict_to_h5(f, output_dict)
+    return tmuap, muaps, downsampled_t, downsampled_muaps
