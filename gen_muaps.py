@@ -20,7 +20,7 @@ MUAPs (https://pubmed.ncbi.nlm.nih.gov/31465437/). For this purpose:
     - The axonal delay is set to align the zero-crossing of the synthetic MUAPs with the zero-crossing of
       reference anatomical MUAPs
     - Either the MUAP amplitude distribution, or the amplitude of each MUAP
-      reproduces that of the anatomically derived 
+      is set to reproduce that of the anatomically derived  MUAPs
     - The duration of the synthetic MUAPs (lambda) is fit to the anatomical MUAPs.
       Either each MUAP duration is fit, or an average is used.
 """
@@ -155,8 +155,7 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
         A = a * b ** frac  
     else:
         A = amplitude
-    print(A)
-    # Eq. 4: H_i(t) = A_i * (tau_i - t) * exp(-((tau_i - t)/lambda)^2) * u(tau_i - t)
+
     t_M = t_mn[:, None]      # (200, 1)
     t_D = axonalDelay        # shape (N,)
     t_D = t_D[None, :]       # (1, N)
@@ -164,12 +163,9 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
     A = A[None, :]           # (1, N)
   
     print(np.shape(t_M), np.shape(t_D), np.shape(t_MUAP))
-    #z = axonalDelay - t_mn - tmuap  # (200, N)
     z = t_D - t_M - t_MUAP # (200, N)
 
-    #z = np.vstack((z,) * 100).T
-    # Peak of each MUAP taken separately (lambda now differs between motor
-    # units, and the peak of z*exp(-(z/lam)^2) scales with lambda)
+    # Eq. 4: H_i(t) = A_i * (tau_i - t) * exp(-((tau_i - t)/lambda)^2) * u(tau_i - t)
     normalization_factor = np.max(z * np.exp(-(z / lam) ** 2), axis=0, keepdims=True) # To ensure that Am = b * A1
     muaps = A * (z * np.exp(-(z / lam) ** 2)) / normalization_factor 
 
@@ -178,6 +174,9 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+
+    verbose = True  # Print info on MUAP parameters
+    plotOn = True   # Plot generated MUAPs
 
     # Import anatomical MUAPs and calculate the amplitude distribution
     root    = os.path.dirname(os.path.realpath(__file__))
@@ -209,7 +208,10 @@ if __name__ == "__main__":
     anatomical_muaps2 = -anatomical_muaps2[idx:, :]              # flipped (sign)
     t2 = t2[idx:]
     t2 = t2 - t2.min()
+    popt = amplitude_distribution(anatomical_muaps2)
+
     axonalDelay = 2 * crossing_times(t2, anatomical_muaps2)
+
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
     lam = fit_lam(anatomical_muaps, amplitude, axonalDelay)
@@ -221,26 +223,39 @@ if __name__ == "__main__":
 
     muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam)
 
-    print("muaps shape:", muaps.shape)  # (200, N)
-    print("tmuap shape:", tmuap.shape)  # (200,)
-    print("tmuap range:", tmuap[0], "to", tmuap[-1])
-    print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
-    print("max |muaps[0]| (V):", np.abs(muaps[0]).max())
-    print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
-    print(np.argwhere(np.isnan(muaps[0])))
+    if verbose:
+        print("muaps shape:", muaps.shape)  # (200, N)
+        print("tmuap shape:", tmuap.shape)  # (200,)
+        print("tmuap range:", tmuap[0], "to", tmuap[-1])
+        print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
+        print("max |muaps[0]| (V):", np.abs(muaps[0]).max())
+        print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
+        print(np.argwhere(np.isnan(muaps[0])))
 
-    plt.figure(figsize=(8, 5))
-    for n in range(N):
-        plt.figure()
-        plt.plot(tmuap, 1e3 * anatomical_muaps[:, n], "k")
-        plt.plot(tmuap, 1e3 * muaps[:, n], "r")#label=f"MU {n + 1}")
-    # plt.xlabel("Time (ms)")
-    # plt.ylabel("Amplitude (mV)")
-    # plt.title("Simulated MUAP shapes (first-order Hermite-Rodriguez function)")
+    if plotOn:
+        plt.figure(figsize=(8, 5))
+        for n in range(N):
+            plt.plot(tmuap, 1e3 * muaps[:, n], label=f"MU {n + 1}")
+        plt.xlabel("Time (ms)")
+        plt.ylabel("Amplitude (mV)")
+        plt.title("Simulated MUAP shapes (first-order Hermite-Rodriguez function)")
         plt.xlim([0, 20])
-        # plt.legend(fontsize=7, ncol=2)
+        plt.legend(fontsize=7, ncol=2)
         plt.tight_layout()
         plt.show()
+
+        # Plot anatomical against synthetic MUAPs
+        for n in range(N):
+            plt.figure()
+            plt.plot(tmuap, 1e3 * anatomical_muaps[:, n], "k", label="Anatomical MUAP")
+            plt.plot(tmuap, 1e3 * muaps[:, n], "r", label="Synthetic MUAP")
+            plt.xlim([0, 20])
+            plt.title("Shape of MUAP {0}".format(n))
+            plt.xlabel("Time (ms)")
+            plt.ylabel("Amplitude (mV)")
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
 
     # Save muaps and the corresponding time vector (t_muaps) to an HDF5
     out_dir = os.path.join(os.getcwd(), "data_MUAP")
