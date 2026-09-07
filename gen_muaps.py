@@ -127,7 +127,8 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
         motor unit as returned by fit_lam, or a mean value.
     zero_muaps   : ndarray of bool, shape (n_neurons,), optional
         Motor units whose anatomical MUAP is all zero. The corresponding
-        synthetic MUAPs are set to all zero as well.
+        synthetic MUAPs are set to all zero as well. If None, every MUAP is
+        generated from the Hermite-Rodriguez function.
 
     Returns
     -------
@@ -177,6 +178,9 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
 
     return muaps, tmuap
 
+def gof(anatomical_muaps, muaps):
+    RMSE = np.sqrt(np.mean(((muaps - anatomical_muaps)**2), axis=0))
+    return RMSE
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -184,17 +188,14 @@ if __name__ == "__main__":
 
     verbose = True  # Print info on MUAP parameters
     plotOn = True   # Plot generated MUAPs
-    real_A = False
-    real_lam = False
+    real_A = True
+    real_lam = True
 
     # Import anatomical MUAPs
     root    = os.path.dirname(os.path.realpath(__file__))
     h5_path = os.path.join(root, "data_MUAP", "Dist1_Monopolar_Rest_NormalCV_New.hdf5")
 
     t, anatomical_muaps, downsampled_t, downsampled_muaps = load_unprocessed_muaps(h5_path)
-
-    # Motor units without an anatomical MUAP (all-zero waveform)
-    zero_muaps = np.all(anatomical_muaps == 0, axis=0)
 
     # Calculate the amplitude and amplitude distribution of the anatomical MUAPs
     popt = amplitude_distribution(anatomical_muaps)
@@ -204,6 +205,17 @@ if __name__ == "__main__":
 
     # Find the zero-crossing of the anatomical MUAPs
     axonalDelay = 2 * crossing_times(t, anatomical_muaps)
+
+    # Motor units without an anatomical MUAP (all-zero waveform). They have no
+    # amplitude, duration or zero-crossing time, so their synthetic MUAP is set
+    # to all zero. The exception is a fully synthetic MUAP (real_A = False and
+    # real_lam = False): its amplitude comes from the fitted distribution and
+    # its duration from the mean lambda, so it is generated like any other MUAP
+    # and only its missing zero-crossing time is replaced by the mean one
+    zero_muaps = np.all(anatomical_muaps == 0, axis=0)
+    if not (real_A or real_lam):
+        axonalDelay[zero_muaps] = np.nanmean(axonalDelay[~zero_muaps])
+        zero_muaps = None
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
     lam = fit_lam(downsampled_muaps, amplitude, axonalDelay)
@@ -221,6 +233,9 @@ if __name__ == "__main__":
         muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam,
                                  zero_muaps=zero_muaps)
 
+    # Calculate the goodness of fit
+    RMSE = gof(downsampled_muaps, muaps)
+
     if verbose:
         print("Peak amplitude (from 0 V to positive peak) of largest anatomical MUAP: ", np.max(max_peak), " V")
         print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
@@ -228,6 +243,8 @@ if __name__ == "__main__":
         print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
         print("lam shape:", lam.shape)
         print("lam range (ms):", lam.min(), "to", lam.max())
+        print("The RMSE is ", RMSE)
+        print(np.shape(RMSE))
 
     if plotOn:
         plt.figure(figsize=(8, 5))
