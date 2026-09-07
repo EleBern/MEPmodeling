@@ -174,62 +174,42 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    from downsample_muaps import load_unprocessed_muaps
 
     verbose = True  # Print info on MUAP parameters
     plotOn = True   # Plot generated MUAPs
 
-    # Import anatomical MUAPs and calculate the amplitude distribution
+    # Import anatomical MUAPs
     root    = os.path.dirname(os.path.realpath(__file__))
-    h5_path = os.path.join(root, "data_MUAP", "muap.h5")
+    h5_path = os.path.join(root, "data_MUAP", "Dist1_Monopolar_Rest_NormalCV_New.hdf5")
 
-    if os.path.exists(h5_path):
-        with h5py.File(h5_path, 'r') as f:
-            tmp = load_h5_to_dict(f)
+    t, anatomical_muaps, downsampled_t, downsampled_muaps = load_unprocessed_muaps(h5_path)
 
-    anatomical_muaps = tmp["muaps"]   # [n_samples x n_muaps]
-    # Calculate and fit MUAPs amplitude distribution
+    # Calculate the amplitude and amplitude distribution of the anatomical MUAPs
     popt = amplitude_distribution(anatomical_muaps)
     max_peak = np.max(anatomical_muaps, axis=0)
-    print("Peak amplitude (from 0 V to positive peak) of largest MUAP: ", np.max(max_peak), " V")
     min_peak = np.min(anatomical_muaps, axis=0)
     amplitude = (max_peak - min_peak) / 2
 
-    h5_path = os.path.join(root, "data_MUAP", "Dist1_Monopolar_Rest_NormalCV_New.hdf5")
-
-    if os.path.exists(h5_path):
-        with h5py.File(h5_path, 'r') as f:
-            tmp = load_h5_to_dict(f)
-    anatomical_muaps2 = tmp["MUAPShapes"]
-    cond = np.sum(np.abs(anatomical_muaps2), axis=1) != 0
-    first_nonzero = np.argmax(cond)      # 0-based index of first True (assumes at least one nonzero row)
-    idx = first_nonzero - 1              # keep one zero row before the signal starts, like MATLAB's idx = find(...)-1
-
-    t2 = np.linspace(0, 20, 20001)
-    anatomical_muaps2 = -anatomical_muaps2[idx:, :]              # flipped (sign)
-    t2 = t2[idx:]
-    t2 = t2 - t2.min()
-    popt = amplitude_distribution(anatomical_muaps2)
-
-    axonalDelay = 2 * crossing_times(t2, anatomical_muaps2)
-
+    # Find the zero-crossing of the anatomical MUAPs
+    axonalDelay = 2 * crossing_times(t, anatomical_muaps)
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
-    lam = fit_lam(anatomical_muaps, amplitude, axonalDelay)
-    print("lam shape:", lam.shape)
-    print("lam range (ms):", lam.min(), "to", lam.max())
+    lam = fit_lam(downsampled_muaps, amplitude, axonalDelay)
+    
 
     # Generate the synthetic MUAPs with that amplitude distribution
     N = 100
 
-    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam)
+    muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam)
 
     if verbose:
-        print("muaps shape:", muaps.shape)  # (200, N)
-        print("tmuap shape:", tmuap.shape)  # (200,)
-        print("tmuap range:", tmuap[0], "to", tmuap[-1])
+        print("Peak amplitude (from 0 V to positive peak) of largest anatomical MUAP: ", np.max(max_peak), " V")
         print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
         print("max |muaps[0]| (V):", np.abs(muaps[0]).max())
         print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
+        print("lam shape:", lam.shape)
+        print("lam range (ms):", lam.min(), "to", lam.max())
         print(np.argwhere(np.isnan(muaps[0])))
 
     if plotOn:
@@ -247,7 +227,7 @@ if __name__ == "__main__":
         # Plot anatomical against synthetic MUAPs
         for n in range(N):
             plt.figure()
-            plt.plot(tmuap, 1e3 * anatomical_muaps[:, n], "k", label="Anatomical MUAP")
+            plt.plot(downsampled_t, 1e3 * downsampled_muaps[:, n], "k", label="Anatomical MUAP")
             plt.plot(tmuap, 1e3 * muaps[:, n], "r", label="Synthetic MUAP")
             plt.xlim([0, 20])
             plt.title("Shape of MUAP {0}".format(n))
