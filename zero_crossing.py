@@ -146,10 +146,10 @@ def crossing_times(t, muaps):
     crossing_times = np.zeros(np.shape(muaps)[1])
     for i in range(np.shape(muaps)[1]):
         if len(crossings[i].times) == 1:
-            crossing_times[i] = crossings[i].times
+            crossing_times[i] = crossings[i].times.item()
         elif len(crossings[i].times) > 1:
             j = np.argwhere(crossings[i].rising == False)
-            crossing_times[i] = crossings[i].times[j]
+            crossing_times[i] = crossings[i].times[j].item()
     return crossing_times
 
 def load_muaps(path: str = "muap.h5"):
