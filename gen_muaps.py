@@ -29,7 +29,6 @@ import os
 import h5py
 import numpy as np
 from scipy.optimize import curve_fit
-from h5_helpers import load_h5_to_dict
 from load_muap import amplitude_distribution
 from zero_crossing import crossing_times
 
@@ -116,21 +115,20 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
 
     Parameters
     ----------
-    n_neurons : int, optional
-        Number of motor neurons (default 100)
-    a : float, optional
-        Amplitude scale constant [V] for the first motor unit (default
-        3.75457942e-06/2).
-    b : float, optional
-        The base of the exponential of the amplitude of the MUAPs
-        (default 5.28518724e+02).
-    lam : float or ndarray, shape (N,)
-        Shape parameter of the Hermite-Rodriguez function [ms], one value per
-        motor unit as returned by fit_lam.
+    n_neurons    : int
+        Number of motor neurons
+    amplitude    : ndarray
+        Either amplitude of each MUAP (n_neurons,)
+        Or scaling and base of exponent of the amplitude distribution (2,)
+    axonal delay : ndarray, shape (n_neurons,)
+        Zero-crossing time of each anatomical MUAP
+    lam          : float or ndarray, shape (n_neurons,)
+        Shape parameter of the Hermite-Rodriguez function [ms]. One value per
+        motor unit as returned by fit_lam, or a mean value.
 
     Returns
     -------
-    muaps : ndarray, shape (200, N)
+    muaps : ndarray, shape (200, n_neurons)
     tmuap : ndarray, shape (200,)
     """
     # Paper parameters
