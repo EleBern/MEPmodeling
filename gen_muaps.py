@@ -107,7 +107,7 @@ def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.
     return lam
 
 
-def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
+def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
     """
     Generate MUAP waveforms using the first-order Hermite-Rodriguez
     function described in the paper (Eqs. 4-5). See module docstring for
@@ -125,6 +125,9 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
     lam          : float or ndarray, shape (n_neurons,)
         Shape parameter of the Hermite-Rodriguez function [ms]. One value per
         motor unit as returned by fit_lam, or a mean value.
+    zero_muaps   : ndarray of bool, shape (n_neurons,), optional
+        Motor units whose anatomical MUAP is all zero. The corresponding
+        synthetic MUAPs are set to all zero as well.
 
     Returns
     -------
@@ -160,12 +163,17 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam):
     t_MUAP = tmuap[:, None]       # (1, N)
     A = A[None, :]           # (1, N)
   
-    print(np.shape(t_M), np.shape(t_D), np.shape(t_MUAP))
     z = t_D - t_M - t_MUAP # (200, N)
 
     # Eq. 4: H_i(t) = A_i * (tau_i - t) * exp(-((tau_i - t)/lambda)^2) * u(tau_i - t)
     normalization_factor = np.max(z * np.exp(-(z / lam) ** 2), axis=0, keepdims=True) # To ensure that Am = b * A1
     muaps = A * (z * np.exp(-(z / lam) ** 2)) / normalization_factor 
+
+    # An all-zero anatomical MUAP gives an all-zero synthetic MUAP. Its
+    # amplitude and zero-crossing time are undefined (0 and NaN), so the
+    # column is overwritten instead of being computed
+    if zero_muaps is not None:
+        muaps[:, np.asarray(zero_muaps, dtype=bool)] = 0.0
 
     return muaps, tmuap
 
@@ -176,7 +184,7 @@ if __name__ == "__main__":
 
     verbose = True  # Print info on MUAP parameters
     plotOn = True   # Plot generated MUAPs
-    real_A = True
+    real_A = False
     real_lam = False
 
     # Import anatomical MUAPs
@@ -184,6 +192,9 @@ if __name__ == "__main__":
     h5_path = os.path.join(root, "data_MUAP", "Dist1_Monopolar_Rest_NormalCV_New.hdf5")
 
     t, anatomical_muaps, downsampled_t, downsampled_muaps = load_unprocessed_muaps(h5_path)
+
+    # Motor units without an anatomical MUAP (all-zero waveform)
+    zero_muaps = np.all(anatomical_muaps == 0, axis=0)
 
     # Calculate the amplitude and amplitude distribution of the anatomical MUAPs
     popt = amplitude_distribution(anatomical_muaps)
@@ -204,9 +215,11 @@ if __name__ == "__main__":
     N = 100
 
     if real_A:
-        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam)
+        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam,
+                                 zero_muaps=zero_muaps)
     else:
-        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam)
+        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam,
+                                 zero_muaps=zero_muaps)
 
     if verbose:
         print("Peak amplitude (from 0 V to positive peak) of largest anatomical MUAP: ", np.max(max_peak), " V")
@@ -215,7 +228,6 @@ if __name__ == "__main__":
         print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
         print("lam shape:", lam.shape)
         print("lam range (ms):", lam.min(), "to", lam.max())
-        print(np.argwhere(np.isnan(muaps[0])))
 
     if plotOn:
         plt.figure(figsize=(8, 5))
