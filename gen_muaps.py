@@ -224,10 +224,10 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     from downsample_muaps import load_unprocessed_muaps
 
-    verbose = True  # Print info on MUAP parameters
-    plotOn = True   # Plot generated MUAPs
-    real_A = True
-    real_lam = True
+    verbose = True   # Print info on MUAP parameters
+    plotOn = False   # Plot generated MUAPs
+    real_A = False   # If False, use amplitude distribution of anatomical MUAPs
+    real_lam = True  # If False, use mean lambda
 
     # Import anatomical MUAPs
     root    = os.path.dirname(os.path.realpath(__file__))
