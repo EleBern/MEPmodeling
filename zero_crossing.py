@@ -148,7 +148,21 @@ def crossing_times(t, muaps):
         if len(crossings[i].times) == 1:
             crossing_times[i] = crossings[i].times.item()
         elif len(crossings[i].times) > 1:
-            j = np.argwhere(crossings[i].rising == False)[-1]
+            j = np.argwhere(crossings[i].rising == False).ravel()
+            if len(j) > 1:
+                # Lobe boundaries, from the crossing times so they stay valid
+                # even though zero_crossings works on a cropped copy of t/y.
+                edges = np.concatenate(
+                    ([0], np.searchsorted(t, crossings[i].times), [len(t)])
+                )
+                swing = [
+                    muaps[edges[k]:edges[k + 1], i].max()
+                    - muaps[edges[k + 1]:edges[k + 2], i].min()
+                    for k in j
+                ]
+                j = j[np.argmax(swing)]
+            else:
+                j = j[-1]
             crossing_times[i] = crossings[i].times[j].item()
     return crossing_times
 
@@ -166,7 +180,7 @@ if __name__ == "__main__":
     import h5py
     from h5_helpers import load_h5_to_dict
 
-    path = sys.argv[1] if len(sys.argv) > 1 else "data_MUAP/Dist5_Monopolar_Rest_NormalCV_New.hdf5"
+    path = sys.argv[1] if len(sys.argv) > 1 else "data_MUAP/Dist2_Monopolar_Rest_NormalCV_New.hdf5"
     #t, muaps = load_muaps(path)
     if os.path.exists(path):
         with h5py.File(path, 'r') as f:
@@ -197,19 +211,16 @@ if __name__ == "__main__":
     for n in np.unique(counts):
         print(f"  {int((counts == n).sum()):3d} waveform(s) with {n} crossing(s)")
 
-    print(crossing_times(t,muaps))
+    times = crossing_times(t, muaps)
+    print(times)
     import matplotlib.pyplot as plt
     for i in range(np.shape(muaps)[1]):
         plt.figure()
         plt.plot(t, muaps[:,i])
         plt.plot(np.linspace(0,20,50), np.zeros(50), "k--", linewidth=0.5)
-        if len(crossings[i].times) == 1:
-            plt.plot(crossings[i].times, 0, "r*")
-            print(crossings[i].times)
-        elif len(crossings[i].times) > 1:
-            j = np.argwhere(crossings[i].rising == False)[-1]
-            plt.plot(crossings[i].times[j], 0, "r*")
-            print(crossings[i].times[j])
+        if len(crossings[i].times) >= 1:
+            plt.plot(times[i], 0, "r*")
+            print(times[i])
 
         plt.title(i)
         plt.show()
