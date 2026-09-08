@@ -148,7 +148,7 @@ def crossing_times(t, muaps):
         if len(crossings[i].times) == 1:
             crossing_times[i] = crossings[i].times.item()
         elif len(crossings[i].times) > 1:
-            j = np.argwhere(crossings[i].rising == False)
+            j = np.argwhere(crossings[i].rising == False)[-1]
             crossing_times[i] = crossings[i].times[j].item()
     return crossing_times
 
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     import h5py
     from h5_helpers import load_h5_to_dict
 
-    path = sys.argv[1] if len(sys.argv) > 1 else "data_MUAP/Dist1_Monopolar_Rest_NormalCV_New.hdf5"
+    path = sys.argv[1] if len(sys.argv) > 1 else "data_MUAP/Dist5_Monopolar_Rest_NormalCV_New.hdf5"
     #t, muaps = load_muaps(path)
     if os.path.exists(path):
         with h5py.File(path, 'r') as f:
@@ -198,18 +198,18 @@ if __name__ == "__main__":
         print(f"  {int((counts == n).sum()):3d} waveform(s) with {n} crossing(s)")
 
     print(crossing_times(t,muaps))
-    # import matplotlib.pyplot as plt
-    # for i in range(np.shape(muaps)[1]):
-    #     #plt.figure()
-    #     #plt.plot(t, muaps[:,i])
-    #     #plt.plot(np.linspace(0,20,50), np.zeros(50), "k--", linewidth=0.5)
-    #     if len(crossings[i].times) == 1:
-    #         #plt.plot(crossings[i].times, 0, "r*")
-    #         print(crossings[i].times)
-    #     elif len(crossings[i].times) > 1:
-    #         j = np.argwhere(crossings[i].rising == False)
-    #         #plt.plot(crossings[i].times[j], 0, "r*")
-    #         print(crossings[i].times[j])
+    import matplotlib.pyplot as plt
+    for i in range(np.shape(muaps)[1]):
+        plt.figure()
+        plt.plot(t, muaps[:,i])
+        plt.plot(np.linspace(0,20,50), np.zeros(50), "k--", linewidth=0.5)
+        if len(crossings[i].times) == 1:
+            plt.plot(crossings[i].times, 0, "r*")
+            print(crossings[i].times)
+        elif len(crossings[i].times) > 1:
+            j = np.argwhere(crossings[i].rising == False)[-1]
+            plt.plot(crossings[i].times[j], 0, "r*")
+            print(crossings[i].times[j])
 
-        # plt.title(i)
-        # plt.show()
+        plt.title(i)
+        plt.show()
