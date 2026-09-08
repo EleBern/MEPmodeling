@@ -53,7 +53,7 @@ def load_muap(plotOn=0, amplitudeDist=0):
 
     return muaps, t
 
-def amplitude_distribution(muaps):
+def amplitude_distribution(muaps, plotOn=False):
     """
         Plot the MUAPs amplitude distribution and its best fit
     
@@ -66,15 +66,16 @@ def amplitude_distribution(muaps):
     min_peak = np.min(muaps, axis=0)
     amplitude = (max_peak - min_peak)
     popt = fit_amplitude(amplitude)
-    fig = plt.figure()
-    plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
-    plt.plot(np.arange(len(amplitude)), exponential(np.arange(len(amplitude)) / (len(amplitude)-1), *popt), "r", label="Best fit")
-    plt.title("MUAPs amplitude distribution")
-    plt.ylabel("Amplitude [V]")
-    plt.xlabel("Motor unit sorted index")
-    plt.xlim([0, 100])
-    plt.legend()
-    plt.show()
+    if plotOn:
+        fig = plt.figure()
+        plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
+        plt.plot(np.arange(len(amplitude)), exponential(np.arange(len(amplitude)) / (len(amplitude)-1), *popt), "r", label="Best fit")
+        plt.title("MUAPs amplitude distribution")
+        plt.ylabel("Amplitude [V]")
+        plt.xlabel("Motor unit sorted index")
+        plt.xlim([0, 100])
+        plt.legend()
+        plt.show()
     return popt
 
 
