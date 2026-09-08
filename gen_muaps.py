@@ -259,6 +259,7 @@ if __name__ == "__main__":
     lam = fit_lam(downsampled_muaps, amplitude, axonalDelay)
     if not real_lam:
         lam = np.mean(lam)
+        axonalDelay = np.ones(len(axonalDelay)) * np.mean(axonalDelay)
     
 
     # Generate the synthetic MUAPs with that amplitude distribution
@@ -281,6 +282,7 @@ if __name__ == "__main__":
         print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
         print("lam shape:", lam.shape)
         print("lam range (ms):", lam.min(), "to", lam.max())
+        print("delay range (ms):", axonalDelay.min(), "to", axonalDelay.max())
         print("The normalised RMSE is ", NRMSE)
         print(np.shape(NRMSE))
         print("The R^2 is ", R2)
