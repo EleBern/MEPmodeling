@@ -179,8 +179,46 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
     return muaps, tmuap
 
 def gof(anatomical_muaps, muaps):
-    RMSE = np.sqrt(np.mean(((muaps - anatomical_muaps)**2), axis=0))
-    return RMSE
+    """
+    Goodness of fit of each synthetic MUAP to the corresponding anatomically
+    derived MUAP, in terms of coefficient of determination and normalised root
+    mean square error.
+
+    Parameters
+    ----------
+    anatomical_muaps : ndarray, shape (200, N)
+        Anatomically derived MUAPs [V], one per column.
+    muaps : ndarray, shape (200, N)
+        Synthetic MUAPs [V], one per column.
+
+    Returns
+    -------
+    R2 : ndarray, shape (N,)
+        Coefficient of determination R^2 = 1 - SS_res / SS_tot of each MUAP.
+        NaN for a flat anatomical MUAP (SS_tot = 0, R^2 undefined).
+    NRMSE : ndarray, shape (N,)
+        Root mean square error of each MUAP divided by the amplitude of the
+        anatomical MUAP, i.e. by (max - min) / 2, the same definition of
+        amplitude used to generate the synthetic MUAPs. Dimensionless, so it
+        is comparable between small and large motor units. NaN for a flat
+        anatomical MUAP (zero amplitude).
+    """
+    anatomical_muaps = np.asarray(anatomical_muaps, dtype=float)
+    muaps = np.asarray(muaps, dtype=float)
+
+    residual = muaps - anatomical_muaps
+    RMSE = np.sqrt(np.mean(residual ** 2, axis=0))
+
+    # RMSE normalised by the amplitude of the anatomical MUAP
+    amplitude = (np.max(anatomical_muaps, axis=0) - np.min(anatomical_muaps, axis=0)) / 2
+    NRMSE = np.where(amplitude > 0, RMSE / np.where(amplitude > 0, amplitude, 1.0), np.nan)
+
+    # R^2 against the mean of the anatomical MUAP as reference model
+    SS_res = np.sum(residual ** 2, axis=0)
+    SS_tot = np.sum((anatomical_muaps - np.mean(anatomical_muaps, axis=0)) ** 2, axis=0)
+    R2 = np.where(SS_tot > 0, 1.0 - SS_res / np.where(SS_tot > 0, SS_tot, 1.0), np.nan)
+
+    return R2, NRMSE
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -234,7 +272,7 @@ if __name__ == "__main__":
                                  zero_muaps=zero_muaps)
 
     # Calculate the goodness of fit
-    RMSE = gof(downsampled_muaps, muaps)
+    R2, NRMSE = gof(downsampled_muaps, muaps)
 
     if verbose:
         print("Peak amplitude (from 0 V to positive peak) of largest anatomical MUAP: ", np.max(max_peak), " V")
@@ -243,8 +281,11 @@ if __name__ == "__main__":
         print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
         print("lam shape:", lam.shape)
         print("lam range (ms):", lam.min(), "to", lam.max())
-        print("The RMSE is ", RMSE)
-        print(np.shape(RMSE))
+        print("The normalised RMSE is ", NRMSE)
+        print(np.shape(NRMSE))
+        print("The R^2 is ", R2)
+        print(np.shape(R2))
+        print("Median R^2: %.4f, median normalised RMSE: %.4f" % (np.nanmedian(R2), np.nanmedian(NRMSE)))
 
     if plotOn:
         plt.figure(figsize=(8, 5))
