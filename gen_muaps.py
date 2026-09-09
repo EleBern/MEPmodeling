@@ -226,8 +226,8 @@ if __name__ == "__main__":
 
     verbose = True   # Print info on MUAP parameters
     plotOn = False   # Plot generated MUAPs
-    real_A = False   # If False, use amplitude distribution of anatomical MUAPs
-    real_lam = True  # If False, use mean lambda
+    real_A = True   # If False, use amplitude distribution of anatomical MUAPs
+    real_lam = False  # If False, use mean lambda
 
     # Import anatomical MUAPs
     root    = os.path.dirname(os.path.realpath(__file__))
