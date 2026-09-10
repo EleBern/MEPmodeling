@@ -29,7 +29,7 @@ import os
 import h5py
 import numpy as np
 from zero_crossing import crossing_times
-from helper_f_genmuaps import amplitude_distribution, fit_lam, gof
+from helper_f_genmuaps import amplitude_distribution, fit_lam, gof, time_vectors
 
 def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
     """
@@ -63,9 +63,8 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
     if isinstance(lam, np.ndarray):
         lam = np.atleast_1d(np.asarray(lam, dtype=float))[None, :]
 
-    # Time vector
-    tmuap = np.arange(0, 20, 0.1)
-    t_mn = np.linspace(0, 20, 200)
+    # Time vectors
+    tmuap, t_mn = time_vectors()
 
     # Amplitude A_i: exponential (log-spaced) distribution over a n_neurons-fold
     # range, from A_1 = a (first-recruited MU) to A_M = b*a

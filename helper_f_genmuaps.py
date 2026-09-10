@@ -7,6 +7,16 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit
 
+def time_vectors():
+    """
+    Generates and returns the time vectors of the MUAPs (tmuap) and of the
+    motor neurons (t_mn)
+    """
+    tmuap = np.arange(0, 20, 0.1)
+    t_mn = np.linspace(0, 20, 200)
+    return tmuap, t_mn
+
+
 def gof(anatomical_muaps, muaps):
     """
     Goodness of fit of each synthetic MUAP to the corresponding anatomically
@@ -75,8 +85,7 @@ def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.
         Best-fitting lambda of each motor unit [ms].
     """
     # Same time vectors as in gen_muaps
-    tmuap = np.arange(0, 20, 0.1)
-    t_mn = np.linspace(0, 20, 200)
+    tmuap, t_mn = time_vectors()
 
     anatomical_muaps = np.asarray(anatomical_muaps, dtype=float)
     amplitude = np.asarray(amplitude, dtype=float)
