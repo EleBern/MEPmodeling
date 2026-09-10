@@ -152,11 +152,16 @@ def amplitude_distribution(muaps, plotOn=False):
         neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
         peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
         if len(peak_times) > 1:
-            amplitude[i] = np.max(np.abs(np.diff(muaps[peak_times, i]))) / 2#(np.max(muaps[pos_peaks, i]) - np.min(muaps[neg_peaks, i])) /2
+            temp = np.diff(muaps[peak_times, i])
+            index = np.argmax(np.abs(np.diff(muaps[peak_times, i])))
+            amplitude[i] = np.max(np.abs(np.diff(muaps[peak_times, i]))) / 2
+            if temp[index] > 0:
+                amplitude[i] *= -1
         else:
             amplitude[i] = 0
 
-    popt = fit_amplitude(amplitude)
+    print(np.where(amplitude<0))
+    popt = fit_amplitude(np.abs(amplitude))
     if plotOn:
         fig = plt.figure()
         plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
