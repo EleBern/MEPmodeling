@@ -2,10 +2,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+from gen_muaps import gen_muaps
 from zero_crossing import crossing_times
-from load_muap import amplitude_distribution
-from gen_muaps import fit_lam, gof, gen_muaps
 from downsample_muaps import load_unprocessed_muaps    
+from helper_f_genmuaps import fit_lam, gof, amplitude_distribution
 
 popt = {}
 amplitude = {}
@@ -25,25 +25,21 @@ for i in range(1,6):
     t, anatomical_muaps, downsampled_t, downsampled_muaps = load_unprocessed_muaps(h5_path)
 
     # Calculate the amplitude and amplitude distribution of the anatomical MUAPs
-    popt[i] = amplitude_distribution(anatomical_muaps)
-    max_peak = np.max(anatomical_muaps, axis=0)
-    min_peak = np.min(anatomical_muaps, axis=0)
-    amplitude[i] = (max_peak - min_peak) / 2
+    popt[i], amplitude[i] = amplitude_distribution(anatomical_muaps)
 
     # Find the zero-crossing of the anatomical MUAPs
     axonalDelay[i] = 2 * crossing_times(t, anatomical_muaps)
-    mean_axonalDelay[i] = np.mean(axonalDelay[i])
+    mean_axonalDelay[i] = np.nanmean(axonalDelay[i])
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
-    lam[i] = fit_lam(downsampled_muaps, amplitude[i], axonalDelay[i])
-    mean_lam[i] = np.mean(lam[i])
+    lam[i] = fit_lam(downsampled_muaps, np.abs(amplitude[i]), axonalDelay[i])
+    mean_lam[i] = np.nanmean(lam[i])
 
     # Generate synthetic MUAPs
     zero_muaps = np.all(anatomical_muaps == 0, axis=0)
     axonalDelay[i][zero_muaps] = np.nanmean(axonalDelay[i][~zero_muaps])
     zero_muaps = None
     muaps, _ = gen_muaps(100, amplitude[i], axonalDelay[i], lam[i], zero_muaps=zero_muaps)
-    print(np.shape(muaps))
 
     # Calculate goodness of fit
     R2[i], RMSE[i] = gof(downsampled_muaps, muaps)
