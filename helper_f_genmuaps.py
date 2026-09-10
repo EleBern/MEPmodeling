@@ -148,7 +148,7 @@ def amplitude_distribution(muaps, dt=0.01, plotOn=False):
         popt : ndarray, shape (2,)
             Best-fitting a and b for the amplitude distribution
         amplitude : ndarray, shape (n_muaps,)
-            The amplitude of each MUAP.
+            The half amplitude of each MUAP.
     """
 
     amplitude = np.zeros(np.shape(muaps)[1])
