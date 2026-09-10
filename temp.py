@@ -20,17 +20,12 @@ for i in range(100):
     pos_peaks, _ = find_peaks(1e6 * anatomical_muaps[:, i], height=height, distance=1.5/dt) 
     neg_peaks, _ = find_peaks(- 1e6 * anatomical_muaps[:, i], height=height, distance=1.5/dt)
     peaks = np.sort(np.concatenate([pos_peaks, neg_peaks]))
+    amplitude = np.max(np.diff(peaks))
 
     # If multiple crossing times find the crossing time between the 2 largest peaks
     if len(crossings[i].times) > 1:
-        max = np.abs(anatomical_muaps[peaks[1], i] - anatomical_muaps[peaks[0], i])
-        max_index = 0
-        for k in range(1, len(peaks)-1):
-            if np.abs(anatomical_muaps[peaks[k+1], i] - anatomical_muaps[peaks[k], i]) > max:
-                max = np.abs(anatomical_muaps[peaks[k+1], i] - anatomical_muaps[peaks[k], i])
-                max_index = k
-        delay_index = np.argwhere(crossings[i].times > t[peaks[max_index]])
-        delay = crossings[i].times[delay_index[0]]
+        index = np.argmax(np.diff(peaks))
+        delay = crossings[i].times[index]
     else:
         delay = crossings[i].times
 
@@ -39,7 +34,7 @@ for i in range(100):
     plt.plot(t[peaks], 1e6 * anatomical_muaps[peaks, i], "r*")
     plt.plot(t, np.zeros(len(t)), "k--", linewidth=0.5)
     plt.plot(crossings[i].times, np.zeros(len(crossings[i].times)), "m*")
-    plt.plot(delay, np.zeros(len(delay)), "go")
+    plt.plot(delay, 0, "go")
     plt.xlim([0, t[-1]])
     plt.title("Shape of MUAP {0}".format(i))
     plt.xlabel("Time (ms)")
