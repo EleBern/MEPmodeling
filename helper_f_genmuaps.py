@@ -145,22 +145,24 @@ def amplitude_distribution(muaps, plotOn=False):
 
     amplitude = np.zeros(np.shape(muaps)[1])
     for i in range(np.shape(muaps)[1]):
-    # Find peaks with a minimum height of 1/5 of the maximum voltage
-    # Peaks must be at least 1.5 ms apart, if not they are considered from the same oscillation
+        # Find peaks with a minimum height of 1/5 of the maximum voltage
+        # Peaks must be at least 1.5 ms apart, if not they are considered from the same oscillation
         height = np.max(1e6 * muaps[:, i]) / 5
         pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/0.001) 
         neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
         peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
+
+        # Calculate the amplitude of the MUAPs from the peaks
         if len(peak_times) > 1:
             temp = np.diff(muaps[peak_times, i])
+            amplitude[i] = np.max(np.abs(temp)) / 2
+            # Allow for negative amplitudes
             index = np.argmax(np.abs(np.diff(muaps[peak_times, i])))
-            amplitude[i] = np.max(np.abs(np.diff(muaps[peak_times, i]))) / 2
             if temp[index] > 0:
                 amplitude[i] *= -1
         else:
             amplitude[i] = 0
 
-    print(np.where(amplitude<0))
     popt = fit_amplitude(np.abs(amplitude))
     if plotOn:
         fig = plt.figure()
