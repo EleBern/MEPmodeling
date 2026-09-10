@@ -1,11 +1,12 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 from gen_muaps import gen_muaps
 from zero_crossing import crossing_times
 from downsample_muaps import load_unprocessed_muaps    
-from helper_f_genmuaps import fit_lam, gof, amplitude_distribution
+from helper_f_genmuaps import fit_lam, gof, amplitude_distribution, exponential
 
 popt = {}
 amplitude = {}
@@ -46,6 +47,22 @@ for i in range(1,6):
     mean_R2[i] = np.nanmean(R2[i])
     mean_RMSE[i] = np.nanmean(RMSE[i])
 
+k = list(amplitude.keys())
+total_a = np.zeros((len(amplitude[k[0]]), len(k)))
+for i in range(len(k)):
+    total_a[:, i] = amplitude[k[i]]
+
+lower_a = 1e6 * np.min(total_a, axis=1)
+print(np.shape(lower_a))
+upper_a = 1e6 * np.max(total_a, axis=1)
+print(np.shape(upper_a))
+
+x = np.arange(len(lower_a)) / (len(lower_a)-1)
+popt_lower, _ = curve_fit(exponential, x, np.abs(lower_a), p0=[1e-5, 100])
+popt_upper, _ = curve_fit(exponential, x, np.abs(upper_a), p0=[1e-5, 100])
+print("Lower bounds exponential parameters: ", popt_lower)
+print("Upper bounds exponential parameters: ", popt_upper)
+
 
 fig = plt.figure()
 plt.plot(np.arange(100), 1e6 * amplitude[1], "*r", label="1: a={0}, b={1}".format(np.round(1e6 * popt[1][0], 2), np.round(popt[1][1], 2)))
@@ -58,6 +75,8 @@ plt.plot(np.arange(100), 1e6 * amplitude[4], "*b", label="4: a={0}, b={1}".forma
 plt.plot(np.arange(100), 1e6 * amplitude[4], "--b", linewidth=0.5)
 plt.plot(np.arange(100), 1e6 * amplitude[5], "*m", label="5: a={0}, b={1}".format(np.round(1e6 * popt[5][0], 2), np.round(popt[5][1], 2)))
 plt.plot(np.arange(100), 1e6 * amplitude[5], "--m", linewidth=0.5)
+plt.plot(np.arange(len(lower_a)), exponential(np.arange(len(lower_a)) / (len(lower_a)-1), *popt_lower), "r--", label="Lower bound")
+plt.plot(np.arange(len(upper_a)), exponential(np.arange(len(upper_a)) / (len(upper_a)-1), *popt_upper), "k--", label="Upper bound")
 plt.xlim([0, 100])
 plt.xlabel("MUAP ID")
 plt.ylabel("Amplitude [uV]")
