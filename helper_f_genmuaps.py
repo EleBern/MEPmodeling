@@ -143,24 +143,19 @@ def amplitude_distribution(muaps, plotOn=False):
             The amplitude of each MUAP.
     """
 
-    # amplitude = np.zeros(np.shape(muaps)[1])
-    # for i in range(np.shape(muaps)[1]):
+    amplitude = np.zeros(np.shape(muaps)[1])
+    for i in range(np.shape(muaps)[1]):
     # Find peaks with a minimum height of 1/5 of the maximum voltage
     # Peaks must be at least 1.5 ms apart, if not they are considered from the same oscillation
-        # height = np.max(1e6 * muaps[:, i]) / 5
-        # pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/0.001) 
-        # neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
-        # peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
-        # if len(peak_times) > 1:
-        #     amplitude[i] = np.max(np.diff(muaps[peak_times, i]))
-        # else:
-        #     amplitude[i] = 0
+        height = np.max(1e6 * muaps[:, i]) / 5
+        pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/0.001) 
+        neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
+        peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
+        if len(peak_times) > 1:
+            amplitude[i] = np.max(np.abs(np.diff(muaps[peak_times, i]))) / 2#(np.max(muaps[pos_peaks, i]) - np.min(muaps[neg_peaks, i])) /2
+        else:
+            amplitude[i] = 0
 
-
-    max_peak = np.max(muaps, axis=0)
-    print("Peak amplitude (from 0 V to positive peak) of largest MUAP: ", np.max(max_peak), " V")
-    min_peak = np.min(muaps, axis=0)
-    amplitude = (max_peak - min_peak) / 2
     popt = fit_amplitude(amplitude)
     if plotOn:
         fig = plt.figure()
