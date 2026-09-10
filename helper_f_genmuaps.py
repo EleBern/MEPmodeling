@@ -129,7 +129,8 @@ def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.
 
 def amplitude_distribution(muaps, plotOn=False):
     """
-        Calculate and plot the MUAPs amplitude distribution and its best fit
+        Find the best fit for the MUAPs amplitude distribution.
+        Prints the best fit parameters. Plots the MUAPs amplitude distribution and its best fit
     
         Parameters
         ----------
@@ -163,7 +164,11 @@ def amplitude_distribution(muaps, plotOn=False):
         else:
             amplitude[i] = 0
 
-    popt = fit_amplitude(np.abs(amplitude))
+    #popt = fit_amplitude(np.abs(amplitude))
+    x = np.arange(len(amplitude)) / (len(amplitude)-1)
+    popt, _ = curve_fit(exponential, x, np.abs(amplitude), p0=[1e-5, 100])
+    print("Optimal exponential parameters (scaling factor, base):", popt)
+
     if plotOn:
         fig = plt.figure()
         plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
@@ -179,22 +184,3 @@ def amplitude_distribution(muaps, plotOn=False):
 
 def exponential(x, a, b):
     return a*b**(x)
-
-def fit_amplitude(amplitude):
-    """
-        Find the best fit for the MUAPs amplitude distribution, prints the best fit parameters
-    
-        Parameters
-        ----------
-        amplitude   : np.array [n_muaps,] amplitude of the MUAPs
-                    
-    
-        Returns
-        -------
-        popt : np.array  [2,]   best exponential fit parameters: minimum amplitude, base of the exponential
-    """
-    x = np.arange(len(amplitude)) / (len(amplitude)-1)
-    popt, _ = curve_fit(exponential, x, amplitude, p0=[1e-5, 100])
-    print("Optimal exponential parameters (scaling factor, base):", popt)
-
-    return popt
