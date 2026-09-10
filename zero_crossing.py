@@ -14,6 +14,7 @@ from __future__ import annotations
 from typing import NamedTuple
 
 import numpy as np
+from scipy.signal import find_peaks
 
 
 class ZeroCrossings(NamedTuple):
@@ -145,25 +146,18 @@ def crossing_times(t, muaps):
     crossings = zero_crossings_all(t, muaps)
     crossing_times = np.zeros(np.shape(muaps)[1])
     for i in range(np.shape(muaps)[1]):
-        if len(crossings[i].times) == 1:
+        # If multiple crossing times find the crossing time between the 2 largest peaks
+        if len(crossings[i].times) > 1:
+            height = np.max(1e6 * muaps[:, i]) / 5
+            pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/0.001) 
+            neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
+            peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
+            index = np.argmax(np.abs(np.diff(muaps[peak_times, i])))
+            crossing_times[i] = crossings[i].times[index].item()
+        elif len(crossings[i].times) == 0:
+            crossing_times[i] = np.nan
+        else:
             crossing_times[i] = crossings[i].times.item()
-        elif len(crossings[i].times) > 1:
-            j = np.argwhere(crossings[i].rising == False).ravel()
-            if len(j) > 1:
-                # Lobe boundaries, from the crossing times so they stay valid
-                # even though zero_crossings works on a cropped copy of t/y.
-                edges = np.concatenate(
-                    ([0], np.searchsorted(t, crossings[i].times), [len(t)])
-                )
-                swing = [
-                    muaps[edges[k]:edges[k + 1], i].max()
-                    - muaps[edges[k + 1]:edges[k + 2], i].min()
-                    for k in j
-                ]
-                j = j[np.argmax(swing)]
-            else:
-                j = j[-1]
-            crossing_times[i] = crossings[i].times[j].item()
     return crossing_times
 
 def load_muaps(path: str = "muap.h5"):

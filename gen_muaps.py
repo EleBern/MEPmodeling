@@ -165,7 +165,7 @@ if __name__ == "__main__":
         print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
         print("lam shape:", lam.shape)
         print("lam range (ms):", lam.min(), "to", lam.max())
-        print("delay range (ms):", axonalDelay.min(), "to", axonalDelay.max())
+        print("delay range (ms):", np.nanmin(axonalDelay), "to", np.nanmax(axonalDelay))
         # print("The normalised RMSE is ", NRMSE)
         # print("The R^2 is ", R2)
         print("Median R^2: %.4f, median normalised RMSE: %.4f" % (np.nanmedian(R2), np.nanmedian(NRMSE)))
