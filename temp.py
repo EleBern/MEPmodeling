@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import find_peaks
 from zero_crossing import crossing_times
 from downsample_muaps import load_unprocessed_muaps
 from helper_f_genmuaps import amplitude_distribution, find_peak_times
