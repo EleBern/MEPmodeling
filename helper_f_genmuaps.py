@@ -124,10 +124,7 @@ def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.
     return lam
 
 
-
-
-
-def amplitude_distribution(muaps, plotOn=False):
+def amplitude_distribution(muaps, dt=0.01, plotOn=False):
     """
         Find the best fit for the MUAPs amplitude distribution.
         Prints the best fit parameters. Plots the MUAPs amplitude distribution and its best fit
@@ -135,6 +132,7 @@ def amplitude_distribution(muaps, plotOn=False):
         Parameters
         ----------
         muaps   : np.array [samples, n_muaps] MUAPs
+        dt      : float the times step of the recorded MUAPs
 
         Returns
         -------
@@ -149,8 +147,8 @@ def amplitude_distribution(muaps, plotOn=False):
         # Find peaks with a minimum height of 1/5 of the maximum voltage
         # Peaks must be at least 1.5 ms apart, if not they are considered from the same oscillation
         height = np.max(1e6 * muaps[:, i]) / 5
-        pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/0.001) 
-        neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
+        pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/dt) 
+        neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/dt)
         peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
 
         # Calculate the amplitude of the MUAPs from the peaks

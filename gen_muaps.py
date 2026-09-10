@@ -119,7 +119,7 @@ if __name__ == "__main__":
     t, anatomical_muaps, downsampled_t, downsampled_muaps = load_unprocessed_muaps(h5_path)
 
     # Calculate the amplitude and amplitude distribution of the anatomical MUAPs
-    popt, amplitude = amplitude_distribution(anatomical_muaps)
+    popt, amplitude = amplitude_distribution(anatomical_muaps, t[1]-t[0])
     max_peak = np.max(anatomical_muaps, axis=0)
     min_peak = np.min(anatomical_muaps, axis=0)
     #amplitude = (max_peak - min_peak) / 2
