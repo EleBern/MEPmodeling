@@ -14,7 +14,7 @@ from __future__ import annotations
 from typing import NamedTuple
 
 import numpy as np
-from scipy.signal import find_peaks
+from helper_f_genmuaps import find_peak_times
 
 
 class ZeroCrossings(NamedTuple):
@@ -145,13 +145,11 @@ def zero_crossings_all(t, muaps, time_axis: int = 0, rel_threshold: float = 0.0)
 def crossing_times(t, muaps):
     crossings = zero_crossings_all(t, muaps)
     crossing_times = np.zeros(np.shape(muaps)[1])
+    dt = t[1] - t[0]
     for i in range(np.shape(muaps)[1]):
         # If multiple crossing times find the crossing time between the 2 largest peaks
         if len(crossings[i].times) > 1:
-            height = np.max(1e6 * muaps[:, i]) / 5
-            pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/0.001) 
-            neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/0.001)
-            peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
+            peak_times = find_peak_times(muaps[:, i], dt)
             index = np.argmax(np.abs(np.diff(muaps[peak_times, i])))
             crossing_times[i] = crossings[i].times[index].item()
         elif len(crossings[i].times) == 0:

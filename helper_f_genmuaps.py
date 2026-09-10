@@ -144,13 +144,7 @@ def amplitude_distribution(muaps, dt=0.01, plotOn=False):
 
     amplitude = np.zeros(np.shape(muaps)[1])
     for i in range(np.shape(muaps)[1]):
-        # Find peaks with a minimum height of 1/5 of the maximum voltage
-        # Peaks must be at least 1.5 ms apart, if not they are considered from the same oscillation
-        height = np.max(1e6 * muaps[:, i]) / 5
-        pos_peaks, _ = find_peaks(1e6 * muaps[:, i], height=height, distance=1.5/dt) 
-        neg_peaks, _ = find_peaks(- 1e6 * muaps[:, i], height=height, distance=1.5/dt)
-        peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
-
+        peak_times = find_peak_times(muaps[:, i], dt)
         # Calculate the amplitude of the MUAPs from the peaks
         if len(peak_times) > 1:
             temp = np.diff(muaps[peak_times, i])
@@ -182,3 +176,27 @@ def amplitude_distribution(muaps, dt=0.01, plotOn=False):
 
 def exponential(x, a, b):
     return a*b**(x)
+
+
+def find_peak_times(muap, dt):
+    """
+        Find the peak times of the MUAP
+        Find peaks with a minimum height obest fit for the MUAPs amplitude distribution.f 1/5 of the maximum voltage
+        Peaks must be at least 1.5 ms apart, if not they are considered from the same oscillation
+    
+        Parameters
+        ----------
+        muap    : np.array [samples,] MUAP
+        dt      : float the times step of the recorded MUAP
+
+        Returns
+        -------
+        peak_times : ndarray, 
+            Indices of the timing of the MUAP peaks
+    """
+
+    height = np.max(1e6 * muap) / 5
+    pos_peaks, _ = find_peaks(1e6 * muap, height=height, distance=1.5/dt) 
+    neg_peaks, _ = find_peaks(- 1e6 * muap, height=height, distance=1.5/dt)
+    peak_times = np.sort(np.concatenate([pos_peaks, neg_peaks]))
+    return peak_times
