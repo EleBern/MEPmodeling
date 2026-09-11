@@ -33,7 +33,7 @@ for i in range(1,6):
     mean_axonalDelay[i] = np.nanmean(axonalDelay[i])
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
-    lam[i] = fit_lam(downsampled_muaps, np.abs(amplitude[i]), axonalDelay[i])
+    lam[i] = fit_lam(downsampled_muaps, amplitude[i], axonalDelay[i])
     mean_lam[i] = np.nanmean(lam[i])
 
     # Generate synthetic MUAPs
