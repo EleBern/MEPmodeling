@@ -99,7 +99,7 @@ def fit_lam(anatomical_muaps, amplitude, axonalDelay, p0=(0.5, 1.0, 2.0, 4.0, 8.
         y = anatomical_muaps[:, i]               # (200,)
         A = amplitude[i]
 
-        if not np.isfinite(A) or A <= 0:
+        if not np.isfinite(A) or A == 0:
             continue                              # flat MUAP, nothing to fit
 
         def hermite_rodriguez(z, lam_i):
