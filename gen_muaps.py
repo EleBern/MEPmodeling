@@ -138,7 +138,7 @@ if __name__ == "__main__":
         zero_muaps = None
 
     # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
-    lam = fit_lam(downsampled_muaps, np.abs(amplitude), axonalDelay)
+    lam = fit_lam(downsampled_muaps, amplitude, axonalDelay)
     if not real_lam:
         lam = np.mean(lam)
         axonalDelay = np.ones(len(axonalDelay)) * np.mean(axonalDelay)
