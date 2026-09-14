@@ -1,8 +1,33 @@
+import os
 import numpy as np
+import h5py
 from sigmoid import sigmoid
-from scipy.interpolate import interp1d
+from h5_helpers import _save_dict_to_h5
 
-def MEPmodel_bio_core(model):
+
+def MEPmodel_bio_core(model, spike_times=None):
+    """
+    Spinal model: LIF motor-neuron pool (+ optional Renshaw cells) driven by the
+    DI-wave input, followed by superposition of the MUAPs at the MN firing times.
+
+    Parameters
+    ----------
+    model : dict
+        Model configuration (see config_model_bio / update_model_bio).
+    spike_times : np.ndarray, optional
+        [nMU x maxES x nIntensities] array of previously computed MN firing
+        times (NaN-padded).  When supplied, the network simulation is skipped
+        entirely and the MEP is rebuilt from these firing times together with
+        the MUAPs in `model`.  Only model['t'], model['muaps'] and
+        model['tmuap'] are then required.
+
+    Returns
+    -------
+    sim : dict
+    """
+    if spike_times is not None:
+        return _core_from_spike_times(model, spike_times)
+
     # Mapping dictionary keys from the model structure
     DIwave         = model['DIwaveConv']
     t              = model['t']
@@ -24,7 +49,7 @@ def MEPmodel_bio_core(model):
     fastAChRweight = model['fastAChRweight']
     rc             = model['rc']
     tau            = np.array(model['kernel']['tau']) # Nested structure handled as dict
-    h              = np.array(model['kernel']['h'])
+    h              = np.array(model['kernel']['h']).flatten()
 
     # ------------record for all TMS intensities--------------
     nIntensities = DIwave.shape[0]
@@ -74,8 +99,6 @@ def MEPmodel_bio_core(model):
             input_vec = np.array([mMN[tt], mMN[tt], mRC[tt]])
 
             dv  = v2[:, tt]
-            h = h.flatten()
-
 
             dv2 = (h * input_vec - v2[:, tt] * (tau[:, 0] + tau[:, 1]) / (tau[:, 0] * tau[:, 1]) - v[:, tt] / (tau[:, 0] * tau[:, 1]))
 
@@ -106,7 +129,6 @@ def MEPmodel_bio_core(model):
             TR[idx_spike] = round(T_ref / dt)
     
         # ----- spike times -----  
-        MEPcomps = np.zeros((100, len(t)))
         T_idx = Tmu / dt
 
         for n in range(100):
@@ -131,12 +153,9 @@ def MEPmodel_bio_core(model):
                 spike_t = (dt / (Vm_lag[n, curr_idx] - Vm[n, curr_idx - 1]) * (V_thr - Vm[n, curr_idx - 1]) + t[curr_idx - 1])
                 
                 spike_times[n, k, i] = spike_t
-                
-                f_interp = interp1d((tmuap + spike_t).flatten(), (muaps[:, n]).flatten(), kind='linear', 
-                                    bounds_error=False, fill_value=0)
-                MEPcomps[n, :] += f_interp(t)
-        
-        simMEP[i, :] = np.sum(MEPcomps, axis=0)
+
+        # ----- MEP = superposition of MUAPs at the MN firing times -----
+        simMEP[i, :] = mep_from_spike_times(spike_times[:, :, i], muaps, tmuap, t)
 
         # ---------for record--------
         gexc_all[i, :] = R[0] * gexc  
@@ -171,4 +190,85 @@ def MEPmodel_bio_core(model):
         'Iexc_all': Iexc_all,
         'Iinh_all': Iinh_all
     }
+
+    # ----- save spike times to HDF5 (set model['saveSpikeTimes']=False to skip,
+    #       e.g. during GA fitting where the core is called thousands of times) -----
+    if model.get('saveSpikeTimes', True):
+        save_spike_times(spike_times, model, nIntensities, maxES)
+
     return sim
+
+
+# ==========================================================================
+def mep_from_spike_times(spike_times_i, muaps, tmuap, t):
+    """
+    Superpose the MUAPs at the firing times of one TMS intensity.
+
+    spike_times_i : [nMU x maxES] firing times (ms), NaN where there is no spike
+    muaps         : [nSamples x nMU] MUAP waveforms
+    tmuap         : [nSamples,] time base of the MUAPs (ms, relative to firing)
+    t             : [nTime,] simulation time base (ms)
+    """
+    muaps  = np.asarray(muaps)
+    tmuap  = np.asarray(tmuap).ravel()
+    t      = np.asarray(t).ravel()
+    mep    = np.zeros(len(t))
+
+    for n in range(spike_times_i.shape[0]):
+        st = spike_times_i[n, :]
+        st = st[~np.isnan(st)]
+        if st.size == 0:
+            continue
+        muap_n = muaps[:, n].ravel()
+        for spike_t in st:
+            # equivalent to interp1d(..., bounds_error=False, fill_value=0), but faster
+            mep += np.interp(t, tmuap + spike_t, muap_n, left=0.0, right=0.0)
+
+    return mep
+
+
+# ==========================================================================
+def _core_from_spike_times(model, spike_times):
+    """
+    Rebuild the MEP from previously saved MN firing times — no network
+    simulation.  Only the MUAP-dependent part of the model is recomputed, so
+    this is the fast path for parameter studies on the MUAPs (e.g. pygpc).
+    """
+    t           = np.asarray(model['t']).ravel()
+    muaps       = np.asarray(model['muaps'])
+    tmuap       = np.asarray(model['tmuap'])
+    spike_times = np.asarray(spike_times, dtype=float)
+
+    if spike_times.ndim != 3:
+        raise ValueError(
+            f'spike_times must be [nMU x maxES x nIntensities], got shape {spike_times.shape}'
+        )
+    nMU, _, nIntensities = spike_times.shape
+    if muaps.shape[1] != nMU:
+        raise ValueError(
+            f'muaps has {muaps.shape[1]} motor units but spike_times has {nMU}'
+        )
+
+    simMEP = np.zeros((nIntensities, len(t)))
+    for i in range(nIntensities):
+        simMEP[i, :] = mep_from_spike_times(spike_times[:, :, i], muaps, tmuap, t)
+
+    return {'t': t, 'simMEP': simMEP, 'spike_times': spike_times}
+
+
+# ==========================================================================
+def save_spike_times(spike_times, model, nIntensities, maxES):
+    """Write the MN firing times to HDF5 via h5_helpers."""
+    spike_file = model.get('spikeTimesFile', 'fitted_results/bio/mu_spiketimes_S1.h5')
+    out_dir = os.path.dirname(spike_file)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
+    with h5py.File(spike_file, 'w') as f:
+        _save_dict_to_h5(f, {
+            'spike_times': spike_times,
+            'dims': 'motor_unit x effective_spike x TMS_intensity',
+            'nMU': spike_times.shape[0],
+            'maxES': maxES,
+            'nIntensities': nIntensities,
+        })
