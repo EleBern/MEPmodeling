@@ -1,6 +1,9 @@
+import os
 import numpy as np
+import h5py
 from sigmoid import sigmoid
 from scipy.interpolate import interp1d
+from h5_helpers import _save_dict_to_h5
 
 def MEPmodel_bio_core(model):
     # Mapping dictionary keys from the model structure
@@ -171,4 +174,19 @@ def MEPmodel_bio_core(model):
         'Iexc_all': Iexc_all,
         'Iinh_all': Iinh_all
     }
+    # ----- save spike times to HDF5 -----
+    spike_file = "fitted_results/bio/mu_spiketimes_S1.h5"
+    out_dir = os.path.dirname(spike_file)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
+    with h5py.File(spike_file, 'w') as f:
+        _save_dict_to_h5(f, {
+            'spike_times': spike_times,
+            'dims': 'motor_unit x effective_spike x TMS_intensity',
+            'nMU': spike_times.shape[0],
+            'maxES': maxES,
+            'nIntensities': nIntensities,
+        })
+
     return sim
