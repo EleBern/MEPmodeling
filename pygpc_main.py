@@ -19,7 +19,7 @@ from config_model_bio import config_model_bio
 from MEPmodel_bio import cal_error
 from MEPmodel_bio_core import MEPmodel_bio_core
 
-
+_CACHE = {}
 def get_setup(subj, withRC, AMPAweight, spike_file):
     """
     Target MEP (ref) + previously saved MN firing times.  Built on the first
