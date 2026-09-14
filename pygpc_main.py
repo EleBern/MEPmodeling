@@ -19,20 +19,8 @@ from config_model_bio import config_model_bio
 from MEPmodel_bio import cal_error
 from MEPmodel_bio_core import MEPmodel_bio_core
 
-# ----- fixed settings -----
-SUBJ       = 1
-WITHRC     = 1
-AMPAWEIGHT = None
 
-ROOT       = os.path.dirname(os.path.realpath(__file__))
-SPIKE_FILE = os.path.join(ROOT, 'fitted_results', 'bio', f'mu_spiketimes_S{SUBJ}.h5')
-
-# setup is expensive, so build it once and reuse it for every pygpc sample
-_CACHE = {}
-
-
-# ==========================================================================
-def get_setup(subj=SUBJ, withRC=WITHRC, AMPAweight=AMPAWEIGHT, spike_file=None):
+def get_setup(subj, withRC, AMPAweight, spike_file):
     """
     Target MEP (ref) + previously saved MN firing times.  Built on the first
     call, cached afterwards.
@@ -64,8 +52,8 @@ def get_setup(subj=SUBJ, withRC=WITHRC, AMPAweight=AMPAWEIGHT, spike_file=None):
 
 
 # ==========================================================================
-def run_model(a, b, lam, subj=SUBJ, withRC=WITHRC, AMPAweight=AMPAWEIGHT,
-              spike_file=None):
+def run_model(a, b, lam, subj, withRC, AMPAweight,
+              spike_file):
     """
     pygpc forward model.
 
@@ -77,12 +65,12 @@ def run_model(a, b, lam, subj=SUBJ, withRC=WITHRC, AMPAweight=AMPAWEIGHT,
     ref, spike_times = get_setup(subj, withRC, AMPAweight, spike_file)
 
     # ----- generate MUAPs for this sample -----
-    delay = 2.5 * lam                                   # fixed parameter
-    # muaps, tmuap = gen_muaps(n_neurons=100,
-    #                          amplitude=[a, b],
-    #                          axonalDelay=delay,
-    #                          lam=lam)
-    muaps, tmuap = load_muap()
+    delay = np.ones(100) * 2.5 * lam                                   # fixed parameter
+    muaps, tmuap = gen_muaps(n_neurons=100,
+                             amplitude=[a, b],
+                             axonalDelay=delay,
+                             lam=lam)
+    # muaps, tmuap = load_muap() # Test to see if it reproduces the same R2 as with fitted parameters
     ref['model']['muaps'] = muaps
     ref['model']['tmuap'] = tmuap
 
@@ -97,9 +85,22 @@ def run_model(a, b, lam, subj=SUBJ, withRC=WITHRC, AMPAweight=AMPAWEIGHT,
 
 # ==========================================================================
 if __name__ == '__main__':
-    a   = 5      # pygpc parameter
-    b   = 100    # pygpc parameter
-    lam = 3      # pygpc parameter
+    # fixed settings 
+    SUBJ       = 1
+    WITHRC     = 1
+    AMPAWEIGHT = None
 
-    R2 = run_model(a, b, lam)
+    ROOT       = os.path.dirname(os.path.realpath(__file__))
+    SPIKE_FILE = os.path.join(ROOT, 'fitted_results', 'bio', f'mu_spiketimes_S{SUBJ}.h5')
+
+    # setup is expensive, so build it once and reuse it for every pygpc sample
+    _CACHE = {}
+
+    # pygpc parameters
+    a   = 5      # pygpc parameter [2, 14] uniform
+    b   = 100    # pygpc parameter [45, 425] uniform
+    lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
+
+    # Output metric
+    R2 = run_model(a, b, lam, SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
     print(R2)
