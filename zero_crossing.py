@@ -150,8 +150,9 @@ def crossing_times(t, muaps):
         # If multiple crossing times find the crossing time between the 2 largest peaks
         if len(crossings[i].times) > 1:
             peak_times = find_peak_times(muaps[:, i], dt)
-            index = np.argmax(np.abs(np.diff(muaps[peak_times, i])))
-            crossing_times[i] = crossings[i].times[index].item()
+            t_index = np.argmax(np.abs(np.diff(muaps[peak_times, i])))
+            m_index = np.argmax(crossings[i].times > t[peak_times[t_index]])
+            crossing_times[i] = crossings[i].times[m_index].item()
         elif len(crossings[i].times) == 0:
             crossing_times[i] = np.nan
         else:
