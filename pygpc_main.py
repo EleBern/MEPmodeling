@@ -12,6 +12,7 @@ import os
 import h5py
 import numpy as np
 
+from load_muap import load_muap
 from gen_muaps import gen_muaps
 from h5_helpers import load_h5_to_dict
 from config_model_bio import config_model_bio
@@ -77,10 +78,11 @@ def run_model(a, b, lam, subj=SUBJ, withRC=WITHRC, AMPAweight=AMPAWEIGHT,
 
     # ----- generate MUAPs for this sample -----
     delay = 2.5 * lam                                   # fixed parameter
-    muaps, tmuap = gen_muaps(n_neurons=spike_times.shape[0],
-                             amplitude=[a, b],
-                             axonalDelay=delay,
-                             lam=lam)
+    # muaps, tmuap = gen_muaps(n_neurons=100,
+    #                          amplitude=[a, b],
+    #                          axonalDelay=delay,
+    #                          lam=lam)
+    muaps, tmuap = load_muap()
     ref['model']['muaps'] = muaps
     ref['model']['tmuap'] = tmuap
 
