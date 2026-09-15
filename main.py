@@ -1,14 +1,8 @@
-# Windows users have to encapsulate the code into a main function to avoid multiprocessing errors.
-# def main():
-
 import os
 import h5py
 import pygpc
-import numpy as np
 from collections import OrderedDict
 from muap_gpc_model import MUAP_gpc
-import matplotlib
-# matplotlib.use("Qt5Agg")
 
 fn_results = "pygpc/test"
 
@@ -26,16 +20,15 @@ model = MUAP_gpc()
 
 # define problem
 parameters = OrderedDict()
+# Parameter distributions
+# a   = 5      # pygpc parameter [2, 14] uniform
+# b   = 100    # pygpc parameter [45, 425] uniform
+# lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
 parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
-#parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706]) 
+parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706]) 
+# parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
 
-parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
-
-
-    # a   = 5      # pygpc parameter [2, 14] uniform
-    # b   = 100    # pygpc parameter [45, 425] uniform
-    # lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
 problem = pygpc.Problem(model, parameters)
 
@@ -106,16 +99,3 @@ pygpc.get_sensitivities_hdf5(fn_gpc=session.fn_results,
 
 sobol, gsens = pygpc.get_sens_summary(fn_results, parameters, fn_results + "_sens_summary.txt")
 pygpc.plot_sens_summary(sobol=sobol, gsens=gsens)
-
-
-
-
-
-
-#
-# On Windows subprocesses will import (i.e. execute) the main module at start.
-# You need to insert an if __name__ == '__main__': guard in the main module to avoid
-# creating subprocesses recursively.
-#
-# if __name__ == '__main__':
-#     main()

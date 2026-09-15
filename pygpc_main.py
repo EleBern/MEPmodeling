@@ -93,9 +93,6 @@ if __name__ == '__main__':
     ROOT       = os.path.dirname(os.path.realpath(__file__))
     SPIKE_FILE = os.path.join(ROOT, 'fitted_results', 'bio', f'mu_spiketimes_S{SUBJ}.h5')
 
-    # setup is expensive, so build it once and reuse it for every pygpc sample
-    _CACHE = {}
-
     # pygpc parameters
     a   = 5      # pygpc parameter [2, 14] uniform
     b   = 100    # pygpc parameter [45, 425] uniform
