@@ -26,31 +26,32 @@ parameters = OrderedDict()
 # lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
 parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
-# parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706]) 
-parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
+# parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706])
+parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std
 
 
 problem = pygpc.Problem(model, parameters)
 
 # gPC options
 options = dict()
-options["order"] = [15] * problem.dim
+options["order"] = [4] * problem.dim
 options["order_max"] = 15
-options["order_start"] = 15
+options["order_start"] = 2
 options["method"] = 'reg'
 options["solver"] = "Moore-Penrose"
 options["interaction_order"] = 2
 options["order_max_norm"] = 1.0
 options["n_cpu"] = 0
-options["eps"] = 0.01
+options["eps"] = 0.1
 options["fn_results"] = fn_results
 options["basis_increment_strategy"] = None
 options["plot_basis"] = False
 options["n_grid"] = 1300
 options["save_session_format"] = ".hdf5"
 options["matrix_ratio"] = 2
-options["grid"] = pygpc.Random
-options["grid_options"] = {"seed": 1}
+options["grid"] = pygpc.LHS
+options["error_type"] = "nrmsd"
+options["grid_options"] = {"seed": 1, 'criterion': 'ese'}
 
 # define algorithm
 algorithm = pygpc.Static(problem=problem, options=options, grid=None)
@@ -75,27 +76,27 @@ session = pygpc.io.read_session(fname=fn_session, folder=fn_session_folder)
 # Validation
 pygpc.validate_gpc_plot(session=session,
                         coeffs=coeffs,
-                        random_vars=["a", "lam"],
+                        random_vars=["b", "lam"],
                         n_grid=[51, 51],
                         output_idx=0,
                         fn_out=session.fn_results + '_val',
                         n_cpu=session.n_cpu)
 
 nrmsd = pygpc.validate_gpc_mc(session=session,
-                              coeffs=coeffs,
-                              n_samples=int(1e4),
-                              output_idx=0,
-                              n_cpu=session.n_cpu,
-                              fn_out=session.fn_results + '_mc')
+                                coeffs=coeffs,
+                                n_samples=int(1e4),
+                                output_idx=0,
+                                n_cpu=session.n_cpu,
+                                fn_out=session.fn_results + '_mc')
 
 
 # Sensitivity analysis
 pygpc.get_sensitivities_hdf5(fn_gpc=session.fn_results,
-                             output_idx=None,
-                             calc_sobol=True,
-                             calc_global_sens=True,
-                             calc_pdf=True,
-                             n_samples=int(1e4))
+                                output_idx=None,
+                                calc_sobol=True,
+                                calc_global_sens=True,
+                                calc_pdf=True,
+                                n_samples=int(1e4))
 
 sobol, gsens = pygpc.get_sens_summary(fn_results, parameters, fn_results + "_sens_summary.txt")
-pygpc.plot_sens_summary(sobol=sobol, gsens=gsens)
+pygpc.plot_sens_summary(sobol=sobol, gsens=gsens, fn_plot=session.fn_results + "_sens_summary.pdf")
