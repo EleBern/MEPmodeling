@@ -22,5 +22,8 @@ def gen_resistance_mono(p):
     # Interpolate for motoneurons 1 to 100 using Piecewise Cubic Hermite Interpolating Polynomial
     query_points = np.arange(1, 101)
     R = pchip_interpolate(n, R_points, query_points)
+
+    if np.any(R <= 0):
+        raise ValueError('Unphysiological value(s) for the MN resitances - 0 or negative.')
     
     return R
