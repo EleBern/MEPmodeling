@@ -26,8 +26,8 @@ parameters = OrderedDict()
 # lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
 parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
-parameters["delay_a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2.35-0.46, 2.35+0.46]) # pygpc.Norm(pdf_shape=[2.35, 0.46]) # Normal distribution. pdf share mu, std 
-parameters["delay_b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[-0.18-1.69, -0.18+1.69]) # pygpc.Norm(pdf_shape=[-0.18, 1.69]) # Normal distribution. pdf share mu, std 
+parameters["delay_a"] = pygpc.Norm(pdf_shape=[2.35, 0.46]) # Normal distribution. pdf share mu, std 
+parameters["delay_b"] = pygpc.Norm(pdf_shape=[-0.18, 1.69]) # Normal distribution. pdf share mu, std 
 
 # parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706]) 
 # parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
@@ -37,7 +37,7 @@ problem = pygpc.Problem(model, parameters)
 
 # gPC options
 options = dict()
-options["order"] = [4] * problem.dim
+options["order"] = [10] * problem.dim
 options["order_max"] = 15
 options["order_start"] = 2
 options["method"] = 'reg'
@@ -58,6 +58,7 @@ options["grid_options"] = {"seed": 1, 'criterion': 'ese'}
 
 # define algorithm
 algorithm = pygpc.Static(problem=problem, options=options, grid=None)
+# algorithm = pygpc.RegAdaptive(problem=problem, options=options, grid=None)
 
 # Initialize gPC Session
 session = pygpc.Session(algorithm=algorithm)
