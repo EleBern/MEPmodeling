@@ -172,12 +172,12 @@ def amplitude_distribution(muaps, dt=0.01, plotOn=False):
 
     if plotOn:
         fig = plt.figure()
-        plt.plot(np.arange(len(amplitude)), amplitude, "*", label="MUAP amplitude")
-        plt.plot(np.arange(len(amplitude)), exponential(np.arange(len(amplitude)) / (len(amplitude)-1), *popt), "r", label="Best fit")
+        plt.plot(np.arange(len(amplitude)) / (len(amplitude)-1), amplitude, "*", label="MUAP amplitude")
+        plt.plot(np.arange(len(amplitude)) / (len(amplitude)-1), exponential(np.arange(len(amplitude)) / (len(amplitude)-1), *popt), "r", label="Best fit")
         plt.title("MUAPs amplitude distribution")
         plt.ylabel("Amplitude [V]")
-        plt.xlabel("Motor unit sorted index")
-        plt.xlim([0, 100])
+        plt.xlabel("Normalized MUAP index")
+        plt.xlim([0, 1])
         plt.legend()
         plt.show()
     return popt, amplitude
