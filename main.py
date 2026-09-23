@@ -26,9 +26,12 @@ parameters = OrderedDict()
 # lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
 parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
-# parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706])
-parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std
+parameters["delay_a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2.35-0.46, 2.35+0.46]) # pygpc.Norm(pdf_shape=[2.35, 0.46]) # Normal distribution. pdf share mu, std 
+parameters["delay_b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[-0.18-1.69, -0.18+1.69]) # pygpc.Norm(pdf_shape=[-0.18, 1.69]) # Normal distribution. pdf share mu, std 
 
+# parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1.111, 5.706]) 
+# parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
+parameters["lam"] = 3.619
 
 problem = pygpc.Problem(model, parameters)
 
@@ -76,7 +79,7 @@ session = pygpc.io.read_session(fname=fn_session, folder=fn_session_folder)
 # Validation
 pygpc.validate_gpc_plot(session=session,
                         coeffs=coeffs,
-                        random_vars=["b", "lam"],
+                        random_vars=["delay_a", "delay_b"],
                         n_grid=[51, 51],
                         output_idx=0,
                         fn_out=session.fn_results + '_val',

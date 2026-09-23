@@ -47,13 +47,15 @@ class MUAP_gpc(AbstractModel):
         # pygpc parameters
         a   = self.p["a"]      # pygpc parameter [2, 14] uniform
         b   = self.p["b"]      # pygpc parameter [45, 425] uniform
+        delay_a   = self.p["delay_a"]      
+        delay_b   = self.p["delay_b"]      
         lam = self.p["lam"]    # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
         R2 = np.zeros(a.shape[0])
 
         for n in range(a.shape[0]):
             # Output metric
-            R2[n] = run_model(a[n], b[n], lam[n], SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
+            R2[n] = run_model(a[n], b[n], delay_a[n], delay_b[n], lam[n], SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
 
         R2 = R2[:, np.newaxis]
 
