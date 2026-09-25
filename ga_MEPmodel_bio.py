@@ -377,6 +377,25 @@ def _run_and_save(ref, root, result_path):
     print('fitted result saved:')
     print(result_path)
 
+
+    # ----- save spike times to HDF5 -----
+    spike_times = ref["sim"]["spike_times"]
+    maxES = ref["model"]['maxES']
+    nIntensities = ref["sim"]["simMEP2"].shape[0]
+    spike_file = "fitted_results/bio/mu_spiketimes_S{0}.h5".format(ref["subj"])
+    out_dir = os.path.dirname(spike_file)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+
+    with h5py.File(spike_file, 'w') as f:
+        _save_dict_to_h5(f, {
+            'spike_times': spike_times,
+            'dims': 'motor_unit x effective_spike x TMS_intensity',
+            'nMU': spike_times.shape[0],
+            'maxES': maxES,
+            'nIntensities': nIntensities,
+        })
+
     return p_post
 
 
