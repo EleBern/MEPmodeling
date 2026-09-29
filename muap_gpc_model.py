@@ -37,7 +37,7 @@ class MUAP_gpc(AbstractModel):
     def simulate(self, process_id=None, matlab_engine=None):
 
         # fixed settings 
-        SUBJ       = 2  # To pass as a static parameter -> self.p["SUBJ"] 
+        SUBJ       = 1  # To pass as a static parameter -> self.p["SUBJ"] 
         WITHRC     = 1
         AMPAWEIGHT = None
 
