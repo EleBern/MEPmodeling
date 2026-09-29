@@ -45,15 +45,15 @@ class MUAP_gpc(AbstractModel):
         SPIKE_FILE = os.path.join(ROOT, 'fitted_results', 'bio', f'mu_spiketimes_S{SUBJ}.h5')
 
         # pygpc parameters
-        a   = self.p["a"]      # pygpc parameter [2, 14] uniform
+        # a   = self.p["a"]      # pygpc parameter [2, 14] uniform
         b   = self.p["b"]      # pygpc parameter [45, 425] uniform  
         lam = self.p["lam"]    # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
-        R2 = np.zeros(a.shape[0])
+        R2 = np.zeros(b.shape[0])
 
-        for n in range(a.shape[0]):
+        for n in range(b.shape[0]):
             # Output metric
-            R2[n] = run_model(a[n], b[n], lam[n], SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
+            R2[n] = run_model(b[n], lam[n], SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
 
         R2 = R2[:, np.newaxis]
 

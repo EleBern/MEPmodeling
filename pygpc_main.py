@@ -52,7 +52,7 @@ def get_setup(subj, withRC, AMPAweight, spike_file):
 
 
 # ==========================================================================
-def run_model(a, b, delay_a, delay_b, lam, subj, withRC, AMPAweight,
+def run_model(b, lam, subj, withRC, AMPAweight,
               spike_file):
     """
     pygpc forward model.
@@ -67,7 +67,7 @@ def run_model(a, b, delay_a, delay_b, lam, subj, withRC, AMPAweight,
     # ----- generate MUAPs for this sample -----
     delay = np.ones(100) * (2.35 * lam - 0.18)                                   # fixed parameter
     muaps, tmuap = gen_muaps(n_neurons=100,
-                             amplitude=[a, b],
+                             amplitude=[6.28, b],                                # fix a to 6.28
                              axonalDelay=delay,
                              lam=lam)
     # muaps, tmuap = load_muap() # Test to see if it reproduces the same R2 as with fitted parameters
@@ -99,5 +99,5 @@ if __name__ == '__main__':
     lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
     # Output metric
-    R2 = run_model(a, b, lam, SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
+    R2 = run_model(b, lam, SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
     print(R2)
