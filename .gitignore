@@ -6,3 +6,4 @@ __pycache__/
 /fitted_results/bioNoRC/*backup*
 /fitted_results/pheno/*backup*
 test*.png
+/pygpc/*hdf5
