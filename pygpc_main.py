@@ -1,9 +1,9 @@
 """
-pygpc forward model for the biological MEP model.
+pygpc sensitivity analysis for the biological MEP model.
 
 The spinal network is NOT re-simulated here.  The MN firing times fitted
 earlier are loaded once from disk; every pygpc sample only regenerates the
-MUAPs (a, b, lam) and superposes them at those firing times.
+MUAPs (a, b, lam, delay) and superposes them at those firing times.
 
 Only output: R2 between simulated and measured MEPs.
 """
@@ -55,12 +55,25 @@ def get_setup(subj, withRC, AMPAweight, spike_file):
 def run_model(b, lam, subj, withRC, AMPAweight,
               spike_file):
     """
-    pygpc forward model.
+    Call to the biological spinal periferal model.
 
-    a, b : MUAP amplitude range [a, b]
-    lam  : MUAP shape parameter (axonal delay = 2.5 * lam)
+    a, b : floats
+        MUAP amplitude distribution parameters [a, b] A = a*b^x. a is hard coded to 6.28
+    lam  : float
+        MUAP shape parameter (axonal delay = 2.5 * lam)
+    subj : int
+        the subject to fit
+    withRC: int
+        0 for the model without Renshaw cells, 1 for the model with Renshaw cells
+    AMPAweight: list of floats
+        [] to select the best value
+    spike_file: str
+        the name of the file containing the MN spike times
 
-    Returns R2 of the simulated vs. measured MEPs.
+    Returns
+    -------
+    R2 : float
+        Goodness of fit of the simulated vs. measured MEPs
     """
     ref, spike_times = get_setup(subj, withRC, AMPAweight, spike_file)
 

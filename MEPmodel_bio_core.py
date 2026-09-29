@@ -191,11 +191,6 @@ def MEPmodel_bio_core(model, spike_times=None):
         'Iinh_all': Iinh_all
     }
 
-    # ----- save spike times to HDF5 (set model['saveSpikeTimes']=False to skip,
-    #       e.g. during GA fitting where the core is called thousands of times) -----
-    if model.get('saveSpikeTimes', True):
-        save_spike_times(spike_times, model, nIntensities, maxES)
-
     return sim
 
 
@@ -254,21 +249,3 @@ def _core_from_spike_times(model, spike_times):
         simMEP[i, :] = mep_from_spike_times(spike_times[:, :, i], muaps, tmuap, t)
 
     return {'t': t, 'simMEP': simMEP, 'spike_times': spike_times}
-
-
-# ==========================================================================
-def save_spike_times(spike_times, model, nIntensities, maxES):
-    """Write the MN firing times to HDF5 via h5_helpers."""
-    spike_file = model.get('spikeTimesFile', 'fitted_results/bio/mu_spiketimes_S1.h5')
-    out_dir = os.path.dirname(spike_file)
-    if out_dir:
-        os.makedirs(out_dir, exist_ok=True)
-
-    with h5py.File(spike_file, 'w') as f:
-        _save_dict_to_h5(f, {
-            'spike_times': spike_times,
-            'dims': 'motor_unit x effective_spike x TMS_intensity',
-            'nMU': spike_times.shape[0],
-            'maxES': maxES,
-            'nIntensities': nIntensities,
-        })

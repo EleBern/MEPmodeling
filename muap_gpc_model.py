@@ -8,17 +8,8 @@ from pygpc.AbstractModel import AbstractModel
 class MUAP_gpc(AbstractModel):
     """
     MUAP_gpc runs a spinal periferal model that reproduces TMS invoked MEPs. 
-    The parameters of the model (constants and random parameters) are stored in the
-    dictionary p. Their type is defined during the problem definition.
-
-    Parameters
-    ----------
-    p["a"] : float 
-        Coefficient of the amplitude distribution
-    p["b"] : float 
-        Base of the exponent of the amplitude distribution
-    p["lam"] : float 
-        Width of the MUAPs
+    The parameters of the model (constants parameters and the parameter distributions tested in the gPC)
+    are stored in the dictionary p. Their type is defined during the problem definition (in main.py).
 
     Returns
     -------
