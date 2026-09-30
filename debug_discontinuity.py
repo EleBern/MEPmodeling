@@ -1,4 +1,4 @@
-import os
+import os, random
 import numpy as np
 import matplotlib.pyplot as plt
 from gen_muaps import gen_muaps
@@ -46,23 +46,27 @@ if __name__ == '__main__':
     b_array = np.arange(100,150,1)
     lam_array = np.arange(3,4,0.1)      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
-    ref = run_model(b, lam, SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
-    tmuap = ref['model']['tmuap']
-    spike_times = ref["spike_times"]
-    y0 = ref["y0"]
-
-    plt.figure()
+    #plt.figure()
+    plt.figure(figsize=(8, 5))
+    number_of_colors = 50
+    color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(number_of_colors)]
+    i = 0
     # for lam in lam_array:
     for b in b_array:
+
         # Output metric
         ref = run_model(b, lam, SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
         print(ref["R2"])
         #plt.plot(lam, ref["R2"], "*k")
-        plt.plot(b, ref["R2"], "*k")
-        if not np.allclose(tmuap, ref['model']['tmuap']):
-            print("Error in tmuap, con b= ", b)
-        if not np.allclose(spike_times, ref['spike_times'], equal_nan=True):
-                    print("Error in spike_times, con b= ", b)
-        if not np.allclose(y0, ref['y0'], equal_nan=True):
-                            print("Error in y0, con b= ", b)
+        #plt.plot(b, ref["R2"], "*k")
+        for n in range(np.shape(ref['model']['muaps'])[1]):
+            plt.plot(ref['model']['tmuap'], 1e3 * ref['model']['muaps'][:, n], color=color[i])
+        i += 1
+
+    plt.xlabel("Time (ms)")
+    plt.ylabel("Amplitude (mV)")
+    plt.title("Simulated MUAP shapes (first-order Hermite-Rodriguez function)")
+    plt.xlim([0, 20])
+    plt.tight_layout()
+    plt.show()
     plt.show()
