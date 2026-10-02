@@ -107,6 +107,40 @@ def RC_setting(p):
 
 
 # ==========================================================================
+from scipy.signal import correlate
+
+def subsample_align(x1, x2, dt=0.1):
+    """
+    Returns the shift (in ms) to apply to x2's time axis
+    so its peak aligns with x1's peak.
+    """
+    cc = correlate(x1, x2, mode='full')
+    lags = np.arange(-(len(x1)-1), len(x2)) * dt
+
+    # Coarse peak
+    i = np.argmax(cc)
+
+    # Parabolic refinement
+    denom = 2 * (2*cc[i] - cc[i-1] - cc[i+1])
+    frac = (cc[i-1] - cc[i+1]) / denom if denom != 0 else 0
+    shift = lags[i] + frac * dt
+
+    return shift
+
+from scipy.signal import resample
+
+def align_by_upsampling(t, x1, x2, factor=100):
+    x1_up = resample(x1, len(x1) * factor)
+    x2_up = resample(x2, len(x2) * factor)
+    dt_up = (t[1] - t[0]) / factor
+
+    i1 = np.argmax(x1_up)
+    i2 = np.argmax(x2_up)
+    shift = (i2 - i1) * dt_up
+    return shift
+
+from upsample_helper import peak_shift
+
 def cal_error(ref, sim):
 
     y0 = ref["y0"]
@@ -119,7 +153,13 @@ def cal_error(ref, sim):
     i1 = np.argmax(y0[:, -1])
     i2 = np.argmax(simMEP[:, -1])
 
-    axonalDelay = max(0, t0[i1] - t[i2])
+    # axonalDelay = max(0, t0[i1] - t[i2])
+    # print(axonalDelay)
+    # axonalDelay = 13.3
+    #axonalDelay = subsample_align(y0[:, -1], simMEP[:, -1])
+    #axonalDelay = align_by_upsampling(t, y0[:, -1], simMEP[:, -1])
+    axonalDelay = peak_shift(t0, y0[:, -1], t, simMEP[:, -1])
+    print(axonalDelay)
 
     # interpolation 
     f_interp = interp1d(
