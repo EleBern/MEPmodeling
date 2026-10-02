@@ -78,7 +78,7 @@ def run_model(b, lam, subj, withRC, AMPAweight,
     ref, spike_times = get_setup(subj, withRC, AMPAweight, spike_file)
 
     # ----- generate MUAPs for this sample -----
-    delay = np.ones(100) * (2.35 * lam - 0.18)                                   # fixed parameter
+    delay = np.ones(100) * 8.325 #(2.35 * lam - 0.18)                                   # fixed parameter
     muaps, tmuap = gen_muaps(n_neurons=100,
                              amplitude=[6.28, b],                                # fix a to 6.28
                              axonalDelay=delay,
