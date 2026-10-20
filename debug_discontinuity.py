@@ -44,22 +44,23 @@ if __name__ == '__main__':
     b   = 100    # pygpc parameter [45, 425] uniform
     lam = 3
     b_array = np.arange(100,150,1)
-    lam_array = np.arange(1,4,0.1)      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
+    lam_array = np.arange(1,5,0.1)      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
     plt.figure()
     number_of_colors = 50
     color = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)]) for i in range(number_of_colors)]
     i = 0
-    for lam in lam_array:
-    #for b in b_array:
+    #for lam in lam_array:
+    for b in b_array:
         # Output metric
         ref = run_model(b, lam, SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
         # print(ref["R2"])
         #plt.plot(lam, ref["R2"], "*k")
-        #plt.plot(b, ref["R2"], "*k")
-        plt.figure()
-        plt.plot(ref["t0"], ref["sim"]["simMEP2"][:,0], color=color[i])
-        plt.show()
+        plt.plot(b, ref["R2"], "*k")
+        # plt.figure()
+        # plt.plot(ref["t0"], ref['y0'], "k")
+        # plt.plot(ref["t0"], ref["sim"]["simMEP2"], "r")#color[i])
+        # plt.show()
         # plt.plot(ref["sim"]["t"], ref["sim"]["simMEP"].T[:,0], color=color[i])
         i+=1
         #print(np.shape(ref["sim"]["simMEP2"]))

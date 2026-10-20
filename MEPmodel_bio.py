@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
+from scipy.optimize import minimize_scalar
 from plot_summary import plot_summary, get_iocurve
 from plot_param_panel import plot_param_panel
 from plot_TMScondition import plot_TMScondition
@@ -107,61 +108,11 @@ def RC_setting(p):
 
 
 # ==========================================================================
-from scipy.signal import correlate
-
-def subsample_align(x1, x2, dt=0.1):
+def _shift_and_scale(t, simMEP, t0, y0, axonalDelay):
     """
-    Returns the shift (in ms) to apply to x2's time axis
-    so its peak aligns with x1's peak.
+    Shift the simulated MEPs by `axonalDelay` ms, resample them on t0 (zero outside
+    the simulated range) and scale them to the maximum of the measured MEPs.
     """
-    cc = correlate(x1, x2, mode='full')
-    lags = np.arange(-(len(x1)-1), len(x2)) * dt
-
-    # Coarse peak
-    i = np.argmax(cc)
-
-    # Parabolic refinement
-    denom = 2 * (2*cc[i] - cc[i-1] - cc[i+1])
-    frac = (cc[i-1] - cc[i+1]) / denom if denom != 0 else 0
-    shift = lags[i] + frac * dt
-
-    return shift
-
-from scipy.signal import resample
-
-def align_by_upsampling(t, x1, x2, factor=100):
-    x1_up = resample(x1, len(x1) * factor)
-    x2_up = resample(x2, len(x2) * factor)
-    dt_up = (t[1] - t[0]) / factor
-
-    i1 = np.argmax(x1_up)
-    i2 = np.argmax(x2_up)
-    shift = (i2 - i1) * dt_up
-    return shift
-
-from upsample_helper import peak_shift
-
-def cal_error(ref, sim):
-
-    y0 = ref["y0"]
-    t0 = ref["t0"]
-
-    simMEP = sim["simMEP"].T  
-    t = sim["t"]
-
-    # align peaks
-    i1 = np.argmax(y0[:, -1])
-    i2 = np.argmax(simMEP[:, -1])
-
-    # axonalDelay = max(0, t0[i1] - t[i2])
-    # print(axonalDelay)
-    # axonalDelay = 13.3
-    #axonalDelay = subsample_align(y0[:, -1], simMEP[:, -1])
-    #axonalDelay = align_by_upsampling(t, y0[:, -1], simMEP[:, -1])
-    axonalDelay = peak_shift(t0, y0[:, -1], t, simMEP[:, -1])
-    print(axonalDelay)
-
-    # interpolation 
     f_interp = interp1d(
         t + axonalDelay,
         simMEP,
@@ -177,6 +128,51 @@ def cal_error(ref, sim):
         simMEP2 = simMEP / np.max(simMEP) * np.max(y0)
     else:
         simMEP2 = simMEP
+
+    return simMEP2
+
+def fit_axonal_delay(t, simMEP, t0, y0, bounds=(0.0, 30.0), grid_step=None):
+    """
+    Axonal delay [ms] that minimises the sum of squared errors between the
+    shifted, normalised simulated MEPs and the measured MEPs, over all TMS
+    intensities at once. This is equivalent to maximising R2.
+
+    The error is multimodal in the shift (one local minimum per MEP lobe), so
+    a coarse grid over the fixed `bounds` first locates the global minimum,
+    and a bounded Brent search then refines it within +/- one grid step.
+    `bounds` must not depend on the model parameters, otherwise the result is
+    no longer a continuous function of them.
+    """
+    if grid_step is None:
+        grid_step = t[1] - t[0]
+
+    def sse(shift):
+        return np.sum((y0 - _shift_and_scale(t, simMEP, t0, y0, shift)) ** 2)
+
+    grid = np.arange(bounds[0], bounds[1] + 0.5 * grid_step, grid_step)
+    i_best = int(np.argmin([sse(s) for s in grid]))
+
+    lo = max(bounds[0], grid[i_best] - grid_step)
+    hi = min(bounds[1], grid[i_best] + grid_step)
+    res = minimize_scalar(sse, bounds=(lo, hi), method="bounded",
+                          options={"xatol": 1e-4})
+    return res.x
+
+
+def cal_error(ref, sim, delay_bounds=(0.0, 30.0)):
+
+    y0 = ref["y0"]
+    t0 = ref["t0"]
+
+    simMEP = sim["simMEP"].T
+    t = sim["t"]
+
+    # ----- axonal delay: shift that minimises the error over all intensities -----
+    axonalDelay = fit_axonal_delay(t, simMEP, t0, y0, bounds=delay_bounds)
+    print(axonalDelay)
+
+    # ----- shifted, interpolated and normalised simulated MEPs -----
+    simMEP2 = _shift_and_scale(t, simMEP, t0, y0, axonalDelay)
 
     error = np.ravel(simMEP2, order="F") - np.ravel(y0, order="F")
 
