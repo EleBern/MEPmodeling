@@ -169,7 +169,6 @@ def cal_error(ref, sim, delay_bounds=(0.0, 30.0)):
 
     # ----- axonal delay: shift that minimises the error over all intensities -----
     axonalDelay = fit_axonal_delay(t, simMEP, t0, y0, bounds=delay_bounds)
-    print(axonalDelay)
 
     # ----- shifted, interpolated and normalised simulated MEPs -----
     simMEP2 = _shift_and_scale(t, simMEP, t0, y0, axonalDelay)
