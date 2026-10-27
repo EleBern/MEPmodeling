@@ -26,14 +26,13 @@ parameters = OrderedDict()
 # lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 # parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
 parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
-# parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
-parameters["lam"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1, 6]) # Normal distribution. pdf share mu, std 
+parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
 
 problem = pygpc.Problem(model, parameters)
 
 # gPC options
 options = dict()
-options["order"] = [15] * problem.dim
+options["order"] = [4] * problem.dim
 options["order_max"] = 15
 options["order_start"] = 2
 options["method"] = 'reg'
