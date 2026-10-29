@@ -12,44 +12,8 @@ import os
 import h5py
 import numpy as np
 
-from load_muap import load_muap
 from gen_muaps import gen_muaps
-from h5_helpers import load_h5_to_dict
-from config_model_bio import config_model_bio
-from MEPmodel_bio import cal_error
-from MEPmodel_bio_core import MEPmodel_bio_core
-
-_CACHE = {}
-def get_setup(subj, withRC, AMPAweight, spike_file):
-    """
-    Target MEP (ref) + previously saved MN firing times.  Built on the first
-    call, cached afterwards.
-    """
-    spike_file = spike_file or SPIKE_FILE
-    key = (subj, withRC, spike_file)
-
-    if key not in _CACHE:
-        ref = config_model_bio(subj, withRC, AMPAweight)
-
-        if not os.path.isfile(spike_file):
-            raise FileNotFoundError(
-                f'Saved spike times not found: {spike_file}\n'
-                'Run the fitted model once (MEPmodel_bio_core) to generate it.'
-            )
-        with h5py.File(spike_file, 'r') as f:
-            spike_times = np.asarray(load_h5_to_dict(f)['spike_times'], dtype=float)
-
-        nIntensities = ref['y0'].shape[1]
-        if spike_times.shape[2] != nIntensities:
-            raise ValueError(
-                f'{spike_file} holds {spike_times.shape[2]} TMS intensities, '
-                f'but subject {subj} has {nIntensities}.'
-            )
-
-        _CACHE[key] = (ref, spike_times)
-
-    return _CACHE[key]
-
+from ga_MEPmodel_bio import ga_MEPmodel_bio
 
 # ==========================================================================
 def run_model(b, lam, subj, withRC, AMPAweight,
@@ -75,23 +39,15 @@ def run_model(b, lam, subj, withRC, AMPAweight,
     R2 : float
         Goodness of fit of the simulated vs. measured MEPs
     """
-    ref, spike_times = get_setup(subj, withRC, AMPAweight, spike_file)
 
     # ----- generate MUAPs for this sample -----
     delay = np.ones(100) * (2.35 * lam - 0.18)                                   # fixed parameter
-    muaps, tmuap = gen_muaps(n_neurons=100,
-                             amplitude=[6.28, b],                                # fix a to 6.28
-                             axonalDelay=delay,
-                             lam=lam)
-    # muaps, tmuap = load_muap() # Test to see if it reproduces the same R2 as with fitted parameters
-    ref['model']['muaps'] = muaps
-    ref['model']['tmuap'] = tmuap
+    _, _ = gen_muaps(n_neurons=100,
+                        amplitude=[6.28, b],                                # fix a to 6.28
+                        axonalDelay=delay,
+                        lam=lam)
 
-    # ----- rebuild MEP from the saved spike times (no network simulation) -----
-    sim = MEPmodel_bio_core(ref['model'], spike_times=spike_times)
-
-    # ----- output metric -----
-    ref = cal_error(ref, sim)
+    ref = ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0)
 
     return ref['R2']
 
