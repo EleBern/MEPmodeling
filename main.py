@@ -20,13 +20,9 @@ model = MUAP_gpc()
 
 # define problem
 parameters = OrderedDict()
-# Parameter distributions
-# a   = 5      # pygpc parameter [2, 14] uniform
-# b   = 100    # pygpc parameter [45, 425] uniform
-# lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
-# parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
-parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
-parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
+# MUAP parameters
+parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # MUAP amplitude parameter. pdf_limits - sampling range
+parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # MUAP shape parameter. Normal distribution. pdf share mu, std 
 
 problem = pygpc.Problem(model, parameters)
 
@@ -53,7 +49,6 @@ options["grid_options"] = {"seed": 1, 'criterion': 'ese'}
 
 # define algorithm
 algorithm = pygpc.Static(problem=problem, options=options, grid=None)
-# algorithm = pygpc.RegAdaptive(problem=problem, options=options, grid=None)
 
 # Initialize gPC Session
 session = pygpc.Session(algorithm=algorithm)
