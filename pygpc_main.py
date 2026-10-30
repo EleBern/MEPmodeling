@@ -8,15 +8,12 @@ MUAPs (a, b, lam, delay) and superposes them at those firing times.
 Only output: R2 between simulated and measured MEPs.
 """
 
-import os
-import h5py
 import numpy as np
-
 from gen_muaps import gen_muaps
 from ga_MEPmodel_bio import ga_MEPmodel_bio
 
 # ==========================================================================
-def run_model(b, lam, subj, WITHRC, AMPAWEIGHT, p):
+def run_model(subj, b, lam, R1, R2, R3, R4, R5, E1, E2, I1, I2, RC_th, MU_T, AMPAw):
     """
     Call to the biological spinal periferal model.
 
@@ -46,7 +43,8 @@ def run_model(b, lam, subj, WITHRC, AMPAWEIGHT, p):
                         axonalDelay=delay,
                         lam=lam)
 
-    ref = ga_MEPmodel_bio(subj, withRC=WITHRC, AMPAweight=AMPAWEIGHT, reRun=0, p_post=p)
+    p = [R1, R2, R3, R4, R5, E1, E2, I1, I2, RC_th, MU_T, AMPAw]
+    ref = ga_MEPmodel_bio(subj, withRC=1, AMPAweight=[], reRun=0, p_post=p)
 
     return ref['R2']
 
@@ -59,11 +57,11 @@ if __name__ == '__main__':
     AMPAWEIGHT = None
 
     # pygpc parameters
-    a   = 5      # pygpc parameter [2, 14] uniform
-    b   = 100    # pygpc parameter [45, 425] uniform
-    lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
+    a   = 5     
+    b   = 100    
+    lam = 3      
     p_post = [0.86032462, 1.05927459, 1.57477574, 0.76463778, 9.80825998, 19.96654087, 11.40240176, 0.14947802, 0.04018722, 3.42343178, 5., 0.14387608]
 
     # Output metric
-    R2 = run_model(b, lam, SUBJ, WITHRC, AMPAWEIGHT, p_post)
+    R2 = run_model(SUBJ, b, lam, *p_post)
     print(R2)

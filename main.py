@@ -21,12 +21,22 @@ model = MUAP_gpc()
 # define problem
 parameters = OrderedDict()
 # Parameter distributions
-# a   = 5      # pygpc parameter [2, 14] uniform
-# b   = 100    # pygpc parameter [45, 425] uniform
-# lam = 3      # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
-# parameters["a"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[2, 14]) # This is a uniform distribution
-parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # pdf_limits - sampling range
+# MUAP parameters
+parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # Uniform distribution. pdf_limits - sampling range
 parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
+# Spinal model parameters (biological model with Renshaw cells)
+parameters["R1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["R2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["R3"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["R4"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["R5"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["E1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 20])
+parameters["E2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 20])
+parameters["I1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["I2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["RC_th"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1, 10])
+parameters["MU_T"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[5, 10])
+parameters["AMPAw"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 1])
 
 problem = pygpc.Problem(model, parameters)
 
