@@ -12,7 +12,7 @@
 set -e
 
 # Set directories
-export INPUTDIR=/storage/brno2/home/eb22aal/MEPmodeling
+export INPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/MEPmodeling
 export OUTPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/Results/${PBS_JOBID%%.*}
 mkdir -p $OUTPUTDIR
 
