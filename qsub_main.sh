@@ -13,8 +13,8 @@ set -e
 
 # Set directories
 export INPUTDIR=/storage/brno2/home/eb22aal/MEPmodeling
-export OUTPUTDIR=/storage/brno2/home/eb22aal/MEPmodeling/Results/${PBS_JOBID}
-mkdir $OUTPUTDIR
+export OUTPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/Results/${PBS_JOBID%%.*}
+mkdir -p $OUTPUTDIR
 
 # load the python module
 module add python/3.9.12-gcc-10.2.1-rg2lpmk
