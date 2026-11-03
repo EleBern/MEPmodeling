@@ -26,12 +26,11 @@ export PYTHONPATH=$PYTHONUSERBASE/lib/python3.9/site-packages:$PYTHONPATH
 cp -r ${INPUTDIR} $SCRATCHDIR
 
 # go to the scratchdir 
-cd ${SCRATCHDIR}
+cd ${SCRATCHDIR}/MEPmodeling
 
 python main.py
 
 # copy the outputs back to where qsub was called
 cp -r pygpc ${OUTPUTDIR}/
 
-# apply a scratch automatic cleanup utility
-rm -r $SCRATCHDIR
+rm -r $SCRATCHDIR/*
