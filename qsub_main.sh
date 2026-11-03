@@ -13,9 +13,8 @@ set -e
 
 # Set directories
 export INPUTDIR=/storage/brno2/home/eb22aal/MEPmodeling
-export OUTPUTDIR=/storage/brno2/home/eb22aal/MEPmodeling/Results.${PBS_JOBID}
+export OUTPUTDIR=/storage/brno2/home/eb22aal/MEPmodeling/Results/${PBS_JOBID}
 mkdir $OUTPUTDIR
-mkdir $SCRATCHDIR.${PBS_JOBID}
 
 # load the python module
 module add python/3.9.12-gcc-10.2.1-rg2lpmk
@@ -24,10 +23,10 @@ export PATH=$PYTHONUSERBASE/bin:$PATH
 export PYTHONPATH=$PYTHONUSERBASE/lib/python3.9/site-packages:$PYTHONPATH
 
 # copy the files to the scratch directory
-cp -r ${INPUTDIR} $SCRATCHDIR.${PBS_JOBID}
+cp -r ${INPUTDIR} $SCRATCHDIR
 
 # go to the scratchdir 
-cd ${SCRATCHDIR}.${PBS_JOBID}
+cd ${SCRATCHDIR}
 
 python main.py
 
@@ -35,4 +34,4 @@ python main.py
 cp -r pygpc ${OUTPUTDIR}/
 
 # apply a scratch automatic cleanup utility
-rm -r $SCRATCHDIR.${PBS_JOBID}
+rm -r $SCRATCHDIR
