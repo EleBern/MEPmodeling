@@ -18,7 +18,7 @@ mkdir -p $OUTPUTDIR
 
 # load the python module
 module add python/3.9.12-gcc-10.2.1-rg2lpmk
-export PYTHONUSERBASE=/storage/brno2/home/eb22aal/pygpc
+export PYTHONUSERBASE=/storage/brno2/home/eb22aal/pygpc_env
 export PATH=$PYTHONUSERBASE/bin:$PATH
 export PYTHONPATH=$PYTHONUSERBASE/lib/python3.9/site-packages:$PYTHONPATH
 
