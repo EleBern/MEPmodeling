@@ -45,12 +45,12 @@ class MUAP_gpc(AbstractModel):
         MU_T = self.p["MU_T"] 
         AMPAw = self.p["AMPAw"] 
 
-        R2 = np.zeros(b.shape[0])
+        coeff_determination = np.zeros(b.shape[0])
 
         for n in range(b.shape[0]):
             # Output metric
-            R2[n] = run_model(SUBJ, b[n], lam[n], R1[n], R2[n], R3[n], R4[n], R5[n], E1[n], E2[n], I1[n], I2[n], RC_th[n], MU_T[n], AMPAw[n])
+            coeff_determination[n] = run_model(SUBJ, b[n], lam[n], R1[n], R2[n], R3[n], R4[n], R5[n], E1[n], E2[n], I1[n], I2[n], RC_th[n], MU_T[n], AMPAw[n])
 
-        R2 = R2[:, np.newaxis]
+        coeff_determination = coeff_determination[:, np.newaxis]
 
-        return R2
+        return coeff_determination
