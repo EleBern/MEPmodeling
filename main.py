@@ -43,7 +43,7 @@ problem = pygpc.Problem(model, parameters)
 # gPC options
 options = dict()
 options["order"] = [4] * problem.dim
-options["order_max"] = 15
+options["order_max"] = 8
 options["order_start"] = 2
 options["method"] = 'reg'
 options["solver"] = "Moore-Penrose"
