@@ -40,12 +40,12 @@ class MUAP_gpc(AbstractModel):
         b   = self.p["b"]      # pygpc parameter [45, 425] uniform  
         lam = self.p["lam"]    # pygpc parameter [1.111 - 5.706], normal distribution mu=3.619, std=0.774
 
-        R2 = np.zeros(b.shape[0])
+        coeff_determination = np.zeros(b.shape[0])
 
         for n in range(b.shape[0]):
             # Output metric
-            R2[n] = run_model(b[n], lam[n], SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
+            coeff_determination[n] = run_model(b[n], lam[n], SUBJ, WITHRC, AMPAWEIGHT, SPIKE_FILE)
 
-        R2 = R2[:, np.newaxis]
+        coeff_determination = coeff_determination[:, np.newaxis]
 
-        return R2
+        return coeff_determination
