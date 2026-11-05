@@ -93,7 +93,7 @@ pygpc.validate_gpc_plot(session=session,
 
 nrmsd = pygpc.validate_gpc_mc(session=session,
                                 coeffs=coeffs,
-                                n_samples=int(1e4),
+                                n_samples=int(1e3),
                                 output_idx=0,
                                 n_cpu=session.n_cpu,
                                 fn_out=session.fn_results + '_mc')
