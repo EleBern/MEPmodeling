@@ -27,23 +27,38 @@ class MUAP_gpc(AbstractModel):
     def simulate(self, process_id=None, matlab_engine=None):
 
         # fixed settings 
-        SUBJ       = 2  # To pass as a static parameter -> self.p["SUBJ"] 
+        SUBJ       = 1  # To pass as a static parameter -> self.p["SUBJ"] 
 
         # pygpc parameters
-        b   = self.p["b"]      
-        lam = self.p["lam"]    
+        # b   = self.p["b"]      
+        # lam = self.p["lam"]    
         R1 = self.p["R1"] 
-        R2 = self.p["R2"] 
-        R3 = self.p["R3"] 
-        R4 = self.p["R4"] 
-        R5 = self.p["R5"] 
-        E1 = self.p["E1"] 
-        E2 = self.p["E2"] 
-        I1 = self.p["I1"] 
+        # R2 = self.p["R2"] 
+        # R3 = self.p["R3"] 
+        # R4 = self.p["R4"] 
+        # R5 = self.p["R5"] 
+        # E1 = self.p["E1"] 
+        # E2 = self.p["E2"] 
+        # I1 = self.p["I1"] 
         I2 = self.p["I2"] 
-        RC_th = self.p["RC_th"] 
-        MU_T = self.p["MU_T"] 
-        AMPAw = self.p["AMPAw"] 
+        # RC_th = self.p["RC_th"] 
+        # MU_T = self.p["MU_T"] 
+        # AMPAw = self.p["AMPAw"] 
+
+        b = np.ones((R1.shape[0])) * 3.7
+        lam = np.ones((R1.shape[0])) * 75
+        # R1 = np.ones((R1.shape[0]) * 0.86032462
+        R2 = np.ones((R1.shape[0])) * 1.05927459
+        R3 = np.ones((R1.shape[0])) * 1.57477574
+        R4 = np.ones((R1.shape[0])) * 0.76463778
+        R5 = np.ones((R1.shape[0])) * 9.80825998
+        E1 = np.ones((R1.shape[0])) * 19.96654087
+        E2 = np.ones((R1.shape[0])) * 11.40240176
+        I1 = np.ones((R1.shape[0])) * 0.14947802
+        # I2 = np.ones((R1.shape[0])) * 0.04018722
+        RC_th = np.ones((R1.shape[0])) * 3.42343178
+        MU_T = np.ones((R1.shape[0])) * 5.
+        AMPAw = np.ones((R1.shape[0])) * 0.14387608
 
         coeff_determination = np.zeros(b.shape[0])
 

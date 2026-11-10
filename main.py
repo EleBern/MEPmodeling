@@ -22,28 +22,28 @@ model = MUAP_gpc()
 parameters = OrderedDict()
 # Parameter distributions
 # MUAP parameters
-parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # Uniform distribution. pdf_limits - sampling range
-parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
+# parameters["b"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[45, 425]) # Uniform distribution. pdf_limits - sampling range
+# parameters["lam"] = pygpc.Norm(pdf_shape=[3.619, 0.774]) # Normal distribution. pdf share mu, std 
 # Spinal model parameters (biological model with Renshaw cells)
-parameters["R1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
-parameters["R2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
-parameters["R3"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
-parameters["R4"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
-parameters["R5"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
-parameters["E1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 20])
-parameters["E2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 20])
-parameters["I1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
+parameters["R1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0.1, 10])
+# parameters["R2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0.1, 10])
+# parameters["R3"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0.1, 10])
+# parameters["R4"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0.1, 10])
+# parameters["R5"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0.1, 10])
+# parameters["E1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 20])
+# parameters["E2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 20])
+# parameters["I1"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
 parameters["I2"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 10])
-parameters["RC_th"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1, 10])
-parameters["MU_T"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[5, 10])
-parameters["AMPAw"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 1])
+# parameters["RC_th"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[1, 10])
+# parameters["MU_T"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[5, 10])
+# parameters["AMPAw"] = pygpc.Beta(pdf_shape=[1, 1], pdf_limits=[0, 1])
 
 problem = pygpc.Problem(model, parameters)
 
 # gPC options
 options = dict()
 options["order"] = [4] * problem.dim
-options["order_max"] = 8
+options["order_max"] = 15
 options["order_start"] = 2
 options["method"] = 'reg'
 options["solver"] = "Moore-Penrose"
@@ -54,7 +54,7 @@ options["eps"] = 0.1
 options["fn_results"] = fn_results
 options["basis_increment_strategy"] = None
 options["plot_basis"] = False
-options["n_grid"] = 3000
+options["n_grid"] = 1300
 options["save_session_format"] = ".hdf5"
 options["matrix_ratio"] = 2
 options["grid"] = pygpc.LHS
@@ -79,13 +79,13 @@ with h5py.File(fn_results + ".hdf5", "r") as f:
     fn_session = os.path.join(os.path.split(fn_results)[0], f["misc/fn_session"][0].astype(str))
     fn_session_folder = f["misc/fn_session_folder"][0].astype(str)
 
-# print("> Loading gpc session object: {}".format(fn_session))
+print("> Loading gpc session object: {}".format(fn_session))
 session = pygpc.io.read_session(fname=fn_session, folder=fn_session_folder)
 
 # Validation
 pygpc.validate_gpc_plot(session=session,
                         coeffs=coeffs,
-                        random_vars=["b", "lam"],
+                        random_vars=["R1", "I2"],
                         n_grid=[51, 51],
                         output_idx=0,
                         fn_out=session.fn_results + '_val',
