@@ -299,7 +299,7 @@ class MEPmodel:
     # DI-wave generation (gen_DIwave.py)
     # ======================================================================
     def gen_DIwave(self, t, intensity):
-        t0 = 5
+        t0 = 2.5
         T = 1.5
         width = 0.25
 
