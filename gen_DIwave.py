@@ -6,7 +6,7 @@ def sigmoid(x, x0, r, a):
     return y
 
 def gen_DIwave(t, intensity):
-    t0 = 5
+    t0 = 2.5
     T = 1.5
     width = 0.25
 
