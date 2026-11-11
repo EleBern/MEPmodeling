@@ -23,7 +23,7 @@ def gen_resistance_mono(p):
     query_points = np.arange(1, 101)
     R = pchip_interpolate(n, R_points, query_points)
 
-    if np.any(R <= 0):
+    if np.all(R == 0) or np.any(R < 0):
         raise ValueError('Unphysiological value(s) for the MN resitances - 0 or negative.')
     
     return R
