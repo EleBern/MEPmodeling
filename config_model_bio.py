@@ -39,7 +39,7 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
     elif ref["subj"] == 5 or ref["subj"] == 6:
         ref["RMT"] = 47
     else:
-        ref["RMT"] = 44
+        ref["RMT"] = 50
 
     # ----- simulated DI wave -----
     tlength = 50 # ms
