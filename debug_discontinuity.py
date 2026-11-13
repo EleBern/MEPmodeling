@@ -27,7 +27,7 @@ if __name__ == '__main__':
     AMPAw = 0.14387608
 
 
-    R1_array = np.arange(0, 1, 0.1)
+    R1_array = np.arange(0, 2, 0.1)
     coeff_determination = np.zeros((len(R1_array)))
     spike_num = np.zeros((len(R1_array), 100))
     total_spike_num = np.zeros((len(R1_array)))
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         total_spike_num[i] = np.sum(~np.isnan(spike_times))
 
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 3), sharex=True)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(18, 3), sharex=True)
 
     sns.heatmap(coeff_determination[np.newaxis, :], xticklabels=np.round(R1_array, 1),
                 yticklabels=['Coefficient of determination'], annot=True, cmap='hot', ax=ax1)
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     plt.tight_layout()
 
     fig, ax = plt.subplots(figsize=(8, 12))   # small height = short y axis
-    sns.heatmap(spike_num.T,
+    sns.heatmap(spike_num.T, xticklabels=np.round(R1_array, 1),
             yticklabels=True, cmap='hot', ax=ax)
     ax.set_xlabel('R1'); plt.tight_layout() 
     ax.set_title('Number of MN spikes')
