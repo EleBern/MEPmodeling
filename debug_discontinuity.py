@@ -35,7 +35,7 @@ if __name__ == '__main__':
     for i in range(len(R1_array)):
         R1 = R1_array[i]
         # Output metric
-        coeff_determination[i], spike_times = run_model(SUBJ, R1, R2, R3, R4, R5, E1, E2, I1, I2, RC_th, MU_T, AMPAw)
+        coeff_determination[i], spike_times = run_model(SUBJ, R1, R2, R3, R4, R5, E1, E2, I1, 1, RC_th, MU_T, AMPAw)
         temp = np.sum(~np.isnan(spike_times),axis=1)
         spike_num[i] = np.sum(temp, axis=1)
         total_spike_num[i] = np.sum(~np.isnan(spike_times))
