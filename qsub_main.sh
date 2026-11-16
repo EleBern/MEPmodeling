@@ -5,7 +5,7 @@
 # reserve 1 CPU, 1 GB disc space, 1 GB RAM, and 1 GB scratch space
 #PBS -l select=1:ncpus=1:mem=5gb:scratch_local=1gb  
 
-#PBS -N pygpc_test
+#PBS -N fparam_distribution
 
 # stop the script immediately if any command fails,
 # so that errors are visible in the error file
@@ -13,7 +13,7 @@ set -e
 
 # Set directories
 export INPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/MEPmodeling
-export OUTPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/Results/${PBS_JOBID%%.*}
+export OUTPUTDIR=/storage/brno2/home/eb22aal/fparam_distribution/Results/${PBS_JOBID%%.*}
 mkdir -p $OUTPUTDIR
 
 # load the python module
@@ -28,9 +28,9 @@ cp -r ${INPUTDIR} $SCRATCHDIR
 # go to the scratchdir 
 cd ${SCRATCHDIR}/MEPmodeling
 
-python main.py
+python ga_MEPmodel_bio.py 1 1
 
 # copy the outputs back to where qsub was called
-cp -r pygpc ${OUTPUTDIR}/
+cp -r fitted_results/bio/* ${OUTPUTDIR}/
 
 rm -r $SCRATCHDIR/*

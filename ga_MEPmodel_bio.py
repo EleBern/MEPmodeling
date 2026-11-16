@@ -385,5 +385,5 @@ if __name__ == '__main__':
     subj       = int(sys.argv[1])   if len(sys.argv) > 1 else 1
     withRC     = int(sys.argv[2])   if len(sys.argv) > 2 else 1
     AMPAweight = float(sys.argv[3]) if len(sys.argv) > 3 else None
-    reRun      = int(sys.argv[4])   if len(sys.argv) > 4 else 0
+    reRun      = int(sys.argv[4])   if len(sys.argv) > 4 else 1
     ga_MEPmodel_bio(subj, withRC, AMPAweight, reRun)
