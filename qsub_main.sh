@@ -1,9 +1,9 @@
 #!/bin/bash
 
-#PBS -l walltime=5:00:00
+#PBS -l walltime=17:00:00
 
-# reserve 1 CPU, 1 GB disc space, 1 GB RAM, and 1 GB scratch space
-#PBS -l select=1:ncpus=1:mem=5gb:scratch_local=1gb  
+# reserve 1 CPU, 1 GB disc space, 1 GB RAM, and 2 GB scratch space
+#PBS -l select=1:ncpus=1:mem=5gb:scratch_local=2gb  
 
 #PBS -N fparam_distribution
 
