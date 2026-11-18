@@ -5,7 +5,7 @@
 # reserve 1 CPU, 1 GB disc space, 1 GB RAM, and 2 GB scratch space
 #PBS -l select=1:ncpus=1:mem=5gb:scratch_local=2gb  
 
-#PBS -N fparam_distribution
+#PBS -N S2
 
 # stop the script immediately if any command fails,
 # so that errors are visible in the error file
@@ -28,7 +28,7 @@ cp -r ${INPUTDIR} $SCRATCHDIR
 # go to the scratchdir 
 cd ${SCRATCHDIR}/MEPmodeling
 
-python ga_MEPmodel_bio.py 1 1
+python ga_MEPmodel_bio.py 2 1
 
 # copy the outputs back to where qsub was called
 cp -r fitted_results/bio/* ${OUTPUTDIR}/
