@@ -2,6 +2,7 @@ import os
 import h5py
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 from h5_helpers import load_h5_to_dict
 
@@ -120,13 +121,12 @@ data = {"R1" : R1,
 dataframe = pd.DataFrame(data, columns=["R1", "R2", "R3", "R4", "R5", "E1", "E2", "I1", "I2", "RCth", "Tmu", "AMPAw"])
 correlation_matrix = dataframe.corr()
 
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-
+# Remove upper half of correlation matrix for plot
 mask = np.zeros_like(correlation_matrix, dtype=bool)
 mask[np.triu_indices_from(mask)] = True
 correlation_matrix[mask] = np.nan
+
+# Plot correlation matrix
 plt.figure(figsize=(8,6))
 sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
 plt.title("Correlation Heatmap")
