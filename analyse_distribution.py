@@ -20,6 +20,7 @@ I2    = np.zeros(len(batch))
 RCth  = np.zeros(len(batch))
 Tmu   = np.zeros(len(batch))
 AMPAw = np.zeros(len(batch))
+coeff_determination = np.zeros(len(batch))
 
 for i in range(len(batch)):
     file_path = os.path.join(input_dir, batch[i], "result_bio_s1.h5")
@@ -39,6 +40,30 @@ for i in range(len(batch)):
         RCth[i]  = p[9]
         Tmu[i]   = p[10]
         AMPAw[i] = p[11]
+
+        coeff_determination[i] = tmp["ref"]["R2"]
+
+plt.figure()
+plt.plot("Coefficient of determination distribution")
+plt.boxplot(coeff_determination, tick_labels=["R²"])
+plt.show()
+
+threshold = 0.93
+coeff_determination = coeff_determination[np.nonzero(coeff_determination > threshold)]
+R1 = R1[np.nonzero(coeff_determination > threshold)]
+R2 = R2[np.nonzero(coeff_determination > threshold)]
+R3 = R3[np.nonzero(coeff_determination > threshold)]
+R4 = R4[np.nonzero(coeff_determination > threshold)]
+R5 = R5[np.nonzero(coeff_determination > threshold)]
+E1 = E1[np.nonzero(coeff_determination > threshold)]
+E2 = E2[np.nonzero(coeff_determination > threshold)]
+I1 = I1[np.nonzero(coeff_determination > threshold)]
+I2 = I2[np.nonzero(coeff_determination > threshold)]
+RCth = RCth[np.nonzero(coeff_determination > threshold)]
+Tmu = Tmu[np.nonzero(coeff_determination > threshold)]
+AMPAw = AMPAw[np.nonzero(coeff_determination > threshold)]
+
+print("Out of {0} simulations, {1} had a R² > {2}".format(len(batch), len(R1), threshold))
 
 # Plot parameter distribution with ylim as parameter boundary
 fig, axs = plt.subplots(2, 3, figsize=(12, 8))
