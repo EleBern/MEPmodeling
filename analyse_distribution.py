@@ -40,32 +40,25 @@ for i in range(len(batch)):
         Tmu[i]   = p[10]
         AMPAw[i] = p[11]
 
-plt.figure()
-plt.boxplot([R1, R2, R3, R4, R5], tick_labels=["R1", "R2", "R3", "R4", "R5"])
-plt.ylim([0, 10])
-plt.show()
+fig, axs = plt.subplots(2, 3)
 
-plt.figure()
-plt.boxplot([E1, E2], tick_labels=["E1", "E2"])
-plt.ylim([0, 20])
-plt.show()
+axs[0, 0].boxplot([R1, R2, R3, R4, R5], tick_labels=["R1", "R2", "R3", "R4", "R5"])
+axs[0, 0].set_ylim([0, 10])
 
-plt.figure()
-plt.boxplot([I1, I2], tick_labels=["I1", "I2"])
-plt.ylim([0, 10])
-plt.show()
+axs[0, 1].boxplot([E1, E2], tick_labels=["E1", "E2"])
+axs[0, 1].set_ylim([0, 20])
 
-plt.figure()
-plt.boxplot([RCth], tick_labels=["RCth"])
-plt.ylim([1, 10])
-plt.show()
+axs[0, 2].boxplot([I1, I2], tick_labels=["I1", "I2"])
+axs[0, 2].set_ylim([0, 10])
 
-plt.figure()
-plt.boxplot([Tmu], tick_labels=["Tmu"])
-plt.ylim([5, 10])
-plt.show()
+axs[1, 0].boxplot([RCth], tick_labels=["RCth"])
+axs[1, 0].set_ylim([1, 10])
 
-plt.figure()
-plt.boxplot([AMPAw], tick_labels=["AMPAw"])
-plt.ylim([0, 1])
+axs[1, 1].boxplot([Tmu], tick_labels=["Tmu"])
+axs[1, 1].set_ylim([5, 10])
+
+axs[1, 2].boxplot([AMPAw], tick_labels=["AMPAw"])
+axs[1, 2].set_ylim([0, 1])
+
+fig.suptitle("Fitted parameters distribution")
 plt.show()
