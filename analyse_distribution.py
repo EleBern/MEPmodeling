@@ -40,7 +40,8 @@ for i in range(len(batch)):
         Tmu[i]   = p[10]
         AMPAw[i] = p[11]
 
-fig, axs = plt.subplots(2, 3)
+# Plot parameter distribution with ylim as parameter boundary
+fig, axs = plt.subplots(2, 3, figsize=(12, 8))
 
 axs[0, 0].boxplot([R1, R2, R3, R4, R5], tick_labels=["R1", "R2", "R3", "R4", "R5"])
 axs[0, 0].set_ylim([0, 10])
@@ -59,6 +60,17 @@ axs[1, 1].set_ylim([5, 10])
 
 axs[1, 2].boxplot([AMPAw], tick_labels=["AMPAw"])
 axs[1, 2].set_ylim([0, 1])
+
+fig.suptitle("Fitted parameters distribution")
+plt.show()
+
+
+# Plot parameter distribution zoomed in 
+fig, axs = plt.subplots(1, 3, figsize=(12, 6))
+
+axs[0].boxplot([R1, R2, R3, R4, R5], tick_labels=["R1", "R2", "R3", "R4", "R5"])
+axs[1].boxplot([E1, E2], tick_labels=["E1", "E2"])
+axs[2].boxplot([I1, I2, RCth, Tmu, AMPAw], tick_labels=["I1", "I2", "RCth", "Tmu", "AMPAw"])
 
 fig.suptitle("Fitted parameters distribution")
 plt.show()
