@@ -1,6 +1,7 @@
 import os
 import h5py
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from h5_helpers import load_h5_to_dict
 
@@ -29,10 +30,10 @@ for i in range(len(batch)):
         p = tmp['p_post'].flatten()
 
         R1[i]    = p[0]
-        R2[i]    = p[0]
-        R3[i]    = p[0]
-        R4[i]    = p[0]
-        R5[i]    = p[0]
+        R2[i]    = p[1]
+        R3[i]    = p[2]
+        R4[i]    = p[3]
+        R5[i]    = p[4]
         E1[i]    = p[5]
         E2[i]    = p[6]
         I1[i]    = p[7]
@@ -48,7 +49,7 @@ plt.title("Coefficient of determination distribution")
 plt.boxplot(coeff_determination, tick_labels=["R²"])
 plt.show()
 
-threshold = 0.93
+threshold = 0.5
 coeff_determination = coeff_determination[np.nonzero(coeff_determination > threshold)]
 R1 = R1[np.nonzero(coeff_determination > threshold)]
 R2 = R2[np.nonzero(coeff_determination > threshold)]
@@ -98,4 +99,35 @@ axs[1].boxplot([E1, E2], tick_labels=["E1", "E2"])
 axs[2].boxplot([I1, I2, RCth, Tmu, AMPAw], tick_labels=["I1", "I2", "RCth", "Tmu", "AMPAw"])
 
 fig.suptitle("Fitted parameters distribution")
+plt.show()
+
+# Correlation between pararmeters
+data = {"R1" : R1, 
+    "R2": R2,
+    "R3": R3,
+    "R4": R4, 
+    "R5": R5, 
+    "E1": E1, 
+    "E2": E2,    
+    "I1": I1,    
+    "I2": I2,    
+    "RCth": RCth,  
+    "Tmu": Tmu,   
+    "AMPAw": AMPAw, 
+    "coeff_determination": coeff_determination 
+}
+
+dataframe = pd.DataFrame(data, columns=["R1", "R2", "R3", "R4", "R5", "E1", "E2", "I1", "I2", "RCth", "Tmu", "AMPAw"])
+correlation_matrix = dataframe.corr()
+
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+mask = np.zeros_like(correlation_matrix, dtype=bool)
+mask[np.triu_indices_from(mask)] = True
+correlation_matrix[mask] = np.nan
+plt.figure(figsize=(8,6))
+sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
+plt.title("Correlation Heatmap")
 plt.show()
