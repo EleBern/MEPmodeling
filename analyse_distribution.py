@@ -44,7 +44,7 @@ for i in range(len(batch)):
         coeff_determination[i] = tmp["ref"]["R2"]
 
 plt.figure()
-plt.plot("Coefficient of determination distribution")
+plt.title("Coefficient of determination distribution")
 plt.boxplot(coeff_determination, tick_labels=["R²"])
 plt.show()
 
