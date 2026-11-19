@@ -28,7 +28,7 @@ cp -r ${INPUTDIR} $SCRATCHDIR
 # go to the scratchdir 
 cd ${SCRATCHDIR}/MEPmodeling
 
-python ga_MEPmodel_bio.py 2 1
+python ga_MEPmodel_bio.py 3 1
 
 # copy the outputs back to where qsub was called
 cp -r fitted_results/bio/* ${OUTPUTDIR}/
