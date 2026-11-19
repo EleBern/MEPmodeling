@@ -28,22 +28,22 @@ for i in range(len(batch)):
     file_path = os.path.join(input_dir, batch[i], "result_bio_s1.h5")
     with h5py.File(file_path, 'r') as f:
         tmp = load_h5_to_dict(f)
-        p = tmp['p_post'].flatten()
+    p = tmp['p_post'].flatten()
 
-        R1[i]    = p[0]
-        R2[i]    = p[1]
-        R3[i]    = p[2]
-        R4[i]    = p[3]
-        R5[i]    = p[4]
-        E1[i]    = p[5]
-        E2[i]    = p[6]
-        I1[i]    = p[7]
-        I2[i]    = p[8]
-        RCth[i]  = p[9]
-        Tmu[i]   = p[10]
-        AMPAw[i] = p[11]
+    R1[i]    = p[0]
+    R2[i]    = p[1]
+    R3[i]    = p[2]
+    R4[i]    = p[3]
+    R5[i]    = p[4]
+    E1[i]    = p[5]
+    E2[i]    = p[6]
+    I1[i]    = p[7]
+    I2[i]    = p[8]
+    RCth[i]  = p[9]
+    Tmu[i]   = p[10]
+    AMPAw[i] = p[11]
 
-        coeff_determination[i] = tmp["ref"]["R2"]
+    coeff_determination[i] = tmp["ref"]["R2"]
 
 plt.figure()
 plt.title("Coefficient of determination distribution")
