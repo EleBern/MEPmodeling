@@ -37,8 +37,8 @@ if __name__ == '__main__':
         # Output metric
         coeff_determination[i], spike_times = run_model(SUBJ, R1, R2, R3, R4, R5, E1, E2, I1, 1, RC_th, MU_T, AMPAw)
         temp = np.sum(~np.isnan(spike_times),axis=1)
-        spike_num[i] = np.sum(temp, axis=1)
-        total_spike_num[i] = np.sum(~np.isnan(spike_times))
+        spike_num[i] = np.sum(temp, axis=1) # number of spikes per each MN
+        total_spike_num[i] = np.sum(~np.isnan(spike_times)) # number of spikes summed across all MNs
 
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(18, 3), sharex=True)
