@@ -6,8 +6,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from h5_helpers import load_h5_to_dict
 
-input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "Subject1_NoNoise", "Results") 
-output_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "Subject1_NoNoise")
+subject = "2"
+input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "NoNoise", "S"+subject) 
 batch = os.listdir(input_dir)
 total_spike_num = np.zeros(len(batch))
 spike_num = np.zeros((len(batch), 100))
@@ -16,7 +16,7 @@ coeff_determination = np.zeros(len(batch))
 
 
 for i in range(len(batch)):
-    file_path = os.path.join(input_dir, batch[i], "result_bio_s1.h5")
+    file_path = os.path.join(input_dir, batch[i], "result_bio_s{0}.h5".format(subject))
     with h5py.File(file_path, 'r') as f:
         tmp = load_h5_to_dict(f)
     coeff_determination[i] = tmp["ref"]["R2"]
