@@ -34,7 +34,7 @@ function round10 {
 
 export n_MUAPs=$(round10 5)
 
-python gen_muaps $n_MUAPs
+python gen_muaps.py $n_MUAPs
 python ga_MEPmodel_bio.py 1 1 $n_MUAPs
 
 # copy the outputs back to where qsub was called
