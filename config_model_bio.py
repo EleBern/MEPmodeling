@@ -7,12 +7,14 @@ from plot_DIwave import plot_DIwave
 from gen_kernels import gen_kernels
 from deconv_DIwave import deconv_DIwave
 
-def config_model_bio(subj, withRC, AMPAweight=[]):
+def config_model_bio(subj, withRC, n_MUAPs, AMPAweight=[]):
 
     model = {}
     model["AMPAweight"] = AMPAweight
     model["withRC"] = withRC
     model["maxES"] = 5  # take first 5 spikes
+    model["n_MUAPs"] = n_MUAPs
+    print("n_MUAPs = {0}".format(n_MUAPs))
 
     # -----subject MEP (target) -----
     ref = {}
@@ -110,9 +112,9 @@ def config_model_bio(subj, withRC, AMPAweight=[]):
         boundary[3, :] = np.array([0, 10]) # R4
         boundary[4, :] = np.array([0, 10]) # R5
         boundary[5, :] = np.array([0, 20]) # E1 (MN1 -> RC)
-        boundary[6, :] = np.array([0, 20]) # E2 (MN100 -> RC)
+        boundary[6, :] = np.array([0, 20]) # E2 (MNLast -> RC)
         boundary[7, :] = np.array([0, 10]) # I1 (RC -> MN1)
-        boundary[8, :] = np.array([0, 10]) # I2 (RC -> MN100)
+        boundary[8, :] = np.array([0, 10]) # I2 (RC -> MNLast)
         boundary[9, :] = np.array([1, 10]) # RC.th
         boundary[10, :] = np.array([5, 10]) # Tmuap
         boundary[11, :] = np.array([0, 1]) # AMPAweight

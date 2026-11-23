@@ -5,7 +5,7 @@
 # reserve 1 CPU, 1 GB disc space, 1 GB RAM, and 2 GB scratch space
 #PBS -l select=1:ncpus=1:mem=5gb:scratch_local=2gb  
 
-#PBS -N S10
+#PBS -N S1
 
 # stop the script immediately if any command fails,
 # so that errors are visible in the error file
@@ -13,7 +13,7 @@ set -e
 
 # Set directories
 export INPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/MEPmodeling
-export OUTPUTDIR=/storage/brno2/home/eb22aal/fparam_distribution/Results/S10/${PBS_JOBID%%.*}
+export OUTPUTDIR=/storage/brno2/home/eb22aal/Reduce_MUAPs/S1/${PBS_JOBID%%.*}
 mkdir -p $OUTPUTDIR
 
 # load the python module
@@ -28,7 +28,14 @@ cp -r ${INPUTDIR} $SCRATCHDIR
 # go to the scratchdir 
 cd ${SCRATCHDIR}/MEPmodeling
 
-python ga_MEPmodel_bio.py 10 1
+function round10 {
+    echo $(( ((${1%.*}+9)/10)*10 ))
+}
+
+export n_MUAPs=$(round10 5)
+
+python gen_muaps $n_MUAPs
+python ga_MEPmodel_bio.py 1 1 $n_MUAPs
 
 # copy the outputs back to where qsub was called
 cp -r fitted_results/bio/* ${OUTPUTDIR}/

@@ -50,11 +50,12 @@ def MEPmodel_bio_core(model, spike_times=None):
     rc             = model['rc']
     tau            = np.array(model['kernel']['tau']) # Nested structure handled as dict
     h              = np.array(model['kernel']['h']).flatten()
+    n_MUAPs        = model["n_MUAPs"]
 
     # ------------record for all TMS intensities--------------
     nIntensities = DIwave.shape[0]
     simMEP = np.zeros((nIntensities, len(t)))
-    spike_times = np.full((100, maxES, nIntensities), np.nan)
+    spike_times = np.full((n_MUAPs, maxES, nIntensities), np.nan)
     spike_times2 = [None] * nIntensities      # all spike times (list of objects)
 
     gexc_all = np.zeros((nIntensities, len(t)))
@@ -72,12 +73,12 @@ def MEPmodel_bio_core(model, spike_times=None):
         # ----- Initialization -----
         gexc   = DIwave[i, :]                  # synaptic conductances on MNs
         ginh   = np.zeros(len(t))              # synaptic conductances on MNs
-        Iexc   = np.zeros((100, len(t)))       # synaptic current to MNs
-        Iinh   = np.zeros((100, len(t)))       # synaptic current to MNs
-        Vm     = np.ones((100, len(t))) * V_rest 
-        Vm_lag = np.ones((100, len(t))) * V_rest 
-        sMN    = np.zeros((100, len(t)))       # MN spikes (0/1) 
-        TR     = np.zeros(100)                 # Timer of refractory period
+        Iexc   = np.zeros((n_MUAPs, len(t)))       # synaptic current to MNs
+        Iinh   = np.zeros((n_MUAPs, len(t)))       # synaptic current to MNs
+        Vm     = np.ones((n_MUAPs, len(t))) * V_rest 
+        Vm_lag = np.ones((n_MUAPs, len(t))) * V_rest 
+        sMN    = np.zeros((n_MUAPs, len(t)))       # MN spikes (0/1) 
+        TR     = np.zeros(n_MUAPs)                 # Timer of refractory period
         mMN    = np.zeros(len(t))              # MN firing rate
         mRC    = np.zeros(len(t))              # RC firing rate   
         v      = np.zeros((3, len(t)))         # average postsynaptic potential
@@ -121,7 +122,7 @@ def MEPmodel_bio_core(model, spike_times=None):
             Vm[idx_tr, tt + 1] = V_rest
             TR[idx_tr] -= 1
     
-            # -----spike of 100 motor neurons----- 
+            # -----spike of n_MUAPs motor neurons----- 
             idx_spike = Vm[:, tt + 1] > V_thr
             Vm_lag[idx_spike, tt + 1] = Vm[idx_spike, tt + 1] 
             sMN[idx_spike, tt + 1] = 1 
@@ -131,7 +132,7 @@ def MEPmodel_bio_core(model, spike_times=None):
         # ----- spike times -----  
         T_idx = Tmu / dt
 
-        for n in range(100):
+        for n in range(n_MUAPs):
             # Find all spikes for neuron n
             idx = np.where(Vm_lag[n, :] > V_thr)[0]
             

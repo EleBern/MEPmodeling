@@ -53,13 +53,13 @@ def update_model_bio(ref, p):
         AMPAw = p[11]
 
     # ----- membrane resistances of MNs -----
-    ref["model"]["R"] = gen_resistance_mono(R)
+    ref["model"]["R"] = gen_resistance_mono(R, ref["model"]["n_MUAPs"])
 
     # ----- Wexc (MNs -> RC) -----
-    ref["model"]["Wexc"] = np.linspace(E1, E2, 100)
+    ref["model"]["Wexc"] = np.linspace(E1, E2, ref["model"]["n_MUAPs"])
 
     # ----- R*Winh (RC->MNs) -----
-    ref["model"]["RWinh"] = np.linspace(I1, I2, 100)
+    ref["model"]["RWinh"] = np.linspace(I1, I2, ref["model"]["n_MUAPs"])
 
     # ----- RC sigmoid -----
     ref["model"]["rc"] = RC_setting(RCth)

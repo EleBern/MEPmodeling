@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import pchip_interpolate
 
-def gen_resistance_mono(p):
+def gen_resistance_mono(p, n_MN):
     """
     Generate membrane resistances of 100 motoneurons (R1 > R2 >...> R100).
     
@@ -13,8 +13,8 @@ def gen_resistance_mono(p):
     """
     p = np.asarray(p).flatten()
     
-    # Define indices for MN[1, 10, 20, 60, 100]
-    n = np.array([1, 10, 20, 60, 100])
+    # Define indices for MN[1, 10, 20, 60, 100] or appropriately scaled if MN != 100
+    n = np.array([1, n_MN*0.1, n_MN*0.2, n_MN*0.6, n_MN], dtype="int")
     
     # Calculate R of MN[1, 10, 20, 60, 100]
     R_points = np.flipud(np.cumsum(p[:5]))

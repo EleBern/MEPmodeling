@@ -40,14 +40,14 @@ from GA.gradient_toolbox.evaluation       import evaluation
 from GA.gradient_toolbox.selection_best   import selection_best
 
 # ==========================================================================
-def ga_MEPmodel_bio(subj, withRC=1, AMPAweight=None, reRun=0):
+def ga_MEPmodel_bio(subj, withRC=1, n_MUAPs=100, AMPAweight=None, reRun=0):
     """
     Main entry point for biological MEP model fitting using a Genetic Algorithm.
     """
     root = os.getcwd()
 
     # ----- model setting -----
-    ref = config_model_bio(subj, withRC, AMPAweight)
+    ref = config_model_bio(subj, withRC, n_MUAPs, AMPAweight)
 
     # ----- derive h5 result path (replace any existing extension) -----
     resultname_h5 = os.path.splitext(ref['resultname'])[0] + '.h5'
@@ -93,7 +93,7 @@ def _run_and_save(ref, root, result_path):
     N1 = 60          # population size
     N2 = 100         # crossover: number of pairs
     N3 = 100         # mutation:  number of pairs
-    tg = 40          # maximum number of generations
+    tg = 1          # maximum number of generations
 
     # Gradient-search configuration
     conf = {
@@ -384,6 +384,7 @@ def _run_and_save(ref, root, result_path):
 if __name__ == '__main__':
     subj       = int(sys.argv[1])   if len(sys.argv) > 1 else 1
     withRC     = int(sys.argv[2])   if len(sys.argv) > 2 else 1
-    AMPAweight = float(sys.argv[3]) if len(sys.argv) > 3 else None
-    reRun      = int(sys.argv[4])   if len(sys.argv) > 4 else 1
+    withRC     = int(sys.argv[3])   if len(sys.argv) > 3 else 100
+    AMPAweight = float(sys.argv[4]) if len(sys.argv) > 4 else None
+    reRun      = int(sys.argv[5])   if len(sys.argv) > 5 else 1
     ga_MEPmodel_bio(subj, withRC, AMPAweight, reRun)

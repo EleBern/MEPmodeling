@@ -177,7 +177,7 @@ def amplitude_distribution(muaps, dt=0.01, plotOn=False):
         plt.title("MUAPs amplitude distribution")
         plt.ylabel("Amplitude [V]")
         plt.xlabel("Motor unit sorted index")
-        plt.xlim([0, 100])
+        plt.xlim([0, np.shape(muaps)[1]])
         plt.legend()
         plt.show()
     return popt, amplitude
