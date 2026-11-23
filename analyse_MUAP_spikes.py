@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from h5_helpers import load_h5_to_dict
 
-subject = "2"
+subject = "1"
 input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "NoNoise", "S"+subject) 
 batch = os.listdir(input_dir)
 total_spike_num = np.zeros(len(batch))
@@ -32,3 +32,17 @@ threshold = 0.93
 print(total_spike_num)
 print(spike_num[1])
 print(spike_num[0])
+
+plt.figure()
+plt.boxplot(total_spike_num, tick_labels=["1-100"])
+plt.ylabel("Number of spikes")
+plt.xlabel("MN index")
+plt.title("Distribution of MN spikes")
+
+plt.figure()
+plt.boxplot(spike_num)
+plt.ylabel("Number of spikes")
+plt.xlabel("MN index")
+plt.title("Distribution of MN spikes")
+
+plt.show()
