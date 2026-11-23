@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import pchip_interpolate
 
-def gen_resistance_mono(p, n_MN):
+def gen_resistance_mono(p, n_MN=100):
     """
     Generate membrane resistances of 100 motoneurons (R1 > R2 >...> R100).
     
@@ -20,7 +20,7 @@ def gen_resistance_mono(p, n_MN):
     R_points = np.flipud(np.cumsum(p[:5]))
     
     # Interpolate for motoneurons 1 to 100 using Piecewise Cubic Hermite Interpolating Polynomial
-    query_points = np.arange(1, 101)
+    query_points = np.arange(1, n_MN+1)
     R = pchip_interpolate(n, R_points, query_points)
     R = np.where(R < 0, 0, R) # avoid negative resistances 
 
