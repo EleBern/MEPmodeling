@@ -14,7 +14,6 @@ def config_model_bio(subj, withRC, n_MUAPs, AMPAweight=[]):
     model["withRC"] = withRC
     model["maxES"] = 5  # take first 5 spikes
     model["n_MUAPs"] = n_MUAPs
-    print("n_MUAPs = {0}".format(n_MUAPs))
 
     # -----subject MEP (target) -----
     ref = {}
