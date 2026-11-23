@@ -107,7 +107,7 @@ if __name__ == "__main__":
     n_neurons = int(sys.argv[1]) if len(sys.argv) > 1 else 100
     lam = 3.63
     b = 150
-    delay = np.ones(100) * (2.35 * lam - 0.18)                                   # fixed parameter
+    delay = np.ones(n_neurons) * (2.35 * lam - 0.18)                                   # fixed parameter
     muaps, tmuap = gen_muaps(n_neurons=n_neurons,
                              amplitude=[6.28, b],                                # fix a to 6.28
                              axonalDelay=delay,
@@ -121,5 +121,7 @@ if __name__ == "__main__":
     with h5py.File(out_path, "w") as f:
         f.create_dataset("muaps", data=muaps)
         f.create_dataset("t", data=tmuap)
+
+    print("Shape of muaps: ", np.shape(muaps))
 
     print(f"Saved MUAPs to {out_path}")
