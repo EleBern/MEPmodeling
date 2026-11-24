@@ -384,7 +384,7 @@ def _run_and_save(ref, root, result_path):
 if __name__ == '__main__':
     subj       = int(sys.argv[1])   if len(sys.argv) > 1 else 1
     withRC     = int(sys.argv[2])   if len(sys.argv) > 2 else 1
-    withRC     = int(sys.argv[3])   if len(sys.argv) > 3 else 100
+    n_MUAPs    = int(sys.argv[3])   if len(sys.argv) > 3 else 100
     AMPAweight = float(sys.argv[4]) if len(sys.argv) > 4 else None
     reRun      = int(sys.argv[5])   if len(sys.argv) > 5 else 1
-    ga_MEPmodel_bio(subj, withRC, AMPAweight, reRun)
+    ga_MEPmodel_bio(subj, withRC, n_MUAPs, AMPAweight, reRun)
