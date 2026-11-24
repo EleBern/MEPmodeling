@@ -32,7 +32,7 @@ function round10 {
     echo $(( ((${1%.*}+9)/10)*10 ))
 }
 
-export n_MUAPs=$(round10 5)
+export n_MUAPs=$(round10 $PBS_ARRAY_INDEX)
 
 python gen_muaps.py $n_MUAPs
 python ga_MEPmodel_bio.py 1 1 $n_MUAPs
