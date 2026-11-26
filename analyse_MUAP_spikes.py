@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from h5_helpers import load_h5_to_dict
 
 subject = "1"
-input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "NoNoise", "S"+subject) 
+input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "NoNoise", "RealHand", "S"+subject) 
 batch = os.listdir(input_dir)
 total_spike_num = np.zeros(len(batch))
 spike_num = np.zeros((len(batch), 100))
