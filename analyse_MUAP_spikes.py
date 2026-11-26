@@ -5,19 +5,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from h5_helpers import load_h5_to_dict
 
-subject = "1"
+subject = "8"
 input_dir = os.path.join("/home/bernasconi/Documents/Programma/Reduce_MUAPs", "S"+subject) 
-batch = sorted(os.listdir(input_dir))
+batch = os.listdir(input_dir)
 global_boxplot_coeff_determination = {}
 global_boxplot_spikes = {}
 
-for i in range(10, 90, 10):
+for i in range(10, 100, 10):
     spike_num = np.zeros((10, i+10))
     total_spike_num = np.zeros(10)
     coeff_determination = np.zeros(10)
 
     for j in range(10):
-        file_path = os.path.join(input_dir, batch[i+j-10], "result_bio_s{0}.h5".format(subject))
+        batch_index = [idx for idx, s in enumerate(batch) if "[{0}]".format(i+j+1) in s][0]
+        print(batch[batch_index])
+        file_path = os.path.join(input_dir, batch[batch_index], "result_bio_s{0}.h5".format(subject))
         if os.path.isfile(file_path):
             with h5py.File(file_path, 'r') as f:
                 tmp = load_h5_to_dict(f)
@@ -57,12 +59,12 @@ for i in range(10, 90, 10):
 plt.figure()
 plt.title("Distribution of R²")
 d = pd.DataFrame.from_dict(global_boxplot_coeff_determination)
-plt.boxplot(pd.DataFrame.from_dict(global_boxplot_coeff_determination), tick_labels=np.arange(20,100,10))
+plt.boxplot(pd.DataFrame.from_dict(global_boxplot_coeff_determination), tick_labels=np.arange(20,101,10))
 plt.ylabel("R²")
 plt.xlabel("Number of MUAPs")
 
 plt.figure()
-plt.boxplot(pd.DataFrame.from_dict(global_boxplot_spikes), tick_labels=np.arange(20,100,10))
+plt.boxplot(pd.DataFrame.from_dict(global_boxplot_spikes), tick_labels=np.arange(20,101,10))
 plt.ylabel("Number of spikes")
 plt.xlabel("Number of MUAPs")
 plt.title("Distribution of MN spikes")
