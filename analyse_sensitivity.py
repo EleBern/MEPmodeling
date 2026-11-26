@@ -7,7 +7,7 @@ from h5_helpers import load_h5_to_dict
 from config_model_bio import config_model_bio
 
 subject = "1"
-input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "NoNoise", "S"+subject) 
+input_dir = os.path.join("/home/bernasconi/Documents/Programma/fparam_distribution", "NoNoise", "SyntheticMUAPs", "S"+subject) 
 batch = os.listdir(input_dir)
 
 for i in [40]: # choose a random optimization run
@@ -35,6 +35,7 @@ def param_sweep(ref, param_name, param_index, param_range):
     plt.ylabel("R²")
     plt.xlabel(param_name)
     plt.xlim([param_range[0], param_range[1]])
+    plt.savefig(os.path.join(input_dir, param_name+".png"))
     plt.show()
 
     # Sanity check
