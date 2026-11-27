@@ -99,6 +99,17 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
     if zero_muaps is not None:
         muaps[:, np.asarray(zero_muaps, dtype=bool)] = 0.0
 
+        # Save muaps and the corresponding time vector (t_muaps) to an HDF5
+    out_dir = os.path.join(os.getcwd(), "data_MUAP")
+    os.makedirs(out_dir, exist_ok=True)
+    out_path = os.path.join(out_dir, "pheno_muaps.h5")
+
+    with h5py.File(out_path, "w") as f:
+        f.create_dataset("muaps", data=muaps)
+        f.create_dataset("t", data=tmuap)
+
+    print(f"Saved MUAPs to {out_path}")
+
     return muaps, tmuap
 
 
@@ -193,14 +204,3 @@ if __name__ == "__main__":
             plt.legend()
             plt.tight_layout()
             plt.show()
-
-    # Save muaps and the corresponding time vector (t_muaps) to an HDF5
-    out_dir = os.path.join(os.getcwd(), "data_MUAP")
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "pheno_muaps.h5")
-
-    with h5py.File(out_path, "w") as f:
-        f.create_dataset("muaps", data=muaps)
-        f.create_dataset("t", data=tmuap)
-
-    print(f"Saved MUAPs to {out_path}")
