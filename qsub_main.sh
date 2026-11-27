@@ -13,7 +13,7 @@ set -e
 
 # Set directories
 export INPUTDIR=/storage/brno2/home/eb22aal/MEP_pygpc/MEPmodeling
-export OUTPUTDIR=/storage/brno2/home/eb22aal/fparam_distribution/RealHand/S1/${PBS_JOBID%%.*}
+export OUTPUTDIR=/storage/brno2/home/eb22aal/fparam_distribution/SyntheticMUAPs/S1/${PBS_JOBID%%.*}
 mkdir -p $OUTPUTDIR
 
 # load the python module
