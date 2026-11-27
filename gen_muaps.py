@@ -26,6 +26,7 @@ MUAPs (https://pubmed.ncbi.nlm.nih.gov/31465437/). For this purpose:
 """
 
 import os
+import sys
 import h5py
 import numpy as np
 from zero_crossing import crossing_times
@@ -103,97 +104,15 @@ def gen_muaps(n_neurons, amplitude, axonalDelay, lam, zero_muaps=None):
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    from downsample_muaps import load_unprocessed_muaps
-
-    verbose = True   # Print info on MUAP parameters
-    plotOn = False   # Plot generated MUAPs
-    real_A = True   # If False, use amplitude distribution of anatomical MUAPs
-    real_lam = True  # If False, use mean lambda
-
-    # Import anatomical MUAPs
-    root    = os.path.dirname(os.path.realpath(__file__))
-    h5_path = os.path.join(root, "data_MUAP", "Dist1_Monopolar_Rest_NormalCV_New.hdf5")
-
-    t, anatomical_muaps, downsampled_t, downsampled_muaps = load_unprocessed_muaps(h5_path)
-
-    # Calculate the amplitude and amplitude distribution of the anatomical MUAPs
-    popt, amplitude = amplitude_distribution(anatomical_muaps, t[1]-t[0])
-    max_peak = np.max(anatomical_muaps, axis=0)
-    min_peak = np.min(anatomical_muaps, axis=0)
-    #amplitude = (max_peak - min_peak) / 2
-
-    # Find the zero-crossing of the anatomical MUAPs
-    axonalDelay = 2 * crossing_times(t, anatomical_muaps)
-
-    # Motor units without an anatomical MUAP (all-zero waveform). They have no
-    # amplitude, duration or zero-crossing time, so their synthetic MUAP is set
-    # to all zero. The exception is a fully synthetic MUAP (real_A = False and
-    # real_lam = False): its amplitude comes from the fitted distribution and
-    # its duration from the mean lambda, so it is generated like any other MUAP
-    # and only its missing zero-crossing time is replaced by the mean one
-    zero_muaps = np.all(anatomical_muaps == 0, axis=0)
-    if not (real_A or real_lam):
-        axonalDelay[zero_muaps] = np.nanmean(axonalDelay[~zero_muaps])
-        zero_muaps = None
-
-    # Fit one lambda per anatomical MUAP (100 MUAPs -> 100 lambdas)
-    lam = fit_lam(downsampled_muaps, amplitude, axonalDelay)
-    if not real_lam:
-        lam = np.mean(lam)
-        axonalDelay = np.ones(len(axonalDelay)) * np.mean(axonalDelay)
+    n_neurons = int(sys.argv[1]) if len(sys.argv) > 1 else 100
+    lam = 3.63
+    b = 150
+    delay = np.ones(n_neurons) * (2.35 * lam - 0.18)                                   # fixed parameter
+    muaps, tmuap = gen_muaps(n_neurons=n_neurons,
+                             amplitude=[6.28, b],                                # fix a to 6.28
+                             axonalDelay=delay,
+                             lam=lam)
     
-
-    # Generate the synthetic MUAPs with that amplitude distribution
-    N = 100
-
-    if real_A:
-        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=amplitude, axonalDelay=axonalDelay, lam=lam,
-                                 zero_muaps=zero_muaps)
-    else:
-        muaps, tmuap = gen_muaps(n_neurons=N, amplitude=popt, axonalDelay=axonalDelay, lam=lam,
-                                 zero_muaps=zero_muaps)
-
-    # Calculate the goodness of fit
-    R2, NRMSE = gof(downsampled_muaps, muaps)
-
-    if verbose:
-        print("Peak amplitude (from 0 V to positive peak) of largest anatomical MUAP: ", np.max(max_peak), " V")
-        print("Amplitude range (V):", muaps.max(axis=0).min(), "to", muaps.max(axis=0).max())
-        print("max |muaps[0]| (V):", np.abs(muaps[0]).max())
-        print("min |muaps[0]| (V):", np.abs(muaps[0]).min())
-        print("lam shape:", lam.shape)
-        print("lam range (ms):", lam.min(), "to", lam.max())
-        print("delay range (ms):", np.nanmin(axonalDelay), "to", np.nanmax(axonalDelay))
-        # print("The normalised RMSE is ", NRMSE)
-        # print("The R^2 is ", R2)
-        print("Median R^2: %.4f, median normalised RMSE: %.4f" % (np.nanmedian(R2), np.nanmedian(NRMSE)))
-
-    if plotOn:
-        plt.figure(figsize=(8, 5))
-        for n in range(N):
-            plt.plot(tmuap, 1e3 * muaps[:, n], label=f"MU {n + 1}")
-        plt.xlabel("Time (ms)")
-        plt.ylabel("Amplitude (mV)")
-        plt.title("Simulated MUAP shapes (first-order Hermite-Rodriguez function)")
-        plt.xlim([0, 20])
-        plt.legend(fontsize=7, ncol=2)
-        plt.tight_layout()
-        plt.show()
-
-        # Plot anatomical against synthetic MUAPs
-        for n in range(N):
-            plt.figure()
-            plt.plot(downsampled_t, 1e3 * downsampled_muaps[:, n], "k", label="Anatomical MUAP")
-            plt.plot(tmuap, 1e3 * muaps[:, n], "r", label="Synthetic MUAP")
-            plt.xlim([0, 20])
-            plt.title("Shape of MUAP {0}".format(n))
-            plt.xlabel("Time (ms)")
-            plt.ylabel("Amplitude (mV)")
-            plt.legend()
-            plt.tight_layout()
-            plt.show()
-
     # Save muaps and the corresponding time vector (t_muaps) to an HDF5
     out_dir = os.path.join(os.getcwd(), "data_MUAP")
     os.makedirs(out_dir, exist_ok=True)
@@ -202,5 +121,7 @@ if __name__ == "__main__":
     with h5py.File(out_path, "w") as f:
         f.create_dataset("muaps", data=muaps)
         f.create_dataset("t", data=tmuap)
+
+    print("Shape of muaps: ", np.shape(muaps))
 
     print(f"Saved MUAPs to {out_path}")
